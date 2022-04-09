@@ -22,7 +22,7 @@ public class Player : MonoBehaviour
         this.Id = id;
         this.Username = username;
         this.matchid = "";
-        this.position = new Vector3(0, 0, 0);
+        this.position = new Vector3(-192, 0, 0);
     }
 
     public Player(ushort id, string username, string mid)
@@ -30,7 +30,7 @@ public class Player : MonoBehaviour
         this.Id = id;
         this.Username = username;
         this.matchid = mid;
-        this.position = new Vector3(0, 0, 0);
+        this.position = new Vector3(-192, 0, 0);
     }
 
     public static void Spawn(ushort id, string username)
@@ -40,7 +40,7 @@ public class Player : MonoBehaviour
             otherPlayer.SendSpawned(id);
         }
 
-        Player player = Instantiate(GameLogic.Singleton.PlayerPrefab, new Vector3(0f, 0f, 0f), Quaternion.identity).GetComponent<Player>();
+        Player player = Instantiate(GameLogic.Singleton.PlayerPrefab, new Vector3(-192, 0f, 0f), Quaternion.identity).GetComponent<Player>();
         
         player.name = $"Player {id} ({(string.IsNullOrEmpty(username) ? "Guest" : username)})";
         player.Id = id;
