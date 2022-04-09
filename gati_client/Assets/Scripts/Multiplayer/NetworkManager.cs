@@ -51,6 +51,7 @@ public class NetworkManager : MonoBehaviour
     [SerializeField] public ushort port;
     [SerializeField] private GameObject connectUI;
     public string status;
+    public string token;
     
 
     private void Awake()

@@ -57,13 +57,14 @@
     <Compile Include="Assets\MainMenu.cs" />
     <Compile Include="Assets\Scripts\Multiplayer\GameLogic.cs" />
     <Compile Include="Assets\Scripts\cam.cs" />
+    <Compile Include="Assets\Scripts\Multiplayer\server_reachability.cs" />
+    <Compile Include="Assets\Scripts\cursor.cs" />
+    <Compile Include="Assets\Scripts\gradient.cs" />
     <Compile Include="Assets\Scripts\Multiplayer\UIManager.cs" />
     <Compile Include="Assets\Scripts\Multiplayer\Player.cs" />
     <Compile Include="Assets\Scripts\Multiplayer\NetworkManager.cs" />
     <Compile Include="Assets\Scripts\Multiplayer\MessageExtensions.cs" />
-    <Compile Include="Assets\Scripts\cursor.cs" />
-    <Compile Include="Assets\Scripts\gradient.cs" />
-    <Compile Include="Assets\Scripts\Multiplayer\server_reachability.cs" />
+    <Compile Include="Assets\Scripts\hovering_anim.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

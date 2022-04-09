@@ -29,7 +29,7 @@ public class Player : MonoBehaviour
 
     private void Start()
     {
-        maxpos = Vector3.Distance(new Vector3(0, 0, 0), GameLogic.Singleton.finishflag.transform.position);
+        maxpos = Vector3.Distance(new Vector3(-206, 0, 0), GameLogic.Singleton.finishflag.transform.position);
     }
 
     private void Update()
@@ -279,7 +279,7 @@ public class Player : MonoBehaviour
                 pt.transform.parent = UIManager.Singleton.wait_players.transform;
                 pt.GetComponent<TMP_Text>().text = username;
 
-                GameObject pl = Instantiate(GameLogic.Singleton.Playerprefab, new Vector3(0,0,0), Quaternion.identity);
+                GameObject pl = Instantiate(GameLogic.Singleton.Playerprefab, new Vector3(-192,0,0), Quaternion.identity);
                 TMP_Text pltext = pl.transform.GetChild(0).transform.GetChild(0).GetComponent<TMP_Text>();
                 pltext.text = username;
                 pl.name = username;
@@ -331,7 +331,7 @@ public class Player : MonoBehaviour
                 pt.GetComponent<TMP_Text>().text = username;
 
 
-                GameObject pl = Instantiate(GameLogic.Singleton.Playerprefab, new Vector3(0f, 0f, 0f), Quaternion.identity);
+                GameObject pl = Instantiate(GameLogic.Singleton.Playerprefab, new Vector3(-192, 0f, 0f), Quaternion.identity);
                 TMP_Text pltext = pl.transform.GetChild(0).gameObject.transform.GetChild(0).gameObject.GetComponent<TMP_Text>();
                 pltext.text = username;
                 pl.name = username;

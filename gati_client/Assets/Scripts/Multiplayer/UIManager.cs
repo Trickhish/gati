@@ -9,6 +9,11 @@ using System.Security.Cryptography;
 using System;
 using System.Text;
 using UnityEngine.Networking;
+using System.Net;
+using System.IO;
+using System.Web;
+using System.Linq;
+using UnityEngine.EventSystems;
 
 public class UIManager : MonoBehaviour
 {
@@ -38,14 +43,31 @@ public class UIManager : MonoBehaviour
     [SerializeField] public GameObject tabUI;
     [SerializeField] public GameObject waitUI;
 
+    [Header("UI subpanels")]
+    [SerializeField] public GameObject privatematchUI;
+    [SerializeField] public GameObject login_form;
+    [SerializeField] public GameObject register_form;
+    [SerializeField] public GameObject choose_auth;
+
     [Header("Authentification")]
     [SerializeField] public Button enter_login;
     [SerializeField] public Button enter_register;
+    [SerializeField] public Button enter_guest;
     [SerializeField] public TMP_InputField login_email;
     [SerializeField] public TMP_InputField login_password;
     [SerializeField] public TMP_InputField register_username;
     [SerializeField] public TMP_InputField register_email;
     [SerializeField] public TMP_InputField register_password;
+
+    [Header("Network")]
+    [SerializeField] public InputField ipfield;
+    [SerializeField] public NetworkManager nwm;
+    [SerializeField] public GameObject serverstatus;
+
+    [Header("Match UI")]
+    [SerializeField] public Button public_match;
+    [SerializeField] public Button private_match;
+
 
     [Header("Wait UI")]
     [SerializeField] public TMP_Text wait_match_id;
@@ -58,16 +80,19 @@ public class UIManager : MonoBehaviour
     [SerializeField] public TMP_Dropdown private_map;
     [SerializeField] public TMP_InputField private_mid;
 
+    [Header("Canva Universal")]
+    [SerializeField] public TMP_Text statustext;
+    [SerializeField] public GameObject pgr_slider;
+    [SerializeField] public TMP_Text stcounter;
+
     [Header("Misc")]
     [SerializeField] public TMP_InputField usernameField;
     [SerializeField] public Button connectbt;
-    [SerializeField] public TMP_Text statustext;
     [SerializeField] public TMP_Text usertext_lo;
-    [SerializeField] public GameObject pgr_slider;
-    [SerializeField] public InputField ipfield;
-    [SerializeField] public NetworkManager nwm;
 
-    [SerializeField] public TMP_Text stcounter;
+
+
+    EventSystem system;
 
     private void Awake()
     {
@@ -76,14 +101,61 @@ public class UIManager : MonoBehaviour
 
     private void Start()
     {
+        system = EventSystem.current;
+
         connectUI.SetActive(true);
         menuUI.SetActive(false);
         escUI.SetActive(false);
         tabUI.SetActive(false);
         waitUI.SetActive(false);
         pgr_slider.SetActive(false);
+        serverstatus.SetActive(true);
+
+        UIManager.Singleton.connectbt.interactable = false;
+        UIManager.Singleton.enter_login.interactable = false;
+        UIManager.Singleton.enter_register.interactable = false;
+        UIManager.Singleton.enter_guest.interactable = false;
+
         GameLogic.Singleton.gameidtext.text = "";
         GameLogic.Singleton.gamescene.SetActive(false);
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            Selectable next = system.currentSelectedGameObject.GetComponent<Selectable>().FindSelectableOnDown();
+
+            if (next != null)
+            {
+
+                TMP_InputField inputfield = next.GetComponent<TMP_InputField>();
+                if (inputfield != null)
+                    inputfield.OnPointerClick(new PointerEventData(system));  //if it's an input field, also set the text caret
+
+                system.SetSelectedGameObject(next.gameObject, new BaseEventData(system));
+            }
+            //else Debug.Log("next nagivation element not found");
+
+        } else if (Input.GetKeyDown(KeyCode.Return))
+        {
+            if (privatematchUI.activeSelf)
+            {
+                if (private_mid.text == "")
+                {
+                    creatematch_clicked();
+                } else
+                {
+                    joinprivate_clicked();
+                }
+            } else if (login_form.activeSelf)
+            {
+                login_clicked();
+            } else if (register_form.activeSelf)
+            {
+                register_clicked();
+            }
+        }
     }
 
     public void ConnectClicked()
@@ -108,12 +180,16 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    public void website_clicked()
+    {
+        Application.OpenURL("http://gati.games");
+    }
     public void leavematch()
     {
         Message message = Message.Create(MessageSendMode.reliable, (ushort)ClientToServerId.leavematch);
         NetworkManager.Singleton.Client.Send(message);
 
-        GameLogic.Singleton.id = "";
+        
         GameLogic.Singleton.capacity = 0;
         GameLogic.Singleton.pcount = 0;
 
@@ -131,8 +207,9 @@ public class UIManager : MonoBehaviour
             UIManager.Singleton.menuUI.SetActive(true);
             UIManager.Singleton.connectUI.SetActive(false);
         }
+        GameLogic.Singleton.id = "";
 
-        foreach(Player p in GameLogic.Singleton.matchplayers.Values)
+        foreach (Player p in GameLogic.Singleton.matchplayers.Values)
         {
             Destroy(p.gameObject);
         }
@@ -198,25 +275,24 @@ public class UIManager : MonoBehaviour
             localusername = usernameField.text;
         }
 
-        GameLogic.Singleton.id = "test";
         GameLogic.Singleton.capacity = 1;
         GameLogic.Singleton.pcount = 1;
         GameLogic.Singleton.matchplayers.Clear();
 
-        GameObject pl = Instantiate(GameLogic.Singleton.Playerprefab, new Vector3(0, 0, 0), Quaternion.identity);
+        GameObject pl = Instantiate(GameLogic.Singleton.Playerprefab, new Vector3(-192, 0, 0), Quaternion.identity);
         TMP_Text pltext = pl.transform.GetChild(0).transform.GetChild(0).GetComponent<TMP_Text>();
         pltext.text = localusername;
-        if (pltext.text == "")
+        if (pltext.text == String.Empty)
         {
             pltext.text = "Guest";
         }
-        pl.name = localusername;
+        pl.name = pltext.text;
         pl.SetActive(true);
 
         Player rpl = pl.GetComponent<Player>();
         rpl.Id = NetworkManager.Singleton.Client.Id;
         rpl.IsLocal = true;
-        rpl.username = localusername;
+        rpl.username = pltext.text;
 
         GameLogic.Singleton.matchplayers.Add(NetworkManager.Singleton.Client.Id, rpl);
 
@@ -227,28 +303,41 @@ public class UIManager : MonoBehaviour
         UIManager.Singleton.waitUI.SetActive(false);
 
         TMP_Text tab_text = UIManager.Singleton.tabUI.transform.GetChild(2).gameObject.GetComponent<TMP_Text>();
-        tab_text.text = "TEST MATCH\n"+localusername;
+        tab_text.text = "TEST MATCH\n"+pltext.text;
+
+        GameLogic.Singleton.id = "test";
 
         cam.trans.position = new Vector3(-4.2f, 3.7f, 0f);
-
-
     }
 
-    IEnumerator Postreq(string url, Dictionary<string, string> p)
+    public string getreq(string uri)
     {
-        WWWForm form = new WWWForm();
-        foreach(string k in p.Keys)
+        try
         {
-            form.AddField(k, p[k]);
-        }
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uri);
+            request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
 
-        UnityWebRequest req = UnityWebRequest.Post(url, form);
+            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+            {
+                if (response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    return("unreachable");
+                }
 
-        yield return req.SendWebRequest();
+                if (!new List<int>() {200,201,202,203,204,205,206,207,208,210,226}.Contains((int) response.StatusCode))
+                {
+                    return ("error");
+                }
 
-        if (req.result != UnityWebRequest.Result.Success)
+                using (Stream stream = response.GetResponseStream())
+                using (StreamReader reader = new StreamReader(stream))
+                {
+                    return reader.ReadToEnd();
+                }
+            }
+        } catch
         {
-            Debug.Log(req.error);
+            return("unreachable");
         }
     }
 
@@ -270,31 +359,118 @@ public class UIManager : MonoBehaviour
     public void login_clicked()
     {
         string mail = login_email.text;
-        string[] hr = hashstring(login_password.text,0);
-        string pass = hr[1];
-        string salt = hr[0];
+        string pass = login_password.text;
 
-        Debug.Log("hash : "+pass+" salt : "+salt);
+        if ( mail == "" || pass == "")
+        {
+            statustext.text = "Empty Field";
+        }
+        else
+        {
+            string r = getreq("https://trickhisch.alwaysdata.net/gati/?a=login&m=" + HttpUtility.UrlEncode(mail) + "&p=" + HttpUtility.UrlEncode(pass));
 
+            if (r == "false")
+            {
+                statustext.text = "Invalid Credentials";
+            }
+            else if (r == "error")
+            {
+                statustext.text = "Server Error, try again later";
+            }
+            else if (r == "unreachable")
+            {
+                statustext.text = "Network Error, try again later";
+            }
+            else if (r == "confirm")
+            {
+                statustext.text = "Confirm your email to continue";
+            }
+            else
+            {
+                // SUCCESS LOGIN
+                NetworkManager.Singleton.token = r;
+                statustext.text = "Connected";
+
+                string dt = getreq("https://trickhisch.alwaysdata.net/gati/?a=dts&t="+ HttpUtility.UrlEncode(NetworkManager.Singleton.token));
+
+                string[] dts = dt.Substring(2, dt.Length-4).Split(new[] {'\u0022'+","+ '\u0022'}, StringSplitOptions.None);
+
+                localusername = dts[0];
+                usertext_lo.text = localusername;
+
+                serverstatus.GetComponent<Image>().enabled = false;
+                connectUI.SetActive(false);
+                menuUI.SetActive(true);
+            }
+        }
+
+        /*
         Message m = Message.Create(MessageSendMode.reliable, (ushort)ClientToServerId.login);
         m.AddString(mail);
         m.AddString(pass);
+
+        NetworkManager.Singleton.Client.Send(m);
+        */
     }
 
     public void register_clicked()
     {
         string username = register_username.text;
         string mail = register_email.text;
-        string[] hr = hashstring(register_password.text, 24);
-        string pass = hr[1];
-        string salt = hr[0];
+        string pass = register_password.text;
 
-        Debug.Log("hash : " + pass + " salt : " + salt);
+        if (username=="" || mail=="" || pass=="")
+        {
+            statustext.text = "Empty Field";
+        } else
+        {
+            string r = getreq("https://trickhisch.alwaysdata.net/gati/?a=register&m=" + HttpUtility.UrlEncode(mail) + "&p=" + HttpUtility.UrlEncode(pass) + "&n=" + HttpUtility.UrlEncode(username));
 
+            if (r == "false")
+            {
+                statustext.text = "Unknown Error, try again later";
+            }
+            else if (r == "error")
+            {
+                statustext.text = "Server Error, try again later";
+            }
+            else if (r == "unreachable")
+            {
+                statustext.text = "Network Error, try again later";
+            }
+            else if (r == "mail")
+            {
+                login_email.text = "";
+                login_password.text = "";
+                statustext.text = "Email already taken";
+            }
+            else if (r == "true")
+            {
+                // SUCCESS REGISTER
+
+                statustext.text = "Confirm your email to continue";
+
+                login_email.text = mail;
+                login_password.text = pass;
+
+                register_form.SetActive(true);
+                login_form.SetActive(true);
+            }
+            else
+            {
+                statustext.text = "Unexpected server response";
+            }
+        }
+        
+
+        /*
         Message m = Message.Create(MessageSendMode.reliable, (ushort)ClientToServerId.register);
         m.AddString(mail);
         m.AddString(pass);
         m.AddString(salt);
+
+        NetworkManager.Singleton.Client.Send(m);
+        */
     }
 
     public void BackToMain()

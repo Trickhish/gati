@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using RiptideNetworking;
+using System.Linq;
 
 public class GameLogic : MonoBehaviour
 {
@@ -36,8 +37,10 @@ public class GameLogic : MonoBehaviour
     public string id="";
     public int pcount;
     public string status;
+    public static int stct = -2;
+    public float t = -1;
 
-    public Player localplayer => matchplayers[NetworkManager.Singleton.Client.Id];
+    public Player localplayer => (matchplayers.ContainsKey(NetworkManager.Singleton.Client.Id) ? matchplayers[NetworkManager.Singleton.Client.Id] : matchplayers.FirstOrDefault().Value);
 
     public GameObject Playerprefab => playerprefab;
     public GameObject Localplayerprefab => localplayerprefab;
@@ -46,6 +49,29 @@ public class GameLogic : MonoBehaviour
     private void Awake()
     {
         Singleton = this;
+    }
+
+    private void Update()
+    {
+        if (Time.realtimeSinceStartup-t>1 && stct>=-1)
+        {
+            t = Time.realtimeSinceStartup;
+            if (stct==0)
+            {
+                GameLogic.Singleton.localplayer.GetComponent<Player>().enabled = true;
+                UIManager.Singleton.stcounter.text = "GO";
+            }
+            else if (stct<=-1)
+            {
+                UIManager.Singleton.stcounter.text = "";
+                stct = -2;
+                UIManager.Singleton.stcounter.gameObject.SetActive(false);
+            } else
+            {
+                UIManager.Singleton.stcounter.text = stct.ToString();
+            }
+            stct -= 1;
+        }
     }
 
     [MessageHandler((ushort)ServerToClient.launch)]
@@ -61,10 +87,15 @@ public class GameLogic : MonoBehaviour
 
         cam.trans.position = new Vector3(-4.2f, 3.7f, 0f);
 
+        GameLogic.Singleton.localplayer.GetComponent<Player>().enabled = false;
+
         foreach (Player p in GameLogic.Singleton.matchplayers.Values)
         {
             p.gameObject.SetActive(true);
         }
+
+        UIManager.Singleton.stcounter.gameObject.SetActive(true);
+        stct = 5;
     }
 
     [MessageHandler((ushort)ServerToClient.rcvplayerupdate)]

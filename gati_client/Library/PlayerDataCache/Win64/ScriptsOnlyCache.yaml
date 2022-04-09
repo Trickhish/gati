@@ -9,6 +9,7 @@ ScriptsOnlyBuild:
     - cam
     - cursor
     - gradient
+    - hovering_anim
     - server_reachability
     Unity.2D.Animation.Editor.dll:
     - UnityEditor.U2D.Animation.BoneGizmo
@@ -47,6 +48,7 @@ ScriptsOnlyBuild:
     - UnityEditor.TestTools.TestRunner.TestRun.TestJobDataHolder
     UnityEngine.UI.dll:
     - UnityEngine.EventSystems.EventSystem
+    - UnityEngine.EventSystems.EventTrigger
     - UnityEngine.EventSystems.StandaloneInputModule
     - UnityEngine.UI.Button
     - UnityEngine.UI.CanvasScaler
@@ -108,75 +110,79 @@ ScriptsOnlyBuild:
     - Class: 111
       Script: {instanceID: 0}
     - Class: 114
-      Script: {instanceID: 1486}
+      Script: {instanceID: 1492}
     - Class: 114
-      Script: {instanceID: 1552}
+      Script: {instanceID: 1558}
     - Class: 114
-      Script: {instanceID: 1580}
+      Script: {instanceID: 1586}
     - Class: 114
-      Script: {instanceID: 1612}
+      Script: {instanceID: 1618}
     - Class: 114
-      Script: {instanceID: 1692}
+      Script: {instanceID: 1698}
     - Class: 114
-      Script: {instanceID: 1752}
+      Script: {instanceID: 1758}
     - Class: 114
-      Script: {instanceID: 1872}
+      Script: {instanceID: 1878}
     - Class: 114
-      Script: {instanceID: 2294}
+      Script: {instanceID: 2300}
     - Class: 114
-      Script: {instanceID: 2302}
+      Script: {instanceID: 2308}
     - Class: 114
-      Script: {instanceID: 2554}
+      Script: {instanceID: 2560}
     - Class: 114
-      Script: {instanceID: 2736}
+      Script: {instanceID: 2742}
     - Class: 114
-      Script: {instanceID: 2910}
+      Script: {instanceID: 2916}
     - Class: 114
-      Script: {instanceID: 2924}
+      Script: {instanceID: 2930}
     - Class: 114
-      Script: {instanceID: 2960}
+      Script: {instanceID: 2966}
     - Class: 114
-      Script: {instanceID: 3144}
+      Script: {instanceID: 3150}
     - Class: 114
-      Script: {instanceID: 3202}
+      Script: {instanceID: 3208}
     - Class: 114
-      Script: {instanceID: 3308}
+      Script: {instanceID: 3314}
     - Class: 114
-      Script: {instanceID: 3398}
+      Script: {instanceID: 3404}
     - Class: 114
-      Script: {instanceID: 3410}
+      Script: {instanceID: 3416}
     - Class: 114
-      Script: {instanceID: 3516}
+      Script: {instanceID: 3522}
     - Class: 114
-      Script: {instanceID: 3746}
+      Script: {instanceID: 3752}
     - Class: 114
-      Script: {instanceID: 3832}
+      Script: {instanceID: 3838}
     - Class: 114
-      Script: {instanceID: 3922}
+      Script: {instanceID: 3928}
     - Class: 114
-      Script: {instanceID: 4356}
+      Script: {instanceID: 4296}
     - Class: 114
-      Script: {instanceID: 4528}
+      Script: {instanceID: 4362}
     - Class: 114
-      Script: {instanceID: 4588}
+      Script: {instanceID: 4534}
     - Class: 114
       Script: {instanceID: 4594}
     - Class: 114
-      Script: {instanceID: 4658}
+      Script: {instanceID: 4600}
     - Class: 114
-      Script: {instanceID: 4804}
+      Script: {instanceID: 4664}
     - Class: 114
-      Script: {instanceID: 4836}
+      Script: {instanceID: 4810}
     - Class: 114
-      Script: {instanceID: 4916}
+      Script: {instanceID: 4842}
     - Class: 114
-      Script: {instanceID: 4944}
+      Script: {instanceID: 4922}
     - Class: 114
-      Script: {instanceID: 4964}
+      Script: {instanceID: 4950}
     - Class: 114
-      Script: {instanceID: 5352}
+      Script: {instanceID: 4970}
     - Class: 114
-      Script: {instanceID: 5362}
+      Script: {instanceID: 5358}
+    - Class: 114
+      Script: {instanceID: 5368}
+    - Class: 114
+      Script: {instanceID: 5828}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 128
@@ -332,7 +338,7 @@ ScriptsOnlyBuild:
     className: RawImage
   - hash:
       serializedVersion: 2
-      Hash: b40fa1d2f6e15744ea6460eb15e63508
+      Hash: a4673a6e62416b26bd333c5d6279ecaf
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: GameLogic
@@ -428,7 +434,7 @@ ScriptsOnlyBuild:
     className: TestResultRendererCallback
   - hash:
       serializedVersion: 2
-      Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
+      Hash: 84cae84cda756aa36a486ddf2086ed4b
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: cam
@@ -662,7 +668,7 @@ ScriptsOnlyBuild:
     className: ScrollRect
   - hash:
       serializedVersion: 2
-      Hash: 72190b74d9d68fd0cda09ee4d23975e6
+      Hash: 54b5dd03802430ae04313674b25a79da
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: UIManager
@@ -692,7 +698,7 @@ ScriptsOnlyBuild:
     className: TMP_Settings
   - hash:
       serializedVersion: 2
-      Hash: d4af663f65dd1a582efe63fd3a10f103
+      Hash: d1dc26811efdb9d7b70fa55fb3634a3d
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: Player
@@ -728,7 +734,7 @@ ScriptsOnlyBuild:
     className: TMP_SpriteAsset
   - hash:
       serializedVersion: 2
-      Hash: 4509e2c36183f15be875ed22ae8e4088
+      Hash: 839984f82a028b4945534d3d6f51d80c
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: NetworkManager
@@ -756,6 +762,12 @@ ScriptsOnlyBuild:
     assemblyName: Unity.Timeline.dll
     namespaceName: UnityEngine.Timeline
     className: ActivationPlayableAsset
+  - hash:
+      serializedVersion: 2
+      Hash: b3d409c42f63f625a1ecc3274a23dc77
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: hovering_anim
   - hash:
       serializedVersion: 2
       Hash: 7ab0e790220bdca831fdd886b339039d

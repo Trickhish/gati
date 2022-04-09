@@ -17,6 +17,13 @@ public class server_reachability : MonoBehaviour
         
     }
 
+    public static bool visible()
+    {
+        return (UIManager.Singleton.connectUI.activeSelf);
+    }
+
+
+
     public static bool PingHost(string hostUri, int portNumber)
     {
         try
@@ -55,25 +62,51 @@ public class server_reachability : MonoBehaviour
             if (NetworkManager.Singleton.Client.IsConnected && NetworkManager.Singleton.status == "connected")
             {
                 GetComponent<Image>().color = new Color32(50, 120, 45, 255);
-                GetComponent<Animation>().Stop();
-                GetComponent<Image>().enabled = true;
+                if (visible())
+                {
+                    GetComponent<Animation>().Stop();
+                    GetComponent<Image>().enabled = true;
+                }
                 tp = 2;
 
                 UIManager.Singleton.connectbt.interactable = true;
                 UIManager.Singleton.enter_login.interactable = true;
                 UIManager.Singleton.enter_register.interactable = true;
+                UIManager.Singleton.enter_guest.interactable = true;
+
+                UIManager.Singleton.public_match.interactable = true;
+                UIManager.Singleton.private_match.interactable = true;
             }
             else
             {
                 tp = 0.5f;
 
-                GetComponent<Image>().color = new Color32(99, 0, 22, 255);
+                if (visible())
+                {
+                    GetComponent<Image>().color = new Color32(99, 0, 22, 255);
 
-                GetComponent<Animation>().Play();
+                    GetComponent<Animation>().Play();
+                }
+
+                if (UIManager.Singleton.menuUI.activeSelf || UIManager.Singleton.waitUI.activeSelf || GameLogic.Singleton.gamescene.activeSelf)
+                {
+                    UIManager.Singleton.menuUI.SetActive(false);
+                    UIManager.Singleton.waitUI.SetActive(false);
+                    GameLogic.Singleton.gamescene.SetActive(false);
+
+                    UIManager.Singleton.login_form.SetActive(false);
+                    UIManager.Singleton.register_form.SetActive(false);
+
+                    UIManager.Singleton.connectUI.SetActive(true);
+                }
 
                 UIManager.Singleton.connectbt.interactable = false;
                 UIManager.Singleton.enter_login.interactable = false;
                 UIManager.Singleton.enter_register.interactable = false;
+                UIManager.Singleton.enter_guest.interactable = false;
+
+                UIManager.Singleton.public_match.interactable = false;
+                UIManager.Singleton.private_match.interactable = false;
             }
 
             if (!NetworkManager.Singleton.Client.IsConnected && !NetworkManager.Singleton.Client.IsConnecting)
@@ -87,6 +120,12 @@ public class server_reachability : MonoBehaviour
 
     private void FixedUpdate()
     {
-        
+        if (!visible())
+        {
+            GetComponent<Image>().enabled = false;
+        } else if (NetworkManager.Singleton.Client.IsConnected)
+        {
+            GetComponent<Image>().enabled = true;
+        }
     }
 }
