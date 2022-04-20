@@ -11,6 +11,7 @@ public enum ServerToClient : ushort
     updatepos = 4,
     rcvplayerposupdate = 5,
     launch = 6,
+    matchend = 7,
 }
 
 public enum ClientToServerId : ushort

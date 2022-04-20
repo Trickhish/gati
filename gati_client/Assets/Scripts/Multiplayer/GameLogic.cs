@@ -65,12 +65,29 @@ public class GameLogic : MonoBehaviour
             {
                 UIManager.Singleton.stcounter.text = "";
                 stct = -2;
-                UIManager.Singleton.stcounter.gameObject.SetActive(false);
+                UIManager.Singleton.start_ui.SetActive(false);
             } else
             {
                 UIManager.Singleton.stcounter.text = stct.ToString();
             }
             stct -= 1;
+        }
+    }
+
+    [MessageHandler((ushort)ServerToClient.matchend)]
+    private static void endofmatch(Message message)
+    {
+        string winname = message.GetString();
+        ushort winid = message.GetUShort();
+        
+        if (winid == NetworkManager.Singleton.Client.Id) // WON
+        {
+            Debug.Log("WON");
+            UIManager.Singleton.leavematch();
+        } else // LOST
+        {
+            Debug.Log("LOST");
+            UIManager.Singleton.leavematch();
         }
     }
 
@@ -94,7 +111,7 @@ public class GameLogic : MonoBehaviour
             p.gameObject.SetActive(true);
         }
 
-        UIManager.Singleton.stcounter.gameObject.SetActive(true);
+        UIManager.Singleton.start_ui.SetActive(true);
         stct = 5;
     }
 

@@ -25,6 +25,17 @@ public class Match : MonoBehaviour
     }
 
     public static Dictionary<string, Match> mlist = new Dictionary<string, Match>();
+    public static List<(string, (float, float), (float, float))> maps = new List<(string, (float, float), (float, float))>() {
+        ("Etril Sewer", (-192f, 0f), (2f, -3.5f)),
+        ("Niya City", (-192f, 0f), (2f, -3.5f)),
+        ("Ayrith Forest", (-192, 0), (2f, -3.5f)),
+        ("Bravo Camp", (-192f, 0f), (2f, -3.5f)),
+        ("Pirate Beach", (-192f, 0f), (2f, -3.5f)),
+        ("Maya Temple", (-192f, 0f), (2f, -3.5f)),
+        ("Snowy Mountain", (-192f, 0f), (2f, -3.5f)),
+        ("Prehistory", (-192f, 0f), (2f, -3.5f)),
+        ("Camda", (-192f, 0f), (2f, -3.5f)),
+    };
 
     static System.Random rand = new System.Random();
 
@@ -281,7 +292,6 @@ public class Match : MonoBehaviour
             mlist.Remove(mid);
             Debug.Log("no player in match " + mid + ", match removed");
         }
-
     }
 
     [MessageHandler((ushort)ClientToServerId.playerposupdate)]
@@ -289,23 +299,44 @@ public class Match : MonoBehaviour
     {
         string mid = Player.plist[pid].matchid;
 
-        Message msg = Message.Create(MessageSendMode.unreliable, (ushort)ServerToClient.rcvplayerposupdate);
         string status = message.GetString();
         Vector3 ppos = message.GetVector3();
 
         //Debug.Log("pos update : "+ mlist[mid].players[pid].position.x.ToString()+" > "+ppos.x.ToString());
 
-        mlist[mid].players[pid].position = ppos;
+        (float, float) ar = maps[mlist[mid].map].Item3;
+        Vector3 arp = new Vector3(ar.Item1, ar.Item2, 0);
 
-        msg.AddString(status);
-        msg.AddUShort(pid);
-        msg.AddVector3(ppos);
-
-        foreach (Player pl in mlist[mid].players.Values)
+        if (Vector3.Distance(ppos, arp) < 5)
         {
-            if (pl.Id != pid)
+            Message msg = Message.Create(MessageSendMode.unreliable, (ushort)ServerToClient.matchend);
+
+            msg.AddString(mlist[mid].players[pid].Username);
+            msg.AddUShort(pid);
+
+            foreach (Player pl in mlist[mid].players.Values)
             {
                 NetworkManager.Singleton.Server.Send(msg, pl.Id);
+            }
+
+            mlist.Remove(mid);
+
+        } else
+        {
+            Message msg = Message.Create(MessageSendMode.unreliable, (ushort)ServerToClient.rcvplayerposupdate);
+
+            msg.AddString(status);
+            msg.AddUShort(pid);
+            msg.AddVector3(ppos);
+
+            mlist[mid].players[pid].position = ppos;
+
+            foreach (Player pl in mlist[mid].players.Values)
+            {
+                if (pl.Id != pid)
+                {
+                    NetworkManager.Singleton.Server.Send(msg, pl.Id);
+                }
             }
         }
     }

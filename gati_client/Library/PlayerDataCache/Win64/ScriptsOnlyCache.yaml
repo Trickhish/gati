@@ -668,7 +668,7 @@ ScriptsOnlyBuild:
     className: ScrollRect
   - hash:
       serializedVersion: 2
-      Hash: 54b5dd03802430ae04313674b25a79da
+      Hash: 2ab99987e40856014dafb7d87230c392
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: UIManager

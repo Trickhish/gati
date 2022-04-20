@@ -14,6 +14,22 @@ using UnityEngine;
 /// </summary>
 public class gradient : MonoBehaviour
 {
+    private static gradient _singleton;
+
+    public static gradient Singleton
+    {
+        get => _singleton;
+        private set
+        {
+            if (_singleton == null)
+                _singleton = value;
+            else if (_singleton != value)
+            {
+                Debug.Log($"{nameof(gradient)}");
+                Destroy(value);
+            }
+        }
+    }
 
     /// <summary>
     /// Do gradient text
@@ -21,6 +37,15 @@ public class gradient : MonoBehaviour
     private void Start()
     {
         ApplyGradient();
+        UIManager.gradients.Add(this);
+    }
+
+    public void refreshall()
+    {
+        foreach(gradient g in UIManager.gradients)
+        {
+            g.ApplyGradient();
+        }
     }
 
     /// <summary>
@@ -28,6 +53,7 @@ public class gradient : MonoBehaviour
     /// Get gradient by steps, and make vertext gradient array from colors
     /// Apply to each character
     /// </summary>
+    /// 
     public void ApplyGradient()
     {
         TMP_Text textComponent = GetComponent<TMP_Text>();
@@ -57,6 +83,16 @@ public class gradient : MonoBehaviour
             }
             index++;
         }
+    }
+
+    public void OnBecameVisible()
+    {
+        ApplyGradient();
+    }
+
+    public void OnEnable()
+    {
+        ApplyGradient();
     }
 
     /// <summary>

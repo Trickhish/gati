@@ -35,6 +35,7 @@ public class UIManager : MonoBehaviour
     }
 
     public static string localusername;
+    public static List<gradient> gradients = new List<gradient>() {};
 
     [Header("UI panels")]
     [SerializeField] public GameObject connectUI;
@@ -48,16 +49,23 @@ public class UIManager : MonoBehaviour
     [SerializeField] public GameObject login_form;
     [SerializeField] public GameObject register_form;
     [SerializeField] public GameObject choose_auth;
+    [SerializeField] public GameObject start_ui;
 
     [Header("Authentification")]
     [SerializeField] public Button enter_login;
     [SerializeField] public Button enter_register;
     [SerializeField] public Button enter_guest;
     [SerializeField] public TMP_InputField login_email;
+    [SerializeField] public gradient login_email_gradient;
     [SerializeField] public TMP_InputField login_password;
+    [SerializeField] public gradient login_password_gradient;
     [SerializeField] public TMP_InputField register_username;
+    [SerializeField] public gradient register_username_gradient;
     [SerializeField] public TMP_InputField register_email;
+    [SerializeField] public gradient register_email_gradient;
     [SerializeField] public TMP_InputField register_password;
+    [SerializeField] public gradient register_password_gradient;
+
 
     [Header("Network")]
     [SerializeField] public InputField ipfield;
@@ -79,6 +87,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] public TMP_Dropdown private_plc;
     [SerializeField] public TMP_Dropdown private_map;
     [SerializeField] public TMP_InputField private_mid;
+    [SerializeField] public gradient private_mid_gradient;
 
     [Header("Canva Universal")]
     [SerializeField] public TMP_Text statustext;
@@ -122,6 +131,22 @@ public class UIManager : MonoBehaviour
 
     private void Update()
     {
+        if (Input.anyKeyDown)
+        {
+            if (login_form.activeSelf)
+            {
+                login_email_gradient.ApplyGradient();
+                login_password_gradient.ApplyGradient();
+            } if (register_form.activeSelf)
+            {
+                register_email_gradient.ApplyGradient();
+                register_username_gradient.ApplyGradient();
+                register_password_gradient.ApplyGradient();
+            } if (privatematchUI.activeSelf)
+            {
+                private_mid_gradient.ApplyGradient();
+            }
+        }
         if (Input.GetKeyDown(KeyCode.Tab))
         {
             Selectable next = system.currentSelectedGameObject.GetComponent<Selectable>().FindSelectableOnDown();
@@ -139,6 +164,7 @@ public class UIManager : MonoBehaviour
 
         } else if (Input.GetKeyDown(KeyCode.Return))
         {
+            
             if (privatematchUI.activeSelf)
             {
                 if (private_mid.text == "")
@@ -241,7 +267,7 @@ public class UIManager : MonoBehaviour
     public void creatematch_clicked()
     {
         int pc = int.Parse(private_plc.options[private_plc.value].text.Split(' ')[0]);
-        int map = private_map.value+1;
+        int map = private_map.value;
 
         Message message = Message.Create(MessageSendMode.reliable, (ushort)ClientToServerId.createprivate);
         message.AddInt(pc);
@@ -401,6 +427,9 @@ public class UIManager : MonoBehaviour
                 serverstatus.GetComponent<Image>().enabled = false;
                 connectUI.SetActive(false);
                 menuUI.SetActive(true);
+
+                public_match.GetComponent<gradient>().ApplyGradient();
+                private_match.GetComponent<gradient>().ApplyGradient();
             }
         }
 
