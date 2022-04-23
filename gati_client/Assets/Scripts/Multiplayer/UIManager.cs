@@ -14,6 +14,7 @@ using System.IO;
 using System.Web;
 using System.Linq;
 using UnityEngine.EventSystems;
+using System.Threading.Tasks;
 
 public class UIManager : MonoBehaviour
 {
@@ -43,6 +44,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] public GameObject escUI;
     [SerializeField] public GameObject tabUI;
     [SerializeField] public GameObject waitUI;
+    [SerializeField] public GameObject shopUI;
+    [SerializeField] public GameObject userUI;
 
     [Header("UI subpanels")]
     [SerializeField] public GameObject privatematchUI;
@@ -76,6 +79,14 @@ public class UIManager : MonoBehaviour
     [SerializeField] public Button public_match;
     [SerializeField] public Button private_match;
 
+    [Header("Shop UI")]
+    [SerializeField] public TMP_Text shop_money;
+    [SerializeField] public TMP_Text shop_itemdesc;
+
+    [Header("User UI")]
+    [SerializeField] public TMP_Text user_name;
+    [SerializeField] public TMP_Text user_stats;
+    
 
     [Header("Wait UI")]
     [SerializeField] public TMP_Text wait_match_id;
@@ -113,12 +124,15 @@ public class UIManager : MonoBehaviour
         system = EventSystem.current;
 
         connectUI.SetActive(true);
+        serverstatus.SetActive(true);
+
         menuUI.SetActive(false);
         escUI.SetActive(false);
         tabUI.SetActive(false);
         waitUI.SetActive(false);
         pgr_slider.SetActive(false);
-        serverstatus.SetActive(true);
+        shopUI.SetActive(false);
+        userUI.SetActive(false);
 
         UIManager.Singleton.connectbt.interactable = false;
         UIManager.Singleton.enter_login.interactable = false;
@@ -204,6 +218,20 @@ public class UIManager : MonoBehaviour
             UIManager.Singleton.connectUI.SetActive(false);
             UIManager.Singleton.menuUI.SetActive(true);
         }
+    }
+
+    public void profile_clicked()
+    {
+        List<int> sts = NetworkManager.Singleton.getstats();
+
+        decimal dd = sts[3];
+        decimal dv = sts[2];
+        int pct = (int) Decimal.Round(Decimal.Divide(dd, dv)*100);
+
+        string s = "Level : "+sts[0]+ "\n\nMatch Count : " + sts[2] + "\n\nWin Percentage : " + pct + "%\nWin : " + sts[3] + "\nLose: " + (sts[2]-sts[3]) + "";
+
+        UIManager.Singleton.user_stats.text = s;
+        UIManager.Singleton.userUI.SetActive(true);
     }
 
     public void website_clicked()
@@ -336,37 +364,6 @@ public class UIManager : MonoBehaviour
         cam.trans.position = new Vector3(-4.2f, 3.7f, 0f);
     }
 
-    public string getreq(string uri)
-    {
-        try
-        {
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uri);
-            request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
-
-            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-            {
-                if (response.StatusCode == HttpStatusCode.NotFound)
-                {
-                    return("unreachable");
-                }
-
-                if (!new List<int>() {200,201,202,203,204,205,206,207,208,210,226}.Contains((int) response.StatusCode))
-                {
-                    return ("error");
-                }
-
-                using (Stream stream = response.GetResponseStream())
-                using (StreamReader reader = new StreamReader(stream))
-                {
-                    return reader.ReadToEnd();
-                }
-            }
-        } catch
-        {
-            return("unreachable");
-        }
-    }
-
     public static string[] hashstring(string input, int ss)
     {
         int SALT_SIZE = ss;
@@ -393,7 +390,7 @@ public class UIManager : MonoBehaviour
         }
         else
         {
-            string r = getreq("https://trickhisch.alwaysdata.net/gati/?a=login&m=" + HttpUtility.UrlEncode(mail) + "&p=" + HttpUtility.UrlEncode(pass));
+            string r = NetworkManager.getreq("https://trickhisch.alwaysdata.net/gati/?a=login&m=" + HttpUtility.UrlEncode(mail) + "&p=" + HttpUtility.UrlEncode(pass));
 
             if (r == "false")
             {
@@ -417,12 +414,16 @@ public class UIManager : MonoBehaviour
                 NetworkManager.Singleton.token = r;
                 statustext.text = "Connected";
 
-                string dt = getreq("https://trickhisch.alwaysdata.net/gati/?a=dts&t="+ HttpUtility.UrlEncode(NetworkManager.Singleton.token));
+                NetworkManager.Singleton.rldt();
+                Player.mail = mail;
 
-                string[] dts = dt.Substring(2, dt.Length-4).Split(new[] {'\u0022'+","+ '\u0022'}, StringSplitOptions.None);
-
-                localusername = dts[0];
-                usertext_lo.text = localusername;
+                if (UIManager.localusername != "")
+                {
+                    Message m = Message.Create(MessageSendMode.reliable, (ushort)ClientToServerId.login);
+                    m.AddString(localusername);
+                    m.AddString(mail);
+                    NetworkManager.Singleton.Client.Send(m);
+                }
 
                 serverstatus.GetComponent<Image>().enabled = false;
                 connectUI.SetActive(false);
@@ -432,14 +433,6 @@ public class UIManager : MonoBehaviour
                 private_match.GetComponent<gradient>().ApplyGradient();
             }
         }
-
-        /*
-        Message m = Message.Create(MessageSendMode.reliable, (ushort)ClientToServerId.login);
-        m.AddString(mail);
-        m.AddString(pass);
-
-        NetworkManager.Singleton.Client.Send(m);
-        */
     }
 
     public void register_clicked()
@@ -453,7 +446,7 @@ public class UIManager : MonoBehaviour
             statustext.text = "Empty Field";
         } else
         {
-            string r = getreq("https://trickhisch.alwaysdata.net/gati/?a=register&m=" + HttpUtility.UrlEncode(mail) + "&p=" + HttpUtility.UrlEncode(pass) + "&n=" + HttpUtility.UrlEncode(username));
+            string r = NetworkManager.getreq("https://trickhisch.alwaysdata.net/gati/?a=register&m=" + HttpUtility.UrlEncode(mail) + "&p=" + HttpUtility.UrlEncode(pass) + "&n=" + HttpUtility.UrlEncode(username));
 
             if (r == "false")
             {

@@ -9,33 +9,49 @@ public class Player : MonoBehaviour
     public static Dictionary<ushort, Player> plist = new Dictionary<ushort, Player>();
     public ushort Id { get; set; }
     public string Username { get; set; }
+    public string Mail { get; set; }
     public string matchid { get; set; }
     public Vector3 position { get; set; }
+    public Dictionary<string, int> items {get;set;}
 
     private void OnDestroy()
     {
         plist.Remove(Id);
     }
 
-    public Player(ushort id, string username)
+    public Player(ushort id, string mail, string username)
     {
         this.Id = id;
         this.Username = username;
+        this.Mail = mail;
         this.matchid = "";
         this.position = new Vector3(-192, 0, 0);
+        this.items = new Dictionary<string, int>();
     }
 
-    public Player(ushort id, string username, string mid)
+    public Player(ushort id, string mid)
     {
         this.Id = id;
-        this.Username = username;
         this.matchid = mid;
+        this.Username = "";
+        this.Mail = "";
         this.position = new Vector3(-192, 0, 0);
+        this.items = new Dictionary<string, int>();
+    }
+
+    public Player(ushort id)
+    {
+        this.Id = id;
+        this.matchid = "";
+        this.Username = "";
+        this.Mail = "";
+        this.position = new Vector3(-192, 0, 0);
+        this.items = new Dictionary<string, int>();
     }
 
     public static void Spawn(ushort id, string username)
     {
-        foreach(Player  otherPlayer in plist.Values)
+        foreach(Player otherPlayer in plist.Values)
         {
             otherPlayer.SendSpawned(id);
         }
@@ -47,7 +63,18 @@ public class Player : MonoBehaviour
         player.Username = string.IsNullOrEmpty(username) ? $"Guest {id}" : username;
 
         player.SendSpawned();
-        plist.Add(id, player);
+        if (!plist.ContainsKey(id))
+        {
+            plist.Add(id, player);
+        } else
+        {
+            player.Mail = plist[id].Mail;
+            player.matchid = plist[id].matchid;
+            player.Username = plist[id].Username;
+            player.name = plist[id].Username;
+
+            plist[id] = player;
+        }
     }
 
     #region Messages
@@ -79,7 +106,7 @@ public class Player : MonoBehaviour
         Debug.Log("player "+fromClientId+" added");
         string nck = message.GetString();
 
-        Player.plist.Add(fromClientId, new Player(fromClientId, nck));
+        //Player.plist.Add(fromClientId, new Player(fromClientId, nck));
 
         //Spawn(fromClientId, message.GetString());
     }

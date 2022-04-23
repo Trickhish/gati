@@ -121,6 +121,8 @@ public class Match : MonoBehaviour
             {
                 NetworkManager.Singleton.Server.Send(message, pid);
             }
+
+            NetworkManager.log("match " + this.id + " starting", "M");
         }
     }
 
@@ -133,7 +135,7 @@ public class Match : MonoBehaviour
 
         foreach(Player pl in mlist[mid].players.Values)
         {
-            Debug.Log("player "+pl.Username+" spawn request");
+            //Debug.Log("player "+pl.Username+" spawn request");
             message.AddUShort(pl.Id);
             message.AddString(pl.Username);
             //message.AddVector3(pl.position);
@@ -188,12 +190,16 @@ public class Match : MonoBehaviour
 
         if (!Player.plist.ContainsKey(cid))
         {
-            Player.plist.Add(cid, new Player(cid, username, id));
+            Player ap = new Player(cid, id);
+            ap.Username = username;
+            Player.plist.Add(cid, ap);
         }
         else
         {
-            Player.plist[cid].Username = username;
+            //Player.plist[cid].Username = username;
             Player.plist[cid].matchid = id;
+            (float, float) stp = maps[mlist[id].map].Item2;
+            Player.plist[cid].position = new Vector3(stp.Item1, stp.Item2, 0);
         }
 
         mlist[id].players.Add(cid, Player.plist[cid]);
@@ -203,10 +209,11 @@ public class Match : MonoBehaviour
         if (mlist[id].players.Count == mlist[id].capacity)
         {
             mlist[id].launch();
-            Debug.Log("test match, launching right away");
+            NetworkManager.log("test match, launching right away", "M");
+        } else
+        {
+            NetworkManager.log("match " + id + " created", "M");
         }
-
-        Debug.Log("match "+id+" created");
     }
 
     [MessageHandler((ushort)ClientToServerId.joinprivate)]
@@ -217,14 +224,20 @@ public class Match : MonoBehaviour
 
         if (Match.mlist.ContainsKey(mid))
         {
+            NetworkManager.log(username + " joined match " + mid, "M");
+
             if (!Player.plist.ContainsKey(clientid))
             {
-                Player.plist.Add(clientid, new Player(clientid, username, mid));
+                Player ap = new Player(clientid, mid);
+                ap.Username = username;
+                Player.plist.Add(clientid, ap);
             }
             else
             {
-                Player.plist[clientid].Username = username;
+                //Player.plist[clientid].Username = username;
                 Player.plist[clientid].matchid = mid;
+                (float, float) stp = maps[mlist[mid].map].Item2;
+                Player.plist[clientid].position = new Vector3(stp.Item1, stp.Item2, 0);
             }
 
             mlist[mid].players.Add(clientid, Player.plist[clientid]);
@@ -232,6 +245,9 @@ public class Match : MonoBehaviour
             sendmatch(clientid, mid);
 
             mlist[mid].sendmatchstatus(clientid, username, true);
+        } else
+        {
+            NetworkManager.log(username+" tried to join inexisting match "+mid, "M");
         }
     }
 
@@ -245,19 +261,36 @@ public class Match : MonoBehaviour
         if (mid == null)
         {
             mid = creatematch(false, 5);
-            Debug.Log("New match created with id "+mid);
+            if (Player.plist.ContainsKey(clientid) && Player.plist[clientid].Username!="")
+            {
+                NetworkManager.log("New match (" + mid + ") by " + Player.plist[clientid].Username, "M");
+            } else
+            {
+                NetworkManager.log("New match (" + mid + ") by Player "+clientid, "M");
+            }
         } else
         {
-            Debug.Log("Match found with id "+mid);
+            if (Player.plist.ContainsKey(clientid) && Player.plist[clientid].Username != "")
+            {
+                NetworkManager.log("Match " + mid + " found for " + Player.plist[clientid].Username, "M");
+            }
+            else
+            {
+                NetworkManager.log("Match " + mid + " found for Player "+clientid, "M");
+            }
         }
 
         if (!Player.plist.ContainsKey(clientid))
         {
-            Player.plist.Add(clientid, new Player(clientid, username, mid));
+            Player ap = new Player(clientid, mid);
+            ap.Username = username;
+            Player.plist.Add(clientid, ap);
         } else
         {
-            Player.plist[clientid].Username = username;
+            //Player.plist[clientid].Username = username;
             Player.plist[clientid].matchid = mid;
+            (float, float) stp = maps[mlist[mid].map].Item2;
+            Player.plist[clientid].position = new Vector3(stp.Item1, stp.Item2, 0);
         }
 
         mlist[mid].players.Add(clientid, Player.plist[clientid]);
@@ -287,10 +320,18 @@ public class Match : MonoBehaviour
             NetworkManager.Singleton.Server.Send(msg, cid);
         }
 
+        if (Player.plist.ContainsKey(pid) && Player.plist[pid].Username != "")
+        {
+            NetworkManager.log(Player.plist[pid].Username+" left match "+mid, "M");
+        } else
+        {
+            NetworkManager.log("Player "+pid+" left match " + mid, "M");
+        }
+
         if (mlist[mid].players.Count == 0)
         {
             mlist.Remove(mid);
-            Debug.Log("no player in match " + mid + ", match removed");
+            NetworkManager.log("no player in match " + mid + ", match removed", "M");
         }
     }
 
@@ -309,7 +350,7 @@ public class Match : MonoBehaviour
 
         if (Vector3.Distance(ppos, arp) < 5)
         {
-            Message msg = Message.Create(MessageSendMode.unreliable, (ushort)ServerToClient.matchend);
+            Message msg = Message.Create(MessageSendMode.reliable, (ushort)ServerToClient.matchend);
 
             msg.AddString(mlist[mid].players[pid].Username);
             msg.AddUShort(pid);
@@ -320,7 +361,7 @@ public class Match : MonoBehaviour
             }
 
             mlist.Remove(mid);
-
+            NetworkManager.log(Player.plist[pid].Username+" ("+pid+") won", "M");
         } else
         {
             Message msg = Message.Create(MessageSendMode.unreliable, (ushort)ServerToClient.rcvplayerposupdate);

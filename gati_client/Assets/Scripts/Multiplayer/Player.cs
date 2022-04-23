@@ -20,6 +20,9 @@ public class Player : MonoBehaviour
     public float maxpos;
     public Collider2D ccld;
 
+    public static int money;
+    public static string mail;
+
     [SerializeField] private int speed;
     [SerializeField] private int jumpforce;
     [SerializeField] public Transform isGroundedChecker;
@@ -169,7 +172,6 @@ public class Player : MonoBehaviour
     {
         list.Remove(Id);
     }
-
     public Player(ushort pid, string username, bool islocal)
     {
         this.Id = pid;

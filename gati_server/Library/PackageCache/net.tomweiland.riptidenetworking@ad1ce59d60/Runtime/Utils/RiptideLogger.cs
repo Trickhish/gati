@@ -39,7 +39,7 @@ namespace RiptideNetworking.Utils
         /// <summary>Log methods, accessible by their <see cref="LogType"/></summary>
         private static readonly Dictionary<LogType, LogMethod> logMethods = new Dictionary<LogType, LogMethod>(4);
         /// <summary>Whether or not to include timestamps when logging messages.</summary>
-        private static bool includeTimestamps;
+        private static bool includeTimestamps=true;
         /// <summary>The format to use for timestamps.</summary>
         private static string timestampFormat;
 
@@ -47,7 +47,7 @@ namespace RiptideNetworking.Utils
         /// <param name="logMethod">The method to use when logging all types of messages.</param>
         /// <param name="includeTimestamps">Whether or not to include timestamps when logging messages.</param>
         /// <param name="timestampFormat">The format to use for timestamps.</param>
-        public static void Initialize(LogMethod logMethod, bool includeTimestamps, string timestampFormat = "HH:mm:ss") => Initialize(logMethod, logMethod, logMethod, logMethod, includeTimestamps, timestampFormat);
+        public static void Initialize(LogMethod logMethod, bool includeTimestamps=true, string timestampFormat = "HH:mm:ss") => Initialize(logMethod, logMethod, logMethod, logMethod, includeTimestamps, timestampFormat);
         /// <summary>Initializes <see cref="RiptideLogger"/> with the supplied log methods.</summary>
         /// <param name="debugMethod">The method to use when logging debug messages. Set to <see langword="null"/> to disable debug logs.</param>
         /// <param name="infoMethod">The method to use when logging info messages. Set to <see langword="null"/> to disable info logs.</param>
@@ -55,7 +55,7 @@ namespace RiptideNetworking.Utils
         /// <param name="errorMethod">The method to use when logging error messages. Set to <see langword="null"/> to disable error logs.</param>
         /// <param name="includeTimestamps">Whether or not to include timestamps when logging messages.</param>
         /// <param name="timestampFormat">The format to use for timestamps.</param>
-        public static void Initialize(LogMethod debugMethod, LogMethod infoMethod, LogMethod warningMethod, LogMethod errorMethod, bool includeTimestamps, string timestampFormat = "HH:mm:ss")
+        public static void Initialize(LogMethod debugMethod, LogMethod infoMethod, LogMethod warningMethod, LogMethod errorMethod, bool includeTimestamps=true, string timestampFormat = "HH:mm:ss")
         {
             logMethods.Clear();
 
@@ -94,10 +94,7 @@ namespace RiptideNetworking.Utils
         {
             if (logMethods.TryGetValue(logType, out LogMethod logMethod))
             {
-                if (includeTimestamps)
-                    logMethod($"[{GetTimestamp(DateTime.Now)}]: {message}");
-                else
-                    logMethod(message);
+                //logMethod($"[{GetTimestamp(DateTime.Now)}]: {message}");
             }
         }
         /// <summary>Logs a message.</summary>
@@ -108,10 +105,7 @@ namespace RiptideNetworking.Utils
         {
             if (logMethods.TryGetValue(logType, out LogMethod logMethod))
             {
-                if (includeTimestamps)
-                    logMethod($"[{GetTimestamp(DateTime.Now)}] ({logName}): {message}");
-                else
-                    logMethod($"({logName}): {message}");
+                //logMethod($"[{GetTimestamp(DateTime.Now)}] ({logName}): {message}");
             }
         }
 
@@ -121,7 +115,7 @@ namespace RiptideNetworking.Utils
         private static string GetTimestamp(DateTime time)
         {
 #if DETAILED_LOGGING
-            return time.ToString("HH:mm:ss:fff");
+            return time.ToString("HH:mm:ss");
 #else
             return time.ToString(timestampFormat);
 #endif
