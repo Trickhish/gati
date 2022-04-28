@@ -2,11 +2,6 @@ using UnityEngine;
 using RiptideNetworking;
 using RiptideNetworking.Utils;
 using System.Security.Cryptography;
-using System.Net;
-using System.IO;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using System;
 
 public enum ServerToClient : ushort
 {
@@ -29,7 +24,6 @@ public enum ClientToServerId : ushort
     joinprivate = 6,
     login = 7,
     register = 8,
-    connect = 9,
 }
 
 public class NetworkManager : MonoBehaviour
@@ -44,15 +38,13 @@ public class NetworkManager : MonoBehaviour
                 _singleton = value;
             else if (_singleton != value)
             {
-                //Debug.Log($"{nameof(NetworkManager)}");
+                Debug.Log($"{nameof(NetworkManager)}");
                 Destroy(value);
             }
         }
     }
 
     public Server Server { get; private set; }
-    private static string sat = "ShOi3HUwJ1BdRfj5eFrQcsM40PGaT82Vk9Imluy7xo6vnXLCbKWq";
-    public static string version;
 
     [SerializeField] private ushort port;
     [SerializeField] private ushort maxclientcount;
@@ -62,37 +54,18 @@ public class NetworkManager : MonoBehaviour
         Singleton = this;
     }
 
-    public static void log(string msg, string elv)
-    {
-        string dt = ((DateTime)DateTime.Now).ToString("HH:mm:ss");
-
-        Debug.Log("[" + dt + "]" + elv + ": " + msg);
-    }
 
     // Start is called before the first frame update
     void Start()
     {
+
         Application.targetFrameRate = 60;
 
-        //RiptideLogger.Initialize(Debug.Log, Debug.Log, Debug.LogWarning, Debug.LogError, false);
-
-        if (File.Exists(Application.dataPath+"/version"))
-        {
-            StreamReader sr = new StreamReader(Application.dataPath+"/version");
-            version = sr.ReadToEnd();
-        } else
-        {
-            version = "Debug";
-        }
+        RiptideLogger.Initialize(Debug.Log, Debug.Log, Debug.LogWarning, Debug.LogError, false);
 
         Server = new Server();
         Server.Start(port, maxclientcount);
-        if (Server.IsRunning)
-        {
-            log("Server Started with version "+version, "SS");
-        }
         Server.ClientDisconnected += PlayerLeft;
-        Server.ClientConnected += PlayerJoined;
     }
 
     private void FixedUpdate()
@@ -102,123 +75,28 @@ public class NetworkManager : MonoBehaviour
 
     private void OnApplicationQuit()
     {
-        log("Server Stopped.", "SS");
         Server.Stop();
-    }
-
-    public static string getreq(string uri)
-    {
-        try
-        {
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uri);
-            request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
-
-            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-            {
-                if (response.StatusCode == HttpStatusCode.NotFound)
-                {
-                    return ("unreachable");
-                }
-
-                if (!new List<int>() { 200, 201, 202, 203, 204, 205, 206, 207, 208, 210, 226 }.Contains((int)response.StatusCode))
-                {
-                    return ("error");
-                }
-
-                using (Stream stream = response.GetResponseStream())
-                using (StreamReader reader = new StreamReader(stream))
-                {
-                    return reader.ReadToEnd();
-                }
-            }
-        }
-        catch
-        {
-            return ("unreachable");
-        }
-    }
-
-    public static void renew(ushort pid)
-    {
-        string mail = Player.plist[pid].Mail;
-
-        string r = getreq("https://trickhisch.alwaysdata.net/gati/?a=renew&m="+mail+"&sat="+sat);
-    }
-
-    public static void setstatus(ushort pid, bool ingame)
-    {
-        string mail = Player.plist[pid].Mail;
-
-        string r;
-
-        if (ingame)
-        {
-            r = getreq("https://trickhisch.alwaysdata.net/gati/?a=sig&m=" + mail + "&sat=" + sat);
-        } else
-        {
-            r = getreq("https://trickhisch.alwaysdata.net/gati/?a=snig&m=" + mail + "&sat=" + sat);
-        }
-
-        if (r == "false")
-        {
-            _ = Task.Run(async () =>
-            {
-                await Task.Delay(500);
-
-                setstatus(pid, ingame);
-            });
-        }
-    }
-
-    private void PlayerJoined(object sender, ServerClientConnectedEventArgs e)
-    {
-        ushort pid = e.Client.Id;
-
-        if (!Player.plist.ContainsKey(pid))
-        {
-            Player.plist.Add(pid, new Player(pid));
-        }
-
-        log("Player "+pid+" joined.", "J");
     }
 
     private void PlayerLeft(object sender, ClientDisconnectedEventArgs e)
     {
+        string mid = Player.plist[e.Id].matchid;
 
-
-        if (Player.plist.ContainsKey(e.Id))
+        if (mid != "")
         {
-            if (Player.plist[e.Id].Username != "")
+            if (Match.mlist[mid].players.ContainsKey(e.Id))
             {
-                log("Player " + e.Id + " (" + Player.plist[e.Id].Username + ") left.", "L");
-            } else
-            {
-                log("Player "+e.Id+" left.", "L");
+                Match.mlist[mid].players.Remove(e.Id);
             }
 
-            setstatus(e.Id, false);
-
-            string mid = Player.plist[e.Id].matchid;
-
-            if (mid != "")
+            if (Match.mlist[mid].players.Count == 0)
             {
-                if (Match.mlist[mid].players.ContainsKey(e.Id))
-                {
-                    Match.mlist[mid].players.Remove(e.Id);
-                }
-
-                if (Match.mlist[mid].players.Count == 0)
-                {
-                    Match.mlist.Remove(mid);
-                    log("no player in match " + mid + ", match removed", "M");
-                }
+                Match.mlist.Remove(mid);
+                Debug.Log("no player in match "+mid+", match removed");
             }
-
-            Player.plist.Remove(e.Id);
-        } else
-        {
-            log("Player " + e.Id + " left.", "L");
         }
+
+        Player.plist.Remove(e.Id);
         
     }
 
@@ -244,25 +122,16 @@ public class NetworkManager : MonoBehaviour
         string pass = m.GetString();
         string salt = m.GetString();
         pass = salt + pass;
+
+        
     }
 
     [MessageHandler((ushort)ClientToServerId.login)]
     private static void login(ushort cid, Message m)
     {
-        string username = m.GetString();
         string mail = m.GetString();
+        string pass = m.GetString();
 
-        log("Player "+cid+", signed in: "+username+", "+mail, "S");
 
-        if (Player.plist.ContainsKey(cid))
-        {
-            Player.plist[cid].Mail = mail;
-            Player.plist[cid].Username = username;
-        } else
-        {
-            Player.plist.Add(cid, new Player(cid, mail, username));
-        }
-
-        setstatus(cid, true);
     }
 }

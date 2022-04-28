@@ -182,10 +182,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerPrefab: {fileID: 442426162767637405, guid: a47b49377a8294644892e10ed9daf6ab, type: 3}
-  maps:
-  - test1
-  - test2
-  - test3
 --- !u!1 &1546316760
 GameObject:
   m_ObjectHideFlags: 0
