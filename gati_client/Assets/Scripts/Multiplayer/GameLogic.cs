@@ -8,8 +8,11 @@ using System.Linq;
 public class GameLogic : MonoBehaviour
 {
     [Header("Prefabs")]
-    [SerializeField] public GameObject localplayerprefab;
-    [SerializeField] public GameObject playerprefab;
+    [SerializeField] public GameObject local_prefab;
+
+    [SerializeField] public GameObject gati_prefab;
+    [SerializeField] public GameObject drije_prefab;
+
     [SerializeField] public GameObject gamescene;
     [SerializeField] public TMP_Text gameidtext;
 
@@ -39,11 +42,14 @@ public class GameLogic : MonoBehaviour
     public string status;
     public static int stct = -2;
     public float t = -1;
+    public float maxpos;
+    public Vector3 startpos;
+    public Vector3 endpos;
 
     public Player localplayer => (matchplayers.ContainsKey(NetworkManager.Singleton.Client.Id) ? matchplayers[NetworkManager.Singleton.Client.Id] : matchplayers.FirstOrDefault().Value);
 
-    public GameObject Playerprefab => playerprefab;
-    public GameObject Localplayerprefab => localplayerprefab;
+    //public GameObject Gati_prefab => gati_prefab;
+    //public GameObject Localplayerprefab => local_prefab;
 
 
     private void Awake()
@@ -94,6 +100,8 @@ public class GameLogic : MonoBehaviour
     [MessageHandler((ushort)ServerToClient.launch)]
     private static void launchmatch(Message message)
     {
+        GameLogic.Singleton.maxpos = Vector3.Distance(GameLogic.Singleton.startpos, GameLogic.Singleton.endpos);
+
         Debug.Log("Match Starting");
 
         GameLogic.Singleton.gamescene.SetActive(true);

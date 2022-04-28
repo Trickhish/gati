@@ -68,6 +68,10 @@
     <Compile Include="Assets\Scripts\Multiplayer\NetworkManager.cs" />
     <Compile Include="Assets\Scripts\Multiplayer\MessageExtensions.cs" />
     <Compile Include="Assets\Scripts\hovering_anim.cs" />
+    <Compile Include="Assets\Scripts\Multiplayer\Sensor.cs" />
+    <Compile Include="Assets\Scripts\Characters\Drije.cs" />
+    <Compile Include="Assets\Scripts\Multiplayer\Movement.cs" />
+    <Compile Include="Assets\Scripts\Characters\Gati.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

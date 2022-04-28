@@ -273,6 +273,7 @@ public class UIManager : MonoBehaviour
         message.AddInt(pc);
         message.AddInt(map);
         message.AddString(localusername);
+        message.AddString(Player.localcara);
 
         NetworkManager.Singleton.Client.Send(message);
     }
@@ -284,6 +285,7 @@ public class UIManager : MonoBehaviour
             Message message = Message.Create(MessageSendMode.reliable, (ushort)ClientToServerId.joinprivate);
             message.AddString(localusername);
             message.AddString(private_mid.text);
+            message.AddString(Player.localcara);
             NetworkManager.Singleton.Client.Send(message);
         }
     }
@@ -305,7 +307,7 @@ public class UIManager : MonoBehaviour
         GameLogic.Singleton.pcount = 1;
         GameLogic.Singleton.matchplayers.Clear();
 
-        GameObject pl = Instantiate(GameLogic.Singleton.Playerprefab, new Vector3(-192, 0, 0), Quaternion.identity);
+        GameObject pl = Instantiate(GameLogic.Singleton.local_prefab, new Vector3(-192, 0, 0), Quaternion.identity);
         TMP_Text pltext = pl.transform.GetChild(0).transform.GetChild(0).GetComponent<TMP_Text>();
         pltext.text = localusername;
         if (pltext.text == String.Empty)

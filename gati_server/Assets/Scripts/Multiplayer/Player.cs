@@ -11,6 +11,7 @@ public class Player : MonoBehaviour
     public string Username { get; set; }
     public string matchid { get; set; }
     public Vector3 position { get; set; }
+    public string cara;
 
     private void OnDestroy()
     {
@@ -22,7 +23,8 @@ public class Player : MonoBehaviour
         this.Id = id;
         this.Username = username;
         this.matchid = "";
-        this.position = new Vector3(-192, 0, 0);
+        //this.position = new Vector3(-192, 0, 0);
+        //this.cara = "";
     }
 
     public Player(ushort id, string username, string mid)
@@ -30,7 +32,8 @@ public class Player : MonoBehaviour
         this.Id = id;
         this.Username = username;
         this.matchid = mid;
-        this.position = new Vector3(-192, 0, 0);
+        //this.position = new Vector3(-192, 0, 0);
+        //this.cara = "";
     }
 
     public static void Spawn(ushort id, string username)

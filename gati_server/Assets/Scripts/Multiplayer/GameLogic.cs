@@ -26,8 +26,6 @@ public class GameLogic : MonoBehaviour
     [Header("Prefabs")]
     [SerializeField] private GameObject playerPrefab;
 
-    public List<string> maps = new List<string>() {"test1","test2","test3"};
-
     private void Awake()
     {
         Singleton = this;

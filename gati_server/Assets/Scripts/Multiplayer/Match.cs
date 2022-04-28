@@ -25,16 +25,16 @@ public class Match : MonoBehaviour
     }
 
     public static Dictionary<string, Match> mlist = new Dictionary<string, Match>();
-    public static List<(string, (float, float), (float, float))> maps = new List<(string, (float, float), (float, float))>() {
-        ("Etril Sewer", (-192f, 0f), (2f, -3.5f)),
-        ("Niya City", (-192f, 0f), (2f, -3.5f)),
-        ("Ayrith Forest", (-192, 0), (2f, -3.5f)),
-        ("Bravo Camp", (-192f, 0f), (2f, -3.5f)),
-        ("Pirate Beach", (-192f, 0f), (2f, -3.5f)),
-        ("Maya Temple", (-192f, 0f), (2f, -3.5f)),
-        ("Snowy Mountain", (-192f, 0f), (2f, -3.5f)),
-        ("Prehistory", (-192f, 0f), (2f, -3.5f)),
-        ("Camda", (-192f, 0f), (2f, -3.5f)),
+    public static List<(string, Vector3, Vector3)> maps = new List<(string, Vector3, Vector3)>() {
+        ("Etril Sewer", new Vector3(-192f, 0f, 42f), new Vector3(2f, -3.5f, 42f)),
+        ("Niya City", new Vector3(-192f, 0f, 42f), new Vector3(2f, -3.5f, 42f)),
+        ("Ayrith Forest", new Vector3(-192, 0f, 42f), new Vector3(2f, -3.5f, 42f)),
+        ("Bravo Camp", new Vector3(-192f, 0f, 42f), new Vector3(2f, -3.5f, 42f)),
+        ("Pirate Beach", new Vector3(-192f, 0f, 42f), new Vector3(2f, -3.5f, 42f)),
+        ("Maya Temple", new Vector3(-192f, 0f, 42f), new Vector3(2f, -3.5f, 42f)),
+        ("Snowy Mountain", new Vector3(-192f, 0f, 42f), new Vector3(2f, -3.5f, 42f)),
+        ("Prehistory", new Vector3(-192f, 0f, 42f), new Vector3(2f, -3.5f, 42f)),
+        ("Camda", new Vector3(-192f, 0f, 42f), new Vector3(2f, -3.5f, 42f)),
     };
 
     static System.Random rand = new System.Random();
@@ -130,6 +130,7 @@ public class Match : MonoBehaviour
         message.AddString(mid);
         message.AddInt(mlist[mid].players.Count);
         message.AddInt(mlist[mid].capacity);
+        message.AddVector3(maps[mlist[mid].map].Item2);
 
         foreach(Player pl in mlist[mid].players.Values)
         {
@@ -142,11 +143,12 @@ public class Match : MonoBehaviour
         NetworkManager.Singleton.Server.Send(message, clientid);
     }
 
-    public void sendmatchstatus(ushort pid, string username, bool joined)
+    public void sendmatchstatus(ushort pid, string username, string cara, bool joined)
     {
         Message message = Message.Create(MessageSendMode.reliable, (ushort)ServerToClient.matchstatus);
         message.AddUShort(pid);
         message.AddString(username);
+        message.AddString(cara);
         message.AddBool(joined);
 
         foreach (Player pl in this.players.Values)
@@ -167,6 +169,7 @@ public class Match : MonoBehaviour
         int pc = message.GetInt();
         int map = message.GetInt();
         string username = message.GetString();
+        string cara = message.GetString();
 
         string id = getrandomid(5);
         int i = 0;
@@ -186,9 +189,11 @@ public class Match : MonoBehaviour
 
         mlist.Add(id, match);
 
-        if (!Player.plist.ContainsKey(cid))
-        {
-            Player.plist.Add(cid, new Player(cid, username, id));
+        if (!Player.plist.ContainsKey(cid)) {
+
+            Player p = new Player(cid, username, id);
+            p.cara = cara;
+            Player.plist.Add(cid, p);
         }
         else
         {
@@ -214,6 +219,7 @@ public class Match : MonoBehaviour
     {
         string username = message.GetString();
         string mid = message.GetString().ToUpper();
+        string cara = message.GetString();
 
         if (Match.mlist.ContainsKey(mid))
         {
@@ -231,7 +237,7 @@ public class Match : MonoBehaviour
 
             sendmatch(clientid, mid);
 
-            mlist[mid].sendmatchstatus(clientid, username, true);
+            mlist[mid].sendmatchstatus(clientid, username, cara, true);
         }
     }
 
@@ -239,7 +245,7 @@ public class Match : MonoBehaviour
     private static void getorcreatematch(ushort clientid, Message message)
     {
         string username = message.GetString();
-
+        string cara = message.GetString();
         string mid = findmatch();
 
         if (mid == null)
@@ -264,7 +270,7 @@ public class Match : MonoBehaviour
 
         sendmatch(clientid, mid);
 
-        mlist[mid].sendmatchstatus(clientid, username, true);
+        mlist[mid].sendmatchstatus(clientid, username, cara, true);
     }
 
     [MessageHandler((ushort)ClientToServerId.leavematch)]
@@ -304,8 +310,7 @@ public class Match : MonoBehaviour
 
         //Debug.Log("pos update : "+ mlist[mid].players[pid].position.x.ToString()+" > "+ppos.x.ToString());
 
-        (float, float) ar = maps[mlist[mid].map].Item3;
-        Vector3 arp = new Vector3(ar.Item1, ar.Item2, 0);
+        Vector3 arp = maps[mlist[mid].map].Item3;
 
         if (Vector3.Distance(ppos, arp) < 5)
         {

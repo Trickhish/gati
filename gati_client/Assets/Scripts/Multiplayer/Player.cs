@@ -14,11 +14,14 @@ public class Player : MonoBehaviour
     public bool IsLocal { get; set; }
     public string username;
     public GameObject listitem;
+    public GameObject caraprefab;
+    public string cara;
     public bool ismoving { get; set; }
     public Vector3 lpos = new Vector3(0,0,0);
     public bool isGrounded = false;
     public float maxpos;
     public Collider2D ccld;
+    public static string localcara;
 
     [SerializeField] private int speed;
     [SerializeField] private int jumpforce;
@@ -27,16 +30,33 @@ public class Player : MonoBehaviour
     [SerializeField] public LayerMask groundLayer;
     [SerializeField] public LayerMask plateformlayer;
 
+    private static Player _singleton;
+
+    public static Player Singleton
+    {
+        get => _singleton;
+        private set
+        {
+            if (_singleton == null)
+                _singleton = value;
+            else if (_singleton != value)
+            {
+                Debug.Log($"{nameof(Player)}");
+                Destroy(value);
+            }
+        }
+    }
+
     private void Start()
     {
-        maxpos = Vector3.Distance(new Vector3(-206, 0, 0), GameLogic.Singleton.finishflag.transform.position);
+        
     }
 
     private void Update()
     {
         if (this.IsLocal)
         {
-
+            /*
             CheckIfGrounded();
 
             if (isGrounded && (!Input.GetKey(KeyCode.UpArrow) && !Input.GetKey(KeyCode.Space)))
@@ -83,6 +103,7 @@ public class Player : MonoBehaviour
                     UIManager.Singleton.tabUI.SetActive(false);
                 }
             }
+            */
         }
     }
 
@@ -112,6 +133,7 @@ public class Player : MonoBehaviour
 
         if (this.IsLocal)
         {
+            /*
             if (this.ismoving)
             {
                 float t = Vector3.Distance(this.transform.position, GameLogic.Singleton.finishflag.transform.position);
@@ -161,6 +183,7 @@ public class Player : MonoBehaviour
             {
                 GetComponent<Animator>().SetBool("walking", false);
             } 
+            */
             
         }
     }
@@ -176,7 +199,8 @@ public class Player : MonoBehaviour
         this.username = username;
         this.IsLocal = islocal;
         this.ismoving = false;
-        this.lpos = new Vector3(0,0,0);
+        //this.lpos = new Vector3(0,0,0);
+        this.cara = "gati";
     }
 
     public void updatepos()
@@ -209,7 +233,7 @@ public class Player : MonoBehaviour
     public static void Spawn(ushort id, string username, Vector3 position)
     {
         Player player;
-        player = Instantiate(GameLogic.Singleton.Playerprefab, position, Quaternion.identity).GetComponent<Player>();
+        player = Instantiate(GameLogic.Singleton.gati_prefab, position, Quaternion.identity).GetComponent<Player>();
         player.IsLocal = (id == NetworkManager.Singleton.Client.Id);
 
         player.name = $"Player {id} ({(string.IsNullOrEmpty(username) ? "Guest" : username)})";
@@ -228,13 +252,14 @@ public class Player : MonoBehaviour
     [MessageHandler((ushort)ServerToClient.match)]
     //match found
     private static void matchjoined(Message message)
-    {   
+    {
         
         UIManager.Singleton.pgr_slider.GetComponent<Slider>().value = 0;
 
         string mid = message.GetString();
         int pc = message.GetInt();
         int cap = message.GetInt();
+        Vector3 spos = message.GetVector3();
 
         GameLogic.Singleton.gameidtext.text = "Match: " + mid;
 
@@ -279,7 +304,7 @@ public class Player : MonoBehaviour
                 pt.transform.parent = UIManager.Singleton.wait_players.transform;
                 pt.GetComponent<TMP_Text>().text = username;
 
-                GameObject pl = Instantiate(GameLogic.Singleton.Playerprefab, new Vector3(-192,0,0), Quaternion.identity);
+                GameObject pl = Instantiate(GameLogic.Singleton.gati_prefab, new Vector3(-192,0,0), Quaternion.identity);
                 TMP_Text pltext = pl.transform.GetChild(0).transform.GetChild(0).GetComponent<TMP_Text>();
                 pltext.text = username;
                 pl.name = username;
@@ -298,7 +323,7 @@ public class Player : MonoBehaviour
                 if (!rpl.IsLocal)
                 {
                     rpl.GetComponent<Rigidbody2D>().simulated = false;
-                    pl.transform.position = new Vector3(0f, 0f, 1f);
+                    pl.transform.position = spos;
                 }
 
                 GameLogic.Singleton.matchplayers.Add(pid, rpl);
@@ -317,6 +342,7 @@ public class Player : MonoBehaviour
     {
         ushort pid = message.GetUShort();
         string username = message.GetString();
+        string cara = message.GetString();
         bool joined = message.GetBool();
 
         if (joined)
@@ -331,7 +357,7 @@ public class Player : MonoBehaviour
                 pt.GetComponent<TMP_Text>().text = username;
 
 
-                GameObject pl = Instantiate(GameLogic.Singleton.Playerprefab, new Vector3(-192, 0f, 0f), Quaternion.identity);
+                GameObject pl = Instantiate(GameLogic.Singleton.gati_prefab, new Vector3(-192, 0f, 0f), Quaternion.identity);
                 TMP_Text pltext = pl.transform.GetChild(0).gameObject.transform.GetChild(0).gameObject.GetComponent<TMP_Text>();
                 pltext.text = username;
                 pl.name = username;
@@ -348,6 +374,7 @@ public class Player : MonoBehaviour
                     pl.transform.position = new Vector3(0f, 0f, 1f) ;
                 }
                 rpl.Id = pid;
+                rpl.cara = cara;
                 rpl.username = username;
 
                 GameLogic.Singleton.matchplayers.Add(pid, rpl);
