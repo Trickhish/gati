@@ -162,6 +162,7 @@ TextureImporter:
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
   vTOnly: 0
+  ignoreMasterTextureLimit: 0
   grayScaleToAlpha: 0
   generateCubemap: 6
   cubemapConvolution: 0
@@ -1228,6 +1229,53 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
+    nameFileIdTable:
+      char_1_clc_8: -8346501252653040879
+      char_1_clc_11: -6842392813853727521
+      char_1_clc_3: -8975924336617138917
+      char_1_clc_21: 8778091127932335439
+      char_1_clc_15: 323934167892064026
+      char_1_clc_28: -8697602296038289741
+      char_1_clc_33: -4218837455759599544
+      char_1_clc_44: -5061390434421044292
+      char_1_clc_10: -1669268889764997349
+      char_1_clc_23: -207902266239908316
+      char_1_clc_30: 4092820667907122405
+      char_1_clc_36: -2829818627636129804
+      char_1_clc_19: 700834317455383311
+      char_1_clc_2: -5880682310861888965
+      char_1_clc_34: -2093220145908144511
+      char_1_clc_25: 3066564965696123512
+      char_1_clc_38: -287170505027374576
+      char_1_clc_45: 2163330482879431262
+      char_1_clc_37: -6495426194164810500
+      char_1_clc_40: -3206613592309553790
+      char_1_clc_26: -820739061309043172
+      char_1_clc_13: -550189508189941366
+      char_1_clc_14: 7014620211921567074
+      char_1_clc_7: 4265156253592192892
+      char_1_clc_9: 460283833880375758
+      char_1_clc_42: -953453008253456642
+      char_1_clc_17: 8843234355303443071
+      char_1_clc_0: 5422307729089575871
+      char_1_clc_20: -735450970593105458
+      char_1_clc_41: 1125860732340877020
+      char_1_clc_4: 7770084637524045492
+      char_1_clc_32: -2778538132252158778
+      char_1_clc_35: 6849015127241126883
+      char_1_clc_1: 5984351955260273644
+      char_1_clc_18: -7574660990488463699
+      char_1_clc_22: 5852146293042167440
+      char_1_clc_12: -3581475249860238782
+      char_1_clc_31: 2969128334292638615
+      char_1_clc_29: 288351374397309924
+      char_1_clc_24: -6891696074255505155
+      char_1_clc_39: -4106957013813329863
+      char_1_clc_16: 7359312957045265127
+      char_1_clc_6: 1562686008759194397
+      char_1_clc_5: -1471836599580008185
+      char_1_clc_27: 6132662757340028208
+      char_1_clc_43: -3637865848294908081
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0
