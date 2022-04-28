@@ -10,13 +10,13 @@ public class Movement : MonoBehaviour
     private int agility;
     private int resistance;
     private float speed;
-    private int jumpPower = 13;
-    
+
     private int mFacingDirection = 1;
     private float mDelayToIdle = 0.0f;
     private bool isGrounded = false;
     private bool isSliding = false;
     private bool isMoving = false;
+    private bool isJumping = false;
 
     private float originalsize;
     private float originaloffset;
@@ -56,7 +56,7 @@ public class Movement : MonoBehaviour
     void Start()
     {
         pl = GetComponent<Player>();
-        speed = 4;
+        speed = 6;
         playerRigidbody = GetComponent<Rigidbody2D>();
         collider = GetComponent<BoxCollider2D>();
         originalsize = collider.size.y;
@@ -74,11 +74,14 @@ public class Movement : MonoBehaviour
             GetComponent<Animator>().SetTrigger("Capacity");
         }
 
-        if (!isSliding)
+        if ((!isSliding && isGrounded) || isJumping)
             MovePlayer();
         if (!isGrounded && groundSensor.State())
         {
             isGrounded = true;
+            isJumping = false;
+            collider.size = new Vector2(collider.size.x, originalsize);
+            collider.offset = new Vector2(collider.offset.x, originaloffset);
             GetComponent<Animator>().SetBool("Idle", isGrounded);
         }
 
@@ -102,7 +105,9 @@ public class Movement : MonoBehaviour
         }
         if (Input.GetButton("Jump") && groundSensor.State())
         {
-            Jump();
+            if (groundSensor.touchTag == "Obstacle")
+                Roll();
+            else Jump();
         }
 
         if (isMoving)
@@ -119,10 +124,21 @@ public class Movement : MonoBehaviour
     {
         GetComponent<Animator>().SetTrigger("Jump");
         isGrounded = false;
+        isJumping = true;
         GetComponent<Animator>().SetBool("Idle", isGrounded);
-        playerRigidbody.velocity = new Vector2(playerRigidbody.velocity.x, jumpPower);
+        playerRigidbody.velocity = new Vector2(playerRigidbody.velocity.x, 16);
         groundSensor.Disable(0.2f);
         
+    }
+    
+    private void Roll()
+    {
+        GetComponent<Animator>().SetTrigger("Roll");
+        isGrounded = false;
+        playerRigidbody.velocity = new Vector2(mFacingDirection * speed + (agility * 2), 11);
+        groundSensor.Disable(0.7f);
+        collider.size = new Vector2(collider.size.x, 0.6f);
+        collider.offset = new Vector2(collider.offset.x, 0.1f);
     }
 
     private void Slide()
@@ -153,7 +169,7 @@ public class Movement : MonoBehaviour
         {
             isMoving = false;
         }
-        if (horizontalInput == 0 && speed > 4) speed = 4;
+        if (horizontalInput == 0 && speed > 6) speed = 6;
         else
         {
             if (speed < maxspeed)

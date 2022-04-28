@@ -8,6 +8,8 @@ public class Sensor : MonoBehaviour
 
     private float m_DisableTimer;
 
+    public string touchTag;
+
     private void OnEnable()
     {
         m_ColCount = 0;
@@ -23,11 +25,13 @@ public class Sensor : MonoBehaviour
     void OnTriggerEnter2D(Collider2D other)
     {
         m_ColCount++;
+        touchTag = other.gameObject.tag;
     }
 
     void OnTriggerExit2D(Collider2D other)
     {
         m_ColCount--;
+        touchTag = null;
     }
 
     void Update()

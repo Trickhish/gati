@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 2
   tags:
   - plateform
+  - Obstacle
   layers:
   - Default
   - TransparentFX

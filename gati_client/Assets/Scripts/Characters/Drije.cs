@@ -14,8 +14,9 @@ public class Drije : MonoBehaviour
         if (pl.IsLocal)
         {
             mvt = gameObject.AddComponent<Movement>();
-            mvt.Maxspeed = 12;
+            mvt.Maxspeed = 15;
             mvt.Acceleration = 6;
+            mvt.Agility = 3;
         }
     }
 
