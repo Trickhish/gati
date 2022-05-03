@@ -4,6 +4,11 @@ using UnityEngine;
 using RiptideNetworking;
 using RiptideNetworking.Utils;
 using System;
+using System.Net;
+using System.IO;
+using System.Web;
+using UnityEngine.UI;
+using System.Linq;
 
 public enum ServerToClient : ushort
 {
@@ -70,6 +75,185 @@ public class NetworkManager : MonoBehaviour
         Client.ConnectionFailed += FailedToConnect;
         Client.ClientDisconnected += PlayerLeft;
         Client.Disconnected += DidDisconnect;
+    }
+
+    public static string getreq(string uri)
+    {
+        try
+        {
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uri);
+            request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+
+            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+            {
+                if (response.StatusCode == HttpStatusCode.NotFound)
+                {
+                    return ("unreachable");
+                }
+
+                if (!new List<int>() { 200, 201, 202, 203, 204, 205, 206, 207, 208, 210, 226 }.Contains((int)response.StatusCode))
+                {
+                    return ("error");
+                }
+
+                using (Stream stream = response.GetResponseStream())
+                using (StreamReader reader = new StreamReader(stream))
+                {
+                    return reader.ReadToEnd();
+                }
+            }
+        }
+        catch
+        {
+            return ("unreachable");
+        }
+    }
+
+    public void rldt()
+    {
+        string dt = getreq("https://trickhisch.alwaysdata.net/gati/?a=dts&t=" + HttpUtility.UrlEncode(NetworkManager.Singleton.token));
+
+        if (dt == "unreachable" && dt == "false")
+        {
+
+        }
+        else
+        {
+            string[] dts = dt.Substring(2, dt.Length - 4).Split(new[] { '\u0022' + "," + '\u0022' }, StringSplitOptions.None);
+
+            UIManager.Singleton.usertext_lo.text = dts[0];
+            UIManager.localusername = dts[0];
+            Player.money = int.Parse(dts[2]);
+
+            UIManager.Singleton.shop_money.text = "Money : " + dts[2] + "$";
+            UIManager.Singleton.user_name.text = dts[0];
+        }
+
+    }
+    public (Dictionary<string, int>, List<string>) getassets()
+    {
+        string r = getreq("https://trickhisch.alwaysdata.net/gati/?a=assets&t=" + HttpUtility.UrlEncode(NetworkManager.Singleton.token));
+
+        if (r == "unreachable" && r == "false")
+        {
+            return (new Dictionary<string, int>(), new List<string>());
+        }
+        else
+        {
+            string l1 = r.Split('|')[0];
+            string l2 = r.Split('|')[1];
+
+            Dictionary<string, int> items = new Dictionary<string, int>();
+            foreach (string e in l1.Split(','))
+            {
+                items[e.Split(':')[0]] = int.Parse(e.Split(':')[1]);
+            }
+
+            List<string> skins = l2.Split(',').ToList();
+
+            return ((items, skins));
+        }
+    }
+
+    public List<int> getstats()
+    {
+        string r = getreq("https://trickhisch.alwaysdata.net/gati/?a=stats&t=" + HttpUtility.UrlEncode(NetworkManager.Singleton.token));
+
+        if (r == "unreachable" && r == "false")
+        {
+            return (new List<int>());
+        }
+        else
+        {
+            List<int> stats = new List<int>();
+
+            foreach (string e in r.Split(','))
+            {
+                stats.Add(int.Parse(e));
+            }
+
+            return (stats);
+        }
+    }
+
+    public void rlmoney()
+    {
+        string r = getreq("https://trickhisch.alwaysdata.net/gati/?a=money&t=" + HttpUtility.UrlEncode(NetworkManager.Singleton.token));
+
+        if (r == "unreachable" || r == "false")
+        {
+
+        }
+        else
+        {
+            int m = int.Parse(r);
+            Player.money = m;
+            UIManager.Singleton.shop_money.text = "Money : " + m.ToString() + "$";
+
+            foreach (shop_item i in shop_item.items.Values)
+            {
+                if (m >= i.price)
+                {
+                    i.GetComponent<Button>().interactable = true;
+                }
+                else
+                {
+                    i.GetComponent<Button>().interactable = false;
+                }
+            }
+        }
+    }
+
+    public void rlitems()
+    {
+        string r = getreq("https://trickhisch.alwaysdata.net/gati/?a=items&t=" + HttpUtility.UrlEncode(NetworkManager.Singleton.token));
+
+        if (r == "unreachable" && r == "false")
+        {
+
+        }
+        else
+        {
+            Dictionary<string, int> items = new Dictionary<string, int>();
+            foreach (string e in r.Split(','))
+            {
+                //Debug.Log(e);
+                if (shop_item.items.ContainsKey(e.Split(':')[0]))
+                {
+                    shop_item.items[e.Split(':')[0]].setstock(int.Parse(e.Split(':')[1]));
+                }
+                else
+                {
+                    shop_item.items.Add(e.Split(':')[0], new shop_item(e.Split(':')[0], int.Parse(e.Split(':')[1])));
+                }
+            }
+        }
+    }
+
+    public void rlassets()
+    {
+        string r = getreq("https://trickhisch.alwaysdata.net/gati/?a=assets&t=" + HttpUtility.UrlEncode(NetworkManager.Singleton.token));
+
+        if (r == "unreachable" && r == "false")
+        {
+
+        }
+        else
+        {
+            string l1 = r.Split('|')[0];
+            string l2 = r.Split('|')[1];
+
+            Dictionary<string, int> items = new Dictionary<string, int>();
+            foreach (string e in r.Split(','))
+            {
+                if (shop_item.items.ContainsKey(e.Split(':')[0]))
+                {
+                    shop_item.items[e.Split(':')[0]].setstock(int.Parse(e.Split(':')[1]));
+                }
+            }
+
+            List<string> skins = l2.Split(',').ToList();
+        }
     }
 
     private void FixedUpdate()

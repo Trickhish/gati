@@ -69,7 +69,7 @@ public class server_reachability : MonoBehaviour
                 }
                 tp = 2;
 
-                UIManager.Singleton.connectbt.interactable = true;
+                //UIManager.Singleton.connectbt.interactable = true;
                 UIManager.Singleton.enter_login.interactable = true;
                 UIManager.Singleton.enter_register.interactable = true;
                 UIManager.Singleton.enter_guest.interactable = true;
@@ -100,7 +100,8 @@ public class server_reachability : MonoBehaviour
                     UIManager.Singleton.connectUI.SetActive(true);
                 }
 
-                UIManager.Singleton.connectbt.interactable = false;
+                //UIManager.Singleton.connectbt.interactable = false;
+
                 UIManager.Singleton.enter_login.interactable = false;
                 UIManager.Singleton.enter_register.interactable = false;
                 UIManager.Singleton.enter_guest.interactable = false;

@@ -28,6 +28,9 @@ public class Player : MonoBehaviour
     [SerializeField] public LayerMask groundLayer;
     [SerializeField] public LayerMask plateformlayer;
 
+    public static int money;
+    public static string mail;
+
     private static Player _singleton;
 
     public static Player Singleton
@@ -52,138 +55,12 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
-        if (this.IsLocal)
-        {
-            /*
-            CheckIfGrounded();
-
-            if (isGrounded && (!Input.GetKey(KeyCode.UpArrow) && !Input.GetKey(KeyCode.Space)))
-            {
-                GetComponent<Animator>().SetBool("jumping", false);
-            }
-
-            if ((Input.GetKey(KeyCode.DownArrow) && isGrounded && ccld.CompareTag("plateform")))
-            {
-                ccld.GetComponent<EdgeCollider2D>().enabled = false;
-            }
-
-            if (isGrounded && (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.Space)))
-            {
-                GetComponent<Animator>().SetBool("jumping", true);
-
-                if (!this.ismoving)
-                {
-                    this.ismoving = true;
-                    //Debug.Log("moving");
-                }
-                GetComponent<Rigidbody2D>().velocity = new Vector2(GetComponent<Rigidbody2D>().velocity.x, jumpforce);
-                //GetComponent<Rigidbody2D>().AddForce(new Vector2(0, jumpforce), ForceMode2D.Impulse);
-            }
-
-            if (this.ismoving)
-            {
-                updatepos();
-            }
-
-            if (GameLogic.Singleton.id != "")
-            {
-                if (Input.GetKeyDown(KeyCode.Escape))
-                {
-                    UIManager.Singleton.escUI.SetActive(!UIManager.Singleton.escUI.activeSelf);
-                }
-
-                if (Input.GetKeyDown(KeyCode.Tab))
-                {
-                    UIManager.Singleton.tabUI.SetActive(true);
-                }
-                if (Input.GetKeyUp(KeyCode.Tab))
-                {
-                    UIManager.Singleton.tabUI.SetActive(false);
-                }
-            }
-            */
-        }
-    }
-
-    void CheckIfGrounded()
-    {
-        Collider2D collider = Physics2D.OverlapCircle(isGroundedChecker.position, checkGroundRadius, groundLayer);
         
-        if (collider != null)
-        {
-            if (ccld != null && ccld.CompareTag("plateform") && ccld.GetComponent<EdgeCollider2D>().enabled == false)
-            {
-                ccld.GetComponent<EdgeCollider2D>().enabled = true;
-            }
-
-            isGrounded = true;
-            ccld = collider;
-        }
-        else
-        {
-            isGrounded = false;
-            GetComponent<Animator>().SetBool("jumping", true);
-        }
     }
 
     private void FixedUpdate()
     {
 
-        if (this.IsLocal)
-        {
-            /*
-            if (this.ismoving)
-            {
-                float t = Vector3.Distance(this.transform.position, GameLogic.Singleton.finishflag.transform.position);
-                
-                UIManager.Singleton.pgr_slider.GetComponent<Slider>().value = 100-(t/maxpos)*100f;
-                //Debug.Log("distance : "+t.ToString());
-            }
-
-            if (Math.Abs(lpos.x-transform.position.x)<0.5 && Math.Abs(lpos.y - transform.position.y) < 0.001 && GetComponent<Rigidbody2D>().velocity.x < 1 && GetComponent<Rigidbody2D>().velocity.y < 1)
-            {
-                if (ismoving)
-                {
-                    this.ismoving = false;
-                    updatepos();
-                    GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
-                    //Debug.Log("no longer moving");
-                    GetComponent<Animator>().SetBool("jumping", false);
-                    GetComponent<Animator>().SetBool("walking", false);
-                }
-            }
-            else
-            {
-                lpos = transform.position;
-            }
-
-            float hor = Input.GetAxis("Horizontal");
-            float ver = Input.GetAxis("Vertical");
-            if (hor != 0f)
-            {
-                if (!this.ismoving)
-                {
-                    this.ismoving = true;
-                    //Debug.Log("moving");
-                }
-                if (hor < 0f)
-                {
-                    GetComponent<SpriteRenderer>().flipX = true;
-                } else
-                {
-                    GetComponent<SpriteRenderer>().flipX = false;
-                }
-                GetComponent<Animator>().SetBool("walking", true);
-
-                //GetComponent<Rigidbody2D>().AddForce(new Vector2(hor * speed, 0), ForceMode2D.Impulse);
-                GetComponent<Rigidbody2D>().velocity = new Vector2(hor * speed, GetComponent<Rigidbody2D>().velocity.y);
-            } else
-            {
-                GetComponent<Animator>().SetBool("walking", false);
-            } 
-            */
-            
-        }
     }
 
     private void OnDestroy()

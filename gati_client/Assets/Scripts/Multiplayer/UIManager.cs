@@ -43,6 +43,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] public GameObject escUI;
     [SerializeField] public GameObject tabUI;
     [SerializeField] public GameObject waitUI;
+    [SerializeField] public GameObject shopUI;
+    [SerializeField] public GameObject userUI;
 
     [Header("UI subpanels")]
     [SerializeField] public GameObject privatematchUI;
@@ -52,6 +54,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] public GameObject start_ui;
 
     [Header("Authentification")]
+    [SerializeField] public Toggle remember_me;
     [SerializeField] public Button enter_login;
     [SerializeField] public Button enter_register;
     [SerializeField] public Button enter_guest;
@@ -66,6 +69,13 @@ public class UIManager : MonoBehaviour
     [SerializeField] public TMP_InputField register_password;
     [SerializeField] public gradient register_password_gradient;
 
+    [Header("Shop UI")]
+    [SerializeField] public TMP_Text shop_money;
+    [SerializeField] public TMP_Text shop_itemdesc;
+
+    [Header("User UI")]
+    [SerializeField] public TMP_Text user_name;
+    [SerializeField] public TMP_Text user_stats;
 
     [Header("Network")]
     [SerializeField] public InputField ipfield;
@@ -100,7 +110,6 @@ public class UIManager : MonoBehaviour
     [SerializeField] public TMP_Text usertext_lo;
 
 
-
     EventSystem system;
 
     private void Awake()
@@ -120,7 +129,7 @@ public class UIManager : MonoBehaviour
         pgr_slider.SetActive(false);
         serverstatus.SetActive(true);
 
-        UIManager.Singleton.connectbt.interactable = false;
+        //UIManager.Singleton.connectbt.interactable = false;
         UIManager.Singleton.enter_login.interactable = false;
         UIManager.Singleton.enter_register.interactable = false;
         UIManager.Singleton.enter_guest.interactable = false;
@@ -184,6 +193,7 @@ public class UIManager : MonoBehaviour
         }
     }
 
+
     public void ConnectClicked()
     {
         if (NetworkManager.Singleton.Client.IsConnected)
@@ -204,6 +214,20 @@ public class UIManager : MonoBehaviour
             UIManager.Singleton.connectUI.SetActive(false);
             UIManager.Singleton.menuUI.SetActive(true);
         }
+    }
+
+    public void profile_clicked()
+    {
+        List<int> sts = NetworkManager.Singleton.getstats();
+
+        decimal dd = sts[3];
+        decimal dv = sts[2];
+        int pct = (int)Decimal.Round(Decimal.Divide(dd, dv) * 100);
+
+        string s = "Level : " + sts[0] + "\n\nMatch Count : " + sts[2] + "\n\nWin Percentage : " + pct + "%\nWin : " + sts[3] + "\nLose: " + (sts[2] - sts[3]) + "";
+
+        UIManager.Singleton.user_stats.text = s;
+        UIManager.Singleton.userUI.SetActive(true);
     }
 
     public void website_clicked()
@@ -338,37 +362,6 @@ public class UIManager : MonoBehaviour
         cam.trans.position = new Vector3(-4.2f, 3.7f, 0f);
     }
 
-    public string getreq(string uri)
-    {
-        try
-        {
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uri);
-            request.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
-
-            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-            {
-                if (response.StatusCode == HttpStatusCode.NotFound)
-                {
-                    return("unreachable");
-                }
-
-                if (!new List<int>() {200,201,202,203,204,205,206,207,208,210,226}.Contains((int) response.StatusCode))
-                {
-                    return ("error");
-                }
-
-                using (Stream stream = response.GetResponseStream())
-                using (StreamReader reader = new StreamReader(stream))
-                {
-                    return reader.ReadToEnd();
-                }
-            }
-        } catch
-        {
-            return("unreachable");
-        }
-    }
-
     public static string[] hashstring(string input, int ss)
     {
         int SALT_SIZE = ss;
@@ -395,7 +388,7 @@ public class UIManager : MonoBehaviour
         }
         else
         {
-            string r = getreq("https://trickhisch.alwaysdata.net/gati/?a=login&m=" + HttpUtility.UrlEncode(mail) + "&p=" + HttpUtility.UrlEncode(pass));
+            string r = NetworkManager.getreq("https://trickhisch.alwaysdata.net/gati/?a=login&m=" + HttpUtility.UrlEncode(mail) + "&p=" + HttpUtility.UrlEncode(pass));
 
             if (r == "false")
             {
@@ -419,7 +412,7 @@ public class UIManager : MonoBehaviour
                 NetworkManager.Singleton.token = r;
                 statustext.text = "Connected";
 
-                string dt = getreq("https://trickhisch.alwaysdata.net/gati/?a=dts&t="+ HttpUtility.UrlEncode(NetworkManager.Singleton.token));
+                string dt = NetworkManager.getreq("https://trickhisch.alwaysdata.net/gati/?a=dts&t="+ HttpUtility.UrlEncode(NetworkManager.Singleton.token));
 
                 string[] dts = dt.Substring(2, dt.Length-4).Split(new[] {'\u0022'+","+ '\u0022'}, StringSplitOptions.None);
 
@@ -455,7 +448,7 @@ public class UIManager : MonoBehaviour
             statustext.text = "Empty Field";
         } else
         {
-            string r = getreq("https://trickhisch.alwaysdata.net/gati/?a=register&m=" + HttpUtility.UrlEncode(mail) + "&p=" + HttpUtility.UrlEncode(pass) + "&n=" + HttpUtility.UrlEncode(username));
+            string r = NetworkManager.getreq("https://trickhisch.alwaysdata.net/gati/?a=register&m=" + HttpUtility.UrlEncode(mail) + "&p=" + HttpUtility.UrlEncode(pass) + "&n=" + HttpUtility.UrlEncode(username));
 
             if (r == "false")
             {
