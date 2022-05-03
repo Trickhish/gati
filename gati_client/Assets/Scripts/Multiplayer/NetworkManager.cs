@@ -124,6 +124,7 @@ public class NetworkManager : MonoBehaviour
             UIManager.Singleton.usertext_lo.text = dts[0];
             UIManager.localusername = dts[0];
             Player.money = int.Parse(dts[2]);
+            Player.mail = dts[1];
 
             UIManager.Singleton.shop_money.text = "Money : " + dts[2] + "$";
             UIManager.Singleton.user_name.text = dts[0];

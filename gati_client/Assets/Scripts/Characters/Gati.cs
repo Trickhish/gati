@@ -11,6 +11,7 @@ public class Gati : MonoBehaviour
     void Start()
     {
         pl = GetComponent<Player>();
+        pl.caraprefab = GameLogic.Singleton.gati_prefab;
         if (pl.IsLocal)
         {
             mvt = gameObject.AddComponent<Movement>();

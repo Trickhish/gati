@@ -31,7 +31,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7526675764585073887}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!58 &7077677572868716352
 CircleCollider2D:
@@ -61,6 +61,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 08f70ada164f3874b8b7fbc9baa70746, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  touchTag: 
 --- !u!1 &1669664803916065202
 GameObject:
   m_ObjectHideFlags: 0
@@ -92,7 +93,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7526675764585073887}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!58 &2531861225490016689
 CircleCollider2D:
@@ -122,6 +123,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 08f70ada164f3874b8b7fbc9baa70746, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  touchTag: 
 --- !u!1 &4508865546647278020
 GameObject:
   m_ObjectHideFlags: 0
@@ -367,12 +369,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7526675764585073887}
+  - component: {fileID: 7462072450446289167}
   - component: {fileID: 1448614905360045311}
   - component: {fileID: 7526675764585073886}
   - component: {fileID: 8231856136587707962}
   - component: {fileID: 8068581198393720624}
   - component: {fileID: 6966231921245419447}
-  - component: {fileID: 7462072450446289167}
   m_Layer: 0
   m_Name: Drije
   m_TagString: Untagged
@@ -393,11 +395,23 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1276659783927228965}
-  - {fileID: 7504300754815611356}
   - {fileID: 8144842547876393860}
+  - {fileID: 7504300754815611356}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7462072450446289167
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7526675764585073885}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b38ebc62f0689544a69b6f17f490373, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1448614905360045311
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -418,8 +432,6 @@ MonoBehaviour:
   isGrounded: 0
   maxpos: 0
   ccld: {fileID: 0}
-  speed: 15
-  jumpforce: 0
   isGroundedChecker: {fileID: 0}
   checkGroundRadius: 0
   groundLayer:
@@ -547,15 +559,3 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.86227417, y: 1.3281417}
   m_EdgeRadius: 0
---- !u!114 &7462072450446289167
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7526675764585073885}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4b38ebc62f0689544a69b6f17f490373, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

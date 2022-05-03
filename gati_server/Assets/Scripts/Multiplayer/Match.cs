@@ -136,6 +136,7 @@ public class Match : MonoBehaviour
         message.AddInt(mlist[mid].players.Count);
         message.AddInt(mlist[mid].capacity);
         message.AddVector2(maps[mlist[mid].map].Item2);
+
         foreach (Player value in mlist[mid].players.Values)
         {
             message.AddUShort(value.Id);

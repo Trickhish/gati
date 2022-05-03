@@ -53,6 +53,20 @@ public class UIManager : MonoBehaviour
     [SerializeField] public GameObject choose_auth;
     [SerializeField] public GameObject start_ui;
 
+    [Header("Caracter Choice")]
+    [SerializeField] public Image car_illu;
+    [SerializeField] public TMP_Text car_pres;
+    [SerializeField] public Image car_stats;
+    [SerializeField] public TMP_Text car_name;
+    [SerializeField] public Button prev_car;
+    [SerializeField] public Button next_car;
+    [SerializeField] public Sprite gati_illu;
+    [SerializeField] public Sprite gati_stats;
+    [SerializeField] public String gati_pres;
+    [SerializeField] public Sprite drije_illu;
+    [SerializeField] public Sprite drije_stats;
+    [SerializeField] public String drije_pres;
+
     [Header("Authentification")]
     [SerializeField] public Toggle remember_me;
     [SerializeField] public Button enter_login;
@@ -193,6 +207,53 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    public void load_car_select()
+    {
+        car_name.text = Char.ToUpper(Player.localcara[0])+Player.localcara.Substring(1);
+
+        if (Player.localcara=="gati")
+        {
+            prev_car.interactable = false;
+            next_car.interactable = true;
+
+            car_illu.sprite = gati_illu;
+            car_pres.text = gati_pres;
+            car_stats.sprite = gati_stats;
+        } else
+        {
+            prev_car.interactable = true;
+            next_car.interactable = false;
+
+            car_illu.sprite = drije_illu;
+            car_pres.text = drije_pres;
+            car_stats.sprite = drije_stats;
+        }
+    }
+
+    public void prev_car_clicked()
+    {
+        if (Player.localcara=="gati")
+        {
+            Player.localcara = "drije";
+        } else
+        {
+            Player.localcara = "gati";
+        }
+        load_car_select();
+    }
+
+    public void next_car_clicked()
+    {
+        if (Player.localcara == "gati")
+        {
+            Player.localcara = "drije";
+        }
+        else
+        {
+            Player.localcara = "gati";
+        }
+        load_car_select();
+    }
 
     public void ConnectClicked()
     {
@@ -331,7 +392,7 @@ public class UIManager : MonoBehaviour
         GameLogic.Singleton.pcount = 1;
         GameLogic.Singleton.matchplayers.Clear();
 
-        GameObject pl = Instantiate(GameLogic.Singleton.local_prefab, new Vector3(-192, 0, 0), Quaternion.identity);
+        GameObject pl = Instantiate(GameLogic.prefabofcara(Player.localcara), new Vector3(-192, 0, 0), Quaternion.identity);
         TMP_Text pltext = pl.transform.GetChild(0).transform.GetChild(0).GetComponent<TMP_Text>();
         pltext.text = localusername;
         if (pltext.text == String.Empty)
@@ -412,12 +473,14 @@ public class UIManager : MonoBehaviour
                 NetworkManager.Singleton.token = r;
                 statustext.text = "Connected";
 
-                string dt = NetworkManager.getreq("https://trickhisch.alwaysdata.net/gati/?a=dts&t="+ HttpUtility.UrlEncode(NetworkManager.Singleton.token));
+                NetworkManager.Singleton.rldt();
 
-                string[] dts = dt.Substring(2, dt.Length-4).Split(new[] {'\u0022'+","+ '\u0022'}, StringSplitOptions.None);
-
-                localusername = dts[0];
                 usertext_lo.text = localusername;
+
+                Message msg = Message.Create(MessageSendMode.reliable, (ushort)ClientToServerId.login);
+                msg.AddString(localusername);
+                msg.AddString(Player.mail);
+                NetworkManager.Singleton.Client.Send(msg);
 
                 serverstatus.GetComponent<Image>().enabled = false;
                 connectUI.SetActive(false);

@@ -61,6 +61,7 @@ public class Movement : MonoBehaviour
         collider = GetComponent<BoxCollider2D>();
         originalsize = collider.size.y;
         originaloffset = collider.offset.y;
+
         groundSensor = transform.Find("GroundSensor").GetComponent<Sensor>();
         slideSensor = transform.Find("SlideSensor").GetComponent<Sensor>();
 

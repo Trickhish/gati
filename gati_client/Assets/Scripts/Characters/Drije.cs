@@ -11,6 +11,7 @@ public class Drije : MonoBehaviour
     void Start()
     {
         pl = GetComponent<Player>();
+        pl.caraprefab = GameLogic.Singleton.drije_prefab;
         if (pl.IsLocal)
         {
             mvt = gameObject.AddComponent<Movement>();

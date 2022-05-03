@@ -80,6 +80,19 @@ public class GameLogic : MonoBehaviour
         }
     }
 
+    public static GameObject prefabofcara(string cara)
+    {
+        switch(cara)
+        {
+            case "gati":
+                return(GameLogic.Singleton.gati_prefab);
+            case "drije":
+                return(GameLogic.Singleton.drije_prefab);
+            default:
+                return(GameLogic.Singleton.local_prefab);
+        }
+    }
+
     [MessageHandler((ushort)ServerToClient.matchend)]
     private static void endofmatch(Message message)
     {

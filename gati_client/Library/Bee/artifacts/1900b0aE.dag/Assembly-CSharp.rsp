@@ -360,7 +360,6 @@
 -r:"Library/Bee/artifacts/1900b0aE.dag/Unity.VSCode.Editor.ref.dll"
 -r:"Library/Bee/artifacts/1900b0aE.dag/UnityEditor.UI.ref.dll"
 -r:"Library/Bee/artifacts/1900b0aE.dag/UnityEngine.UI.ref.dll"
-"Assets/MainMenu.cs"
 "Assets/Scripts/cam.cs"
 "Assets/Scripts/Characters/Drije.cs"
 "Assets/Scripts/Characters/Gati.cs"
@@ -375,8 +374,8 @@
 "Assets/Scripts/Multiplayer/Sensor.cs"
 "Assets/Scripts/Multiplayer/server_reachability.cs"
 "Assets/Scripts/Multiplayer/UIManager.cs"
+"Assets/Scripts/SettingsMenu.cs"
 "Assets/Scripts/shop_item.cs"
-"Assets/SettingsMenu.cs"
 -langversion:9.0
 
 /deterministic

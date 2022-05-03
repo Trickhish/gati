@@ -21,7 +21,7 @@ public class Player : MonoBehaviour
     public bool isGrounded = false;
     public float maxpos;
     public Collider2D ccld;
-    public static string localcara;
+    public static string localcara="gati";
     
     [SerializeField] public Transform isGroundedChecker;
     [SerializeField] public float checkGroundRadius;
@@ -75,7 +75,7 @@ public class Player : MonoBehaviour
         this.IsLocal = islocal;
         this.ismoving = false;
         //this.lpos = new Vector3(0,0,0);
-        this.cara = "gati";
+        this.cara = "drije";
     }
 
     public void updatepos()
@@ -134,7 +134,7 @@ public class Player : MonoBehaviour
         string mid = message.GetString();
         int pc = message.GetInt();
         int cap = message.GetInt();
-        Vector3 spos = message.GetVector3();
+        Vector3 spos = message.GetVector2();
 
         GameLogic.Singleton.gameidtext.text = "Match: " + mid;
 
@@ -169,7 +169,7 @@ public class Player : MonoBehaviour
         {
             ushort pid = message.GetUShort();
             string username = message.GetString();
-            //Vector3 spos = message.GetVector3();
+            string cara = message.GetString();
 
             Debug.Log(username+" spawned");
 
@@ -179,7 +179,7 @@ public class Player : MonoBehaviour
                 pt.transform.parent = UIManager.Singleton.wait_players.transform;
                 pt.GetComponent<TMP_Text>().text = username;
 
-                GameObject pl = Instantiate(GameLogic.Singleton.gati_prefab, new Vector3(-192,0,0), Quaternion.identity);
+                GameObject pl = Instantiate(GameLogic.prefabofcara(cara), new Vector3(-192,0,0), Quaternion.identity);
                 TMP_Text pltext = pl.transform.GetChild(0).transform.GetChild(0).GetComponent<TMP_Text>();
                 pltext.text = username;
                 pl.name = username;
@@ -192,6 +192,7 @@ public class Player : MonoBehaviour
                 rpl.IsLocal = (pid == NetworkManager.Singleton.Client.Id);
                 
                 rpl.Id = pid;
+                rpl.cara = cara;
                 rpl.username = username;
 
 

@@ -15,7 +15,6 @@ public class Player : MonoBehaviour
     public Dictionary<string, int> items { get; set; }
     public string cara;
 
-
     private void OnDestroy()
     {
         plist.Remove(Id);
