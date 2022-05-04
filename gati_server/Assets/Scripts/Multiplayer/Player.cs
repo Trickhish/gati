@@ -26,6 +26,7 @@ public class Player : MonoBehaviour
         Username = username;
         Mail = mail;
         matchid = "";
+        cara = "";
         position = new Vector3(-192f, 0f, 0f);
         items = new Dictionary<string, int>();
     }
@@ -35,6 +36,7 @@ public class Player : MonoBehaviour
         Id = id;
         matchid = mid;
         Username = "";
+        cara = "";
         Mail = "";
         position = new Vector3(-192f, 0f, 0f);
         items = new Dictionary<string, int>();
@@ -46,6 +48,7 @@ public class Player : MonoBehaviour
         matchid = "";
         Username = "";
         Mail = "";
+        cara = "";
         position = new Vector3(-192f, 0f, 0f);
         items = new Dictionary<string, int>();
     }

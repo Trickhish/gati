@@ -119,7 +119,6 @@ public class UIManager : MonoBehaviour
     [SerializeField] public TMP_Text stcounter;
 
     [Header("Misc")]
-    [SerializeField] public TMP_InputField usernameField;
     [SerializeField] public Button connectbt;
     [SerializeField] public TMP_Text usertext_lo;
 
@@ -255,28 +254,6 @@ public class UIManager : MonoBehaviour
         load_car_select();
     }
 
-    public void ConnectClicked()
-    {
-        if (NetworkManager.Singleton.Client.IsConnected)
-        {
-            usernameField.interactable = false;
-            statustext.color = Color.white;
-            //connectbt.interactable = false;
-
-            if (usernameField.text == "")
-            {
-                usernameField.text = "Guest";
-            }
-
-            localusername = usernameField.text;
-            usertext_lo.text = localusername;
-            //statustext.text = "Connecting ...";
-
-            UIManager.Singleton.connectUI.SetActive(false);
-            UIManager.Singleton.menuUI.SetActive(true);
-        }
-    }
-
     public void profile_clicked()
     {
         List<int> sts = NetworkManager.Singleton.getstats();
@@ -342,8 +319,9 @@ public class UIManager : MonoBehaviour
         Debug.Log("Searching for a match");
 
         Message message = Message.Create(MessageSendMode.reliable, (ushort)ClientToServerId.findmatch);
-        localusername = usernameField.text.ToString();
-        message.AddString(usernameField.text.ToString());
+
+        message.AddString(localusername);
+
         NetworkManager.Singleton.Client.Send(message);
 
         GameLogic.Singleton.gameidtext.text = "Searching for a match";
@@ -377,28 +355,14 @@ public class UIManager : MonoBehaviour
 
     public void offlinetest_clicked()
     {
-        if (localusername == "")
-        {
-            
-            if (usernameField.text == "")
-            {
-                usernameField.text = "Guest";
-            }
-
-            localusername = usernameField.text;
-        }
-
         GameLogic.Singleton.capacity = 1;
         GameLogic.Singleton.pcount = 1;
         GameLogic.Singleton.matchplayers.Clear();
 
         GameObject pl = Instantiate(GameLogic.prefabofcara(Player.localcara), new Vector3(-192, 0, 0), Quaternion.identity);
         TMP_Text pltext = pl.transform.GetChild(0).transform.GetChild(0).GetComponent<TMP_Text>();
-        pltext.text = localusername;
-        if (pltext.text == String.Empty)
-        {
-            pltext.text = "Guest";
-        }
+        pltext.text = "Guest";
+
         pl.name = pltext.text;
         pl.SetActive(true);
 
@@ -411,6 +375,7 @@ public class UIManager : MonoBehaviour
 
         GameLogic.Singleton.gamescene.SetActive(true);
         UIManager.Singleton.pgr_slider.SetActive(true);
+
         UIManager.Singleton.connectUI.SetActive(false);
         UIManager.Singleton.menuUI.SetActive(false);
         UIManager.Singleton.waitUI.SetActive(false);
@@ -562,15 +527,8 @@ public class UIManager : MonoBehaviour
 
     public void BackToMain()
     {
-        usernameField.interactable = true;
+        menuUI.SetActive(false);
         connectUI.SetActive(true);
         GameLogic.Singleton.gameidtext.text = "";
-    }
-
-    public void SendName()
-    {
-        Message message = Message.Create(MessageSendMode.reliable, (ushort) ClientToServerId.name);
-        message.AddString(usernameField.text);
-        NetworkManager.Singleton.Client.Send(message);
     }
 }

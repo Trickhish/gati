@@ -7,6 +7,8 @@ public class Drije : MonoBehaviour
     
     private Movement mvt;
     private Player pl;
+    [SerializeField] public static Sprite illu;
+    [SerializeField] public static GameObject prefab;
 
     void Start()
     {

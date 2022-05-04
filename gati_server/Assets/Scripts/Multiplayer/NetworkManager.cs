@@ -148,8 +148,7 @@ public class NetworkManager : MonoBehaviour
     public static void setstatus(ushort pid, bool ingame)
     {
         string mail = Player.plist[pid].Mail;
-
-        string r;
+        string r="false";
 
         if (ingame)
         {
@@ -160,7 +159,7 @@ public class NetworkManager : MonoBehaviour
             r = getreq("https://trickhisch.alwaysdata.net/gati/?a=snig&m=" + mail + "&sat=" + sat);
         }
 
-        if (r == "false")
+        if (r == "false" || r=="unreachable" || r=="error")
         {
             _ = Task.Run(async () =>
             {
@@ -253,7 +252,6 @@ public class NetworkManager : MonoBehaviour
     private static void login(ushort cid, Message m)
     {
         string username = m.GetString();
-
         string mail = m.GetString();
 
         log("Player " + cid + ", signed in: " + username + ", " + mail, "S");

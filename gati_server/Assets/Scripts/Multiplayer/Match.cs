@@ -153,6 +153,7 @@ public class Match : MonoBehaviour
         message.AddString(username);
         message.AddString(cara);
         message.AddBool(joined);
+
         foreach (Player value in players.Values)
         {
             NetworkManager.Singleton.Server.Send(message, value.Id);
@@ -234,12 +235,14 @@ public class Match : MonoBehaviour
             {
                 Player ap = new Player(clientid, mid);
                 ap.Username = username;
+                ap.cara = cara;
                 Player.plist.Add(clientid, ap);
             }
             else
             {
                 Player.plist[clientid].matchid = mid;
                 Player.plist[clientid].position = maps[mlist[mid].map].Item2;
+                Player.plist[clientid].cara = cara;
             }
 
             mlist[mid].players.Add(clientid, Player.plist[clientid]);
@@ -290,6 +293,7 @@ public class Match : MonoBehaviour
         {
             Player ap = new Player(clientid, mid);
             ap.Username = username;
+            ap.cara = cara;
             Player.plist.Add(clientid, ap);
         }
         else
@@ -297,6 +301,7 @@ public class Match : MonoBehaviour
             //Player.plist[clientid].Username = username;
             Player.plist[clientid].matchid = mid;
             Player.plist[clientid].position = maps[mlist[mid].map].Item2;
+            Player.plist[clientid].cara = cara;
         }
 
         mlist[mid].players.Add(clientid, Player.plist[clientid]);
@@ -345,6 +350,17 @@ public class Match : MonoBehaviour
     [MessageHandler((ushort)ClientToServerId.playerposupdate)]
     private static void playerupdate_forward(ushort pid, Message message)
     {
+        if (!Player.plist.ContainsKey(pid))
+        {
+            NetworkManager.log("Client ID unregistered ("+pid+")", "M");
+        } else if (!Match.mlist.ContainsKey(Player.plist[pid].matchid))
+        {
+            NetworkManager.log("User Match unregistered ("+ Player.plist[pid].matchid + ")", "M");
+        } else if (mlist[Player.plist[pid].matchid].map >= maps.Count)
+        {
+            NetworkManager.log("Unregistered map ("+ mlist[Player.plist[pid].matchid].map + ")", "M");
+        }
+
         string mid = Player.plist[pid].matchid;
 
         string status = message.GetString();

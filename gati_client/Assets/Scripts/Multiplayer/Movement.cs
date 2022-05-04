@@ -104,7 +104,7 @@ public class Movement : MonoBehaviour
             collider.size = new Vector2(collider.size.x, originalsize);
             collider.offset = new Vector2(collider.offset.x, originaloffset);
         }
-        if (Input.GetButton("Jump") && groundSensor.State())
+        if (Input.GetButtonDown("Jump") && groundSensor.State())
         {
             if (groundSensor.touchTag == "Obstacle")
                 Roll();
