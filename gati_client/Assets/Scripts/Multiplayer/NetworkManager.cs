@@ -120,6 +120,7 @@ public class NetworkManager : MonoBehaviour
         else
         {
             string[] dts = dt.Substring(2, dt.Length - 4).Split(new[] { '\u0022' + "," + '\u0022' }, StringSplitOptions.None);
+            //Debug.Log(string.Join(" | ", dts));
 
             UIManager.Singleton.usertext_lo.text = dts[0];
             UIManager.localusername = dts[0];
@@ -215,18 +216,22 @@ public class NetworkManager : MonoBehaviour
         }
         else
         {
-            Dictionary<string, int> items = new Dictionary<string, int>();
-            foreach (string e in r.Split(','))
+            try {
+                foreach (string e in r.Split(','))
+                {
+                    //Debug.Log(e);
+                    if (shop_item.items.ContainsKey(e.Split(':')[0]))
+                    {
+                        shop_item.items[e.Split(':')[0]].setstock(int.Parse(e.Split(':')[1]));
+                    }
+                    else
+                    {
+                        shop_item.items.Add(e.Split(':')[0], new shop_item(e.Split(':')[0], int.Parse(e.Split(':')[1])));
+                    }
+                }
+            } catch
             {
-                //Debug.Log(e);
-                if (shop_item.items.ContainsKey(e.Split(':')[0]))
-                {
-                    shop_item.items[e.Split(':')[0]].setstock(int.Parse(e.Split(':')[1]));
-                }
-                else
-                {
-                    shop_item.items.Add(e.Split(':')[0], new shop_item(e.Split(':')[0], int.Parse(e.Split(':')[1])));
-                }
+                UIManager.Singleton.shopUI.SetActive(false);
             }
         }
     }

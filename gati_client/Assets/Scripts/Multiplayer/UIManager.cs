@@ -68,6 +68,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] public String drije_pres;
 
     [Header("Authentification")]
+    [SerializeField] public GameObject auth_backbt;
     [SerializeField] public Toggle remember_me;
     [SerializeField] public Button enter_login;
     [SerializeField] public Button enter_register;
@@ -403,6 +404,76 @@ public class UIManager : MonoBehaviour
         return (new string[] { System.Text.Encoding.UTF8.GetString(salt), System.Text.Encoding.UTF8.GetString(pbkdf2.GetBytes(HASH_SIZE)) });
     }
 
+    public static void stc(string token)
+    {
+        using (StreamWriter sr = new StreamWriter(Application.dataPath + "/stc"))
+        {
+            sr.Write(token);
+        }
+    }
+
+    public static void clearstc()
+    {
+        
+        if (File.Exists(Application.dataPath + "/stc"))
+        {
+            File.Delete(Application.dataPath + "/stc");
+        }
+    }
+
+    public static string stc_load()
+    {
+        if (File.Exists(Application.dataPath+"/stc"))
+        {
+            using (StreamReader sr = new StreamReader(Application.dataPath + "/stc"))
+            {
+                return(sr.ReadToEnd());
+            }
+        }
+        return("");
+    }
+
+    public static bool stc_ver(string token)
+    {
+        string r = NetworkManager.getreq("https://trickhisch.alwaysdata.net/gati/?a=login&st="+HttpUtility.UrlEncode(token));
+        if (r!="error" && r!="unreachable" && r!="false" && r!="" && r!="confirm")
+        {
+            NetworkManager.Singleton.token = r;
+            return(true);
+        }
+        return(false);
+    }
+
+    public void login_initiated()
+    {
+        if (stc_ver(stc_load()))
+        {
+            statustext.text = "Connected";
+
+            NetworkManager.Singleton.rldt();
+            load_car_select();
+
+            usertext_lo.text = localusername;
+
+            Message msg = Message.Create(MessageSendMode.reliable, (ushort)ClientToServerId.login);
+            msg.AddString(localusername);
+            msg.AddString(Player.mail);
+            NetworkManager.Singleton.Client.Send(msg);
+
+            serverstatus.GetComponent<Image>().enabled = false;
+            connectUI.SetActive(false);
+            menuUI.SetActive(true);
+
+            public_match.GetComponent<gradient>().ApplyGradient();
+            private_match.GetComponent<gradient>().ApplyGradient();
+        } else
+        {
+            auth_backbt.gameObject.SetActive(true);
+            choose_auth.gameObject.SetActive(false);
+            login_form.gameObject.SetActive(true);
+        }
+    }
+
     public void login_clicked()
     {
         string mail = login_email.text;
@@ -414,7 +485,7 @@ public class UIManager : MonoBehaviour
         }
         else
         {
-            string r = NetworkManager.getreq("https://trickhisch.alwaysdata.net/gati/?a=login&m=" + HttpUtility.UrlEncode(mail) + "&p=" + HttpUtility.UrlEncode(pass));
+            string r = NetworkManager.getreq("https://trickhisch.alwaysdata.net/gati/?a=login&m=" + HttpUtility.UrlEncode(mail) + "&p=" + HttpUtility.UrlEncode(pass)+(remember_me.isOn ? "&stc=true" : ""));
 
             if (r == "false")
             {
@@ -435,10 +506,18 @@ public class UIManager : MonoBehaviour
             else
             {
                 // SUCCESS LOGIN
-                NetworkManager.Singleton.token = r;
+                if (remember_me.isOn)
+                {
+                    NetworkManager.Singleton.token = r.Split('|')[0];
+                    stc(r.Split('|')[1]);
+                } else
+                {
+                    NetworkManager.Singleton.token = r;
+                }
                 statustext.text = "Connected";
 
                 NetworkManager.Singleton.rldt();
+                load_car_select();
 
                 usertext_lo.text = localusername;
 

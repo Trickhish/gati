@@ -38,7 +38,7 @@ public class hovering_anim : MonoBehaviour
 
     public void MouseEntered()
     {
-        if (btn.interactable)
+        if (btn==null || btn.interactable)
         {
             mouseon = true;
 

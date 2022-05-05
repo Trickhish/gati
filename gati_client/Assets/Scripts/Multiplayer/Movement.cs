@@ -73,6 +73,17 @@ public class Movement : MonoBehaviour
         if (Input.GetKeyDown("e"))
         {
             GetComponent<Animator>().SetTrigger("Capacity");
+        } else if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            UIManager.Singleton.escUI.SetActive(!UIManager.Singleton.escUI.activeSelf);
+        } else if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            UIManager.Singleton.tabUI.SetActive(true);
+        }
+        
+        if (Input.GetKeyUp(KeyCode.Tab))
+        {
+            UIManager.Singleton.tabUI.SetActive(false);
         }
 
         if ((!isSliding && isGrounded) || isJumping)
