@@ -104,7 +104,7 @@ public class Movement : MonoBehaviour
             GetComponent<Animator>().SetBool("Idle", isGrounded);
         }
         GetComponent<Animator>().SetFloat("AirSpeedY", playerRigidbody.velocity.y);
-        if (((Input.GetKey("left shift")|| Input.GetKey("down")) && isGrounded) || slideSensor.State())
+        if (((Input.GetKey("left shift") || Input.GetKey("down")) && isGrounded) || (slideSensor.State() && false))
         {
             isSliding = true;
             GetComponent<Animator>().SetTrigger("Slide");

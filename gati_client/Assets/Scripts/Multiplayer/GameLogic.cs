@@ -64,7 +64,7 @@ public class GameLogic : MonoBehaviour
             t = Time.realtimeSinceStartup;
             if (stct==0)
             {
-                GameLogic.Singleton.localplayer.GetComponent<Player>().enabled = true;
+                GameLogic.Singleton.localplayer.GetComponent<Movement>().enabled = true;
                 UIManager.Singleton.stcounter.text = "GO";
             }
             else if (stct<=-1)
@@ -125,14 +125,13 @@ public class GameLogic : MonoBehaviour
 
         cam.trans.position = new Vector3(-4.2f, 3.7f, 0f);
 
-        GameLogic.Singleton.localplayer.GetComponent<Player>().enabled = false;
-
         foreach (Player p in GameLogic.Singleton.matchplayers.Values)
         {
             p.gameObject.SetActive(true);
         }
 
         UIManager.Singleton.start_ui.SetActive(true);
+
         stct = 5;
     }
 

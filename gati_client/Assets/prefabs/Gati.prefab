@@ -251,7 +251,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6142990538442222925}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 20}
+  m_LocalPosition: {x: 0, y: 0, z: -20}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -374,7 +374,6 @@ GameObject:
   - component: {fileID: 6417284369473325391}
   - component: {fileID: -4375330522863025237}
   - component: {fileID: 6810430278760823457}
-  - component: {fileID: 672662120097967387}
   - component: {fileID: 5897427009506423334}
   m_Layer: 0
   m_Name: Gati
@@ -382,7 +381,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &6417284369473325390
 Transform:
   m_ObjectHideFlags: 0
@@ -524,7 +523,7 @@ Animator:
   m_GameObject: {fileID: 6417284369473325388}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 4d8698915ce88994a9f8d22143bc5619, type: 2}
+  m_Controller: {fileID: 9100000, guid: 7c2172d971d032142beaaf653f7171e4, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -534,22 +533,6 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
---- !u!58 &672662120097967387
-CircleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6417284369473325388}
-  m_Enabled: 0
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: -0.16375285, y: -1.0802306}
-  serializedVersion: 2
-  m_Radius: 0.19057858
 --- !u!61 &5897427009506423334
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -559,7 +542,7 @@ BoxCollider2D:
   m_GameObject: {fileID: 6417284369473325388}
   m_Enabled: 1
   m_Density: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: 52bf308f752a1904aa8f19900919762c, type: 2}
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0

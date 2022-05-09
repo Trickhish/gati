@@ -21,7 +21,7 @@ public class Player : MonoBehaviour
     public bool isGrounded = false;
     public float maxpos;
     public Collider2D ccld;
-    public static string localcara="gati";
+    public static string localcara="drije";
     
     [SerializeField] public Transform isGroundedChecker;
     [SerializeField] public float checkGroundRadius;

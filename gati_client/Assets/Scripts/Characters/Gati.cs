@@ -15,6 +15,7 @@ public class Gati : MonoBehaviour
         if (pl.IsLocal)
         {
             mvt = gameObject.AddComponent<Movement>();
+            mvt.enabled = false;
             mvt.Maxspeed = 16;
             mvt.Acceleration = 6;
             mvt.Agility = 6;
