@@ -119,6 +119,8 @@ public class GameLogic : MonoBehaviour
 
         GameLogic.Singleton.gamescene.SetActive(true);
         UIManager.Singleton.pgr_slider.SetActive(true);
+        UIManager.Singleton.item_bar.SetActive(true);
+
         UIManager.Singleton.connectUI.SetActive(false);
         UIManager.Singleton.menuUI.SetActive(false);
         UIManager.Singleton.waitUI.SetActive(false);
@@ -142,24 +144,44 @@ public class GameLogic : MonoBehaviour
         ushort pid = message.GetUShort();
         Vector2 ppos = message.GetVector2();
 
-        if (status == "walking_left")
+        Animator amt = GameLogic.Singleton.matchplayers[pid].GetComponent<Animator>();
+        SpriteRenderer spr = GameLogic.Singleton.matchplayers[pid].GetComponent<SpriteRenderer>();
+
+        switch(status)
         {
-            GameLogic.Singleton.matchplayers[pid].GetComponent<Animator>().SetBool("walking", true);
-            GameLogic.Singleton.matchplayers[pid].GetComponent<Animator>().SetBool("jumping", false);
-            GameLogic.Singleton.matchplayers[pid].GetComponent<SpriteRenderer>().flipX = true;
-        } else if (status == "walking_right")
-        {
-            GameLogic.Singleton.matchplayers[pid].GetComponent<Animator>().SetBool("walking", true);
-            GameLogic.Singleton.matchplayers[pid].GetComponent<Animator>().SetBool("jumping", false);
-            GameLogic.Singleton.matchplayers[pid].GetComponent<SpriteRenderer>().flipX = false;
-        } else if (status == "jumping")
-        {
-            GameLogic.Singleton.matchplayers[pid].GetComponent<Animator>().SetBool("walking", false);
-            GameLogic.Singleton.matchplayers[pid].GetComponent<Animator>().SetBool("jumping", true);
-        } else
-        {
-            GameLogic.Singleton.matchplayers[pid].GetComponent<Animator>().SetBool("jumping", false);
-            GameLogic.Singleton.matchplayers[pid].GetComponent<Animator>().SetBool("walking", false);
+            case "running_left":
+                GameLogic.Singleton.matchplayers[pid].GetComponent<SpriteRenderer>().flipX = true;
+                amt.SetBool("Idle", false);
+                break;
+            case "running_right":
+                GameLogic.Singleton.matchplayers[pid].GetComponent<SpriteRenderer>().flipX = false;
+                amt.SetBool("Idle", false);
+                break;
+            case "jumping":
+                amt.SetTrigger("Jump");
+                amt.SetBool("Idle", false);
+                break;
+            case "rolling":
+                amt.SetTrigger("Roll");
+                amt.SetBool("Idle", false);
+                break;
+            case "sliding":
+                amt.SetTrigger("Slide");
+                amt.SetBool("Idle", false);
+                break;
+            case "idle":
+                amt.SetBool("Idle", true);
+                break;
+            case "capacity":
+                amt.SetTrigger("Capacity");
+                break;
+            case "falling":
+                amt.SetFloat("AirSpeedY", 1f);
+                amt.SetBool("Idle", false);
+                break;
+            default:
+                amt.SetBool("Idle", true);
+                break;
         }
 
         Vector2 lpos = GameLogic.Singleton.matchplayers[pid].gameObject.transform.position;
@@ -168,11 +190,4 @@ public class GameLogic : MonoBehaviour
 
         GameLogic.Singleton.matchplayers[pid].gameObject.transform.position = ppos;
     }
-
-    /*
-    private static void updateplayerpos(Message msg)
-    {
-        
-    }
-    */
 }

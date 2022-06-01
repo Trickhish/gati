@@ -355,6 +355,7 @@
 -r:"Library/Bee/artifacts/500b0aE.dag/Unity.VSCode.Editor.ref.dll"
 -r:"Library/Bee/artifacts/500b0aE.dag/UnityEditor.UI.ref.dll"
 -r:"Library/Bee/artifacts/500b0aE.dag/UnityEngine.UI.ref.dll"
+"Assets/Scripts/Multiplayer/Effect.cs"
 "Assets/Scripts/Multiplayer/GameLogic.cs"
 "Assets/Scripts/Multiplayer/Match.cs"
 "Assets/Scripts/Multiplayer/MessageExtensions.cs"

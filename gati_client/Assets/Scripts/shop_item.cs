@@ -8,7 +8,7 @@ using UnityEngine.UI;
 public class shop_item : MonoBehaviour
 {
     [SerializeField] public uint price;
-    [SerializeField] private string desc;
+    [SerializeField] public string desc;
     public static Dictionary<string, shop_item> items = new Dictionary<string, shop_item>();
     private TMP_Text pricetext;
     private TMP_Text stocktext;

@@ -17,6 +17,7 @@ public enum ServerToClient : ushort
     rcvplayerposupdate = 5,
     launch = 6,
     matchend = 7,
+    effect = 8,
 }
 
 public enum ClientToServerId : ushort
@@ -28,8 +29,7 @@ public enum ClientToServerId : ushort
     playerposupdate = 5,
     joinprivate = 6,
     login = 7,
-    register = 8,
-    connect = 9,
+    effect = 8,
 }
 
 public class NetworkManager : MonoBehaviour
@@ -237,15 +237,6 @@ public class NetworkManager : MonoBehaviour
         Rfc2898DeriveBytes pbkdf2 = new Rfc2898DeriveBytes(input, salt, ITERATIONS);
 
         return (new string[] { System.Text.Encoding.UTF8.GetString(salt), System.Text.Encoding.UTF8.GetString(pbkdf2.GetBytes(HASH_SIZE)) });
-    }
-
-    [MessageHandler((ushort)ClientToServerId.register)]
-    private static void register(ushort cid, Message m)
-    {
-        string mail = m.GetString();
-        string pass = m.GetString();
-        string salt = m.GetString();
-        pass = salt + pass;
     }
 
     [MessageHandler((ushort)ClientToServerId.login)]

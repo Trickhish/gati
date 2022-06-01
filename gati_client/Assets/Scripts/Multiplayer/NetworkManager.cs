@@ -9,6 +9,7 @@ using System.IO;
 using System.Web;
 using UnityEngine.UI;
 using System.Linq;
+using System.Threading.Tasks;
 
 public enum ServerToClient : ushort
 {
@@ -19,6 +20,7 @@ public enum ServerToClient : ushort
     rcvplayerupdate = 5,
     launch = 6,
     matchend = 7,
+    effect = 8,
 }
 
 public enum ClientToServerId : ushort
@@ -30,7 +32,7 @@ public enum ClientToServerId : ushort
     playerposupdate = 5,
     joinprivate = 6,
     login = 7,
-    register = 8,
+    effect = 8,
 }
 
 public class NetworkManager : MonoBehaviour
@@ -109,6 +111,15 @@ public class NetworkManager : MonoBehaviour
         }
     }
 
+    public static async Task<string> getreq_as(string url)
+    {
+        string result;
+        using (var client = new System.Net.Http.HttpClient())
+        {
+            result = await client.GetStringAsync(url);
+        }
+        return(result);
+    }
     public void rldt()
     {
         string dt = getreq("https://trickhisch.alwaysdata.net/gati/?a=dts&t=" + HttpUtility.UrlEncode(NetworkManager.Singleton.token));
@@ -178,6 +189,41 @@ public class NetworkManager : MonoBehaviour
         }
     }
 
+    public static async Task _rlmoney_as()
+    {
+        await Task.Run(async () =>
+        {
+            string r =  await getreq_as("https://trickhisch.alwaysdata.net/gati/?a=money&t=" + HttpUtility.UrlEncode(NetworkManager.Singleton.token));
+
+            if (r == "unreachable" || r == "false")
+            {
+
+            }
+            else
+            {
+                int m = int.Parse(r);
+                Player.money = m;
+                UIManager.Singleton.shop_money.text = "Money : " + m.ToString() + "$";
+
+                foreach (shop_item i in shop_item.items.Values)
+                {
+                    if (m >= i.price)
+                    {
+                        i.GetComponent<Button>().interactable = true;
+                    }
+                    else
+                    {
+                        i.GetComponent<Button>().interactable = false;
+                    }
+                }
+            }
+        });
+    }
+
+    public void rlmoney_as()
+    {
+        _rlmoney_as();
+    }
     public void rlmoney()
     {
         string r = getreq("https://trickhisch.alwaysdata.net/gati/?a=money&t=" + HttpUtility.UrlEncode(NetworkManager.Singleton.token));
@@ -206,6 +252,45 @@ public class NetworkManager : MonoBehaviour
         }
     }
 
+    public static async Task _rlitems_as()
+    {
+        await Task.Run(async () =>
+        {
+            string r = await getreq_as("https://trickhisch.alwaysdata.net/gati/?a=items&t=" + HttpUtility.UrlEncode(NetworkManager.Singleton.token));
+
+            if (r == "unreachable" && r == "false")
+            {
+
+            }
+            else
+            {
+                try
+                {
+                    foreach (string e in r.Split(','))
+                    {
+                        //Debug.Log(e);
+                        if (shop_item.items.ContainsKey(e.Split(':')[0]))
+                        {
+                            shop_item.items[e.Split(':')[0]].setstock(int.Parse(e.Split(':')[1]));
+                        }
+                        else
+                        {
+                            shop_item.items.Add(e.Split(':')[0], new shop_item(e.Split(':')[0], int.Parse(e.Split(':')[1])));
+                        }
+                    }
+                }
+                catch
+                {
+                    UIManager.Singleton.shopUI.SetActive(false);
+                }
+            }
+        });
+    }
+
+    public void rlitems_as()
+    {
+        _rlitems_as();
+    }
     public void rlitems()
     {
         string r = getreq("https://trickhisch.alwaysdata.net/gati/?a=items&t=" + HttpUtility.UrlEncode(NetworkManager.Singleton.token));
@@ -236,6 +321,39 @@ public class NetworkManager : MonoBehaviour
         }
     }
 
+    public static async Task _rlassets_as()
+    {
+        await Task.Run(async () =>
+        {
+            string r = await getreq_as("https://trickhisch.alwaysdata.net/gati/?a=assets&t=" + HttpUtility.UrlEncode(NetworkManager.Singleton.token));
+
+            if (r == "unreachable" && r == "false")
+            {
+
+            }
+            else
+            {
+                string l1 = r.Split('|')[0];
+                string l2 = r.Split('|')[1];
+
+                Dictionary<string, int> items = new Dictionary<string, int>();
+                foreach (string e in r.Split(','))
+                {
+                    if (shop_item.items.ContainsKey(e.Split(':')[0]))
+                    {
+                        shop_item.items[e.Split(':')[0]].setstock(int.Parse(e.Split(':')[1]));
+                    }
+                }
+
+                List<string> skins = l2.Split(',').ToList();
+            }
+        });
+    }
+
+    public void rlassets_as()
+    {
+        _rlassets_as();
+    }
     public void rlassets()
     {
         string r = getreq("https://trickhisch.alwaysdata.net/gati/?a=assets&t=" + HttpUtility.UrlEncode(NetworkManager.Singleton.token));

@@ -54,6 +54,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] public GameObject start_ui;
 
     [Header("Caracter Choice")]
+    [SerializeField] public Animator car_illu_anim;
     [SerializeField] public Image car_illu;
     [SerializeField] public TMP_Text car_pres;
     [SerializeField] public Image car_stats;
@@ -114,15 +115,18 @@ public class UIManager : MonoBehaviour
     [SerializeField] public TMP_InputField private_mid;
     [SerializeField] public gradient private_mid_gradient;
 
-    [Header("Canva Universal")]
+    [Header("Universal Canvas")]
     [SerializeField] public TMP_Text statustext;
     [SerializeField] public GameObject pgr_slider;
     [SerializeField] public TMP_Text stcounter;
+    [SerializeField] public GameObject item_bar;
 
     [Header("Misc")]
     [SerializeField] public Button connectbt;
     [SerializeField] public TMP_Text usertext_lo;
 
+    [SerializeField] public AudioSource clickaudio;
+    [SerializeField] public AudioSource hoveraudio;
 
     EventSystem system;
 
@@ -141,6 +145,7 @@ public class UIManager : MonoBehaviour
         tabUI.SetActive(false);
         waitUI.SetActive(false);
         pgr_slider.SetActive(false);
+        item_bar.SetActive(false);
         serverstatus.SetActive(true);
 
         //UIManager.Singleton.connectbt.interactable = false;
@@ -216,6 +221,7 @@ public class UIManager : MonoBehaviour
             prev_car.interactable = false;
             next_car.interactable = true;
 
+            car_illu_anim.SetInteger("cara", 0);
             car_illu.sprite = gati_illu;
             car_pres.text = gati_pres;
             car_stats.sprite = gati_stats;
@@ -224,6 +230,7 @@ public class UIManager : MonoBehaviour
             prev_car.interactable = true;
             next_car.interactable = false;
 
+            car_illu_anim.SetInteger("cara", 1);
             car_illu.sprite = drije_illu;
             car_pres.text = drije_pres;
             car_stats.sprite = drije_stats;
@@ -282,19 +289,21 @@ public class UIManager : MonoBehaviour
         GameLogic.Singleton.capacity = 0;
         GameLogic.Singleton.pcount = 0;
 
-        UIManager.Singleton.escUI.SetActive(false);
+        escUI.SetActive(false);
         pgr_slider.SetActive(false);
-        UIManager.Singleton.tabUI.SetActive(false);
-        UIManager.Singleton.waitUI.SetActive(false);
+        item_bar.SetActive(false);
+        privatematchUI.SetActive(false);
+        tabUI.SetActive(false);
+        waitUI.SetActive(false);
 
         if (GameLogic.Singleton.id == "test")
         {
-            UIManager.Singleton.menuUI.SetActive(false);
-            UIManager.Singleton.connectUI.SetActive(true);
+            menuUI.SetActive(false);
+            connectUI.SetActive(true);
         } else
         {
-            UIManager.Singleton.menuUI.SetActive(true);
-            UIManager.Singleton.connectUI.SetActive(false);
+            menuUI.SetActive(true);
+            connectUI.SetActive(false);
         }
         GameLogic.Singleton.id = "";
 
@@ -375,11 +384,12 @@ public class UIManager : MonoBehaviour
         GameLogic.Singleton.matchplayers.Add(NetworkManager.Singleton.Client.Id, rpl);
 
         GameLogic.Singleton.gamescene.SetActive(true);
-        UIManager.Singleton.pgr_slider.SetActive(true);
+        pgr_slider.SetActive(true);
+        item_bar.SetActive(true);
 
-        UIManager.Singleton.connectUI.SetActive(false);
-        UIManager.Singleton.menuUI.SetActive(false);
-        UIManager.Singleton.waitUI.SetActive(false);
+        connectUI.SetActive(false);
+        menuUI.SetActive(false);
+        waitUI.SetActive(false);
 
         TMP_Text tab_text = UIManager.Singleton.tabUI.transform.GetChild(2).gameObject.GetComponent<TMP_Text>();
         tab_text.text = "TEST MATCH\n"+pltext.text;

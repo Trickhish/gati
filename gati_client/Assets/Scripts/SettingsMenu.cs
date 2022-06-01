@@ -7,6 +7,7 @@ using System.Linq;
 public class SettingsMenu : MonoBehaviour
 {
     public AudioMixer audioMixer;
+    public AudioSource audioSource;
     public Dropdown resolutionDropdown;
     Resolution[] resolutions;
 
@@ -37,7 +38,8 @@ public class SettingsMenu : MonoBehaviour
     }
     public void SetVolume(float volume)
     {
-        audioMixer.SetFloat("volume", volume);
+        //audioMixer.SetFloat("volume", volume);
+        audioSource.volume = volume;
     }
 
     public void SetFullScreen(bool isFullScreen)

@@ -383,7 +383,7 @@ public class Match : MonoBehaviour
             mlist.Remove(mid);
             NetworkManager.log(Player.plist[pid].Username + " (" + pid + ") won", "M");
         }
-        else
+        else if (Player.plist[pid].CanMove())
         {
             Message msg = Message.Create(MessageSendMode.unreliable, (ushort)ServerToClient.rcvplayerposupdate);
 

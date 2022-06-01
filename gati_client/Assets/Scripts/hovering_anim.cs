@@ -33,13 +33,25 @@ public class hovering_anim : MonoBehaviour
 
         btn = GetComponent<Button>();
 
+        if (btn!=null)
+        {
+            btn.onClick.AddListener(BtnClick);
+        }
+
         rt = (RectTransform)GetComponent<Transform>();
+    }
+
+    public void BtnClick()
+    {
+        UIManager.Singleton.clickaudio.Play();
     }
 
     public void MouseEntered()
     {
         if (btn==null || btn.interactable)
         {
+            UIManager.Singleton.hoveraudio.Play();
+
             mouseon = true;
 
             if (anim == "enlarge")

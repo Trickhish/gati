@@ -14,6 +14,7 @@ public class Player : MonoBehaviour
     public Vector3 position { get; set; }
     public Dictionary<string, int> items { get; set; }
     public string cara;
+    public List<Effect> effects {get; set;}
 
     private void OnDestroy()
     {
@@ -29,6 +30,7 @@ public class Player : MonoBehaviour
         cara = "";
         position = new Vector3(-192f, 0f, 0f);
         items = new Dictionary<string, int>();
+        this.effects = new List<Effect>();
     }
 
     public Player(ushort id, string mid)
@@ -40,6 +42,7 @@ public class Player : MonoBehaviour
         Mail = "";
         position = new Vector3(-192f, 0f, 0f);
         items = new Dictionary<string, int>();
+        this.effects = new List<Effect>();
     }
 
     public Player(ushort id)
@@ -51,6 +54,19 @@ public class Player : MonoBehaviour
         cara = "";
         position = new Vector3(-192f, 0f, 0f);
         items = new Dictionary<string, int>();
+        this.effects = new List<Effect>();
+    }
+
+    public bool CanMove()
+    {
+        foreach(Effect ef in this.effects)
+        {
+            if (ef.Name == "stun")
+            {
+                return(false);
+            }
+        }
+        return(true);
     }
 
     [MessageHandler((ushort)ClientToServerId.name)]

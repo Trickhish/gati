@@ -60,6 +60,7 @@
     <Compile Include="Assets\Scripts\Multiplayer\Player.cs" />
     <Compile Include="Assets\Scripts\Multiplayer\NetworkManager.cs" />
     <Compile Include="Assets\Scripts\Multiplayer\GameLogic.cs" />
+    <Compile Include="Assets\Scripts\Multiplayer\Effect.cs" />
     <Compile Include="Assets\Scripts\Multiplayer\Match.cs" />
   </ItemGroup>
   <ItemGroup>

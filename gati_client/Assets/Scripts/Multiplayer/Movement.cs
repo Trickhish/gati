@@ -1,3 +1,4 @@
+using RiptideNetworking;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -72,7 +73,14 @@ public class Movement : MonoBehaviour
     {
         if (Input.GetKeyDown("e"))
         {
+            pl.status = "capacity";
+            pl.updatepos();
+
             GetComponent<Animator>().SetTrigger("Capacity");
+
+            Message msg = Message.Create(MessageSendMode.reliable, (ushort)ClientToServerId.effect);
+            msg.AddUShort(0);
+            NetworkManager.Singleton.Client.Send(msg);
         } else if (Input.GetKeyDown(KeyCode.Escape))
         {
             UIManager.Singleton.escUI.SetActive(!UIManager.Singleton.escUI.activeSelf);
@@ -91,7 +99,9 @@ public class Movement : MonoBehaviour
         if (!isGrounded && groundSensor.State())
         {
             isGrounded = true;
+            isMoving = false;
             isJumping = false;
+            pl.status = "idle";
             collider.size = new Vector2(collider.size.x, originalsize);
             collider.offset = new Vector2(collider.offset.x, originaloffset);
             GetComponent<Animator>().SetBool("Idle", isGrounded);
@@ -101,12 +111,16 @@ public class Movement : MonoBehaviour
         if (isGrounded && !groundSensor.State())
         {
             isGrounded = false;
+            isMoving = true;
+            pl.status = "falling";
             GetComponent<Animator>().SetBool("Idle", isGrounded);
         }
         GetComponent<Animator>().SetFloat("AirSpeedY", playerRigidbody.velocity.y);
         if (((Input.GetKey("left shift") || Input.GetKey("down")) && isGrounded) || (slideSensor.State() && false))
         {
+            isMoving = true;
             isSliding = true;
+            pl.status = "sliding";
             GetComponent<Animator>().SetTrigger("Slide");
             Slide();
         } else
@@ -117,6 +131,7 @@ public class Movement : MonoBehaviour
         }
         if (Input.GetButtonDown("Jump") && groundSensor.State())
         {
+            isMoving = true;
             if (groundSensor.touchTag == "Obstacle")
                 Roll();
             else Jump();
@@ -134,6 +149,8 @@ public class Movement : MonoBehaviour
 
     private void Jump()
     {
+        pl.status = "jumping";
+
         GetComponent<Animator>().SetTrigger("Jump");
         isGrounded = false;
         isJumping = true;
@@ -145,6 +162,8 @@ public class Movement : MonoBehaviour
     
     private void Roll()
     {
+        pl.status = "rolling";
+
         GetComponent<Animator>().SetTrigger("Roll");
         isGrounded = false;
         playerRigidbody.velocity = new Vector2(mFacingDirection * speed + (agility * 2), 11);
@@ -155,6 +174,8 @@ public class Movement : MonoBehaviour
 
     private void Slide()
     {
+        pl.status = "sliding";
+
         if (speed > 0)
             speed -= 10 * Time.deltaTime;
         else
@@ -166,17 +187,21 @@ public class Movement : MonoBehaviour
     
     private void MovePlayer()
     {
+        
         var horizontalInput = Input.GetAxisRaw("Horizontal");
         if (horizontalInput > 0)
         {
             GetComponent<SpriteRenderer>().flipX = false;
             mFacingDirection = 1;
             isMoving = true;
-        }else if (horizontalInput < 0)
+            pl.status = "running_right";
+        }
+        else if (horizontalInput < 0)
         {
             GetComponent<SpriteRenderer>().flipX = true;
             mFacingDirection = -1;
             isMoving = true;
+            pl.status = "running_left";
         } else
         {
             isMoving = false;

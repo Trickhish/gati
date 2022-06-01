@@ -60,6 +60,7 @@
     <Compile Include="Assets\Scripts\Multiplayer\GameLogic.cs" />
     <Compile Include="Assets\Scripts\Multiplayer\Movement.cs" />
     <Compile Include="Assets\Scripts\cam.cs" />
+    <Compile Include="Assets\Scripts\Multiplayer\Effect.cs" />
     <Compile Include="Assets\Scripts\Multiplayer\server_reachability.cs" />
     <Compile Include="Assets\Scripts\cursor.cs" />
     <Compile Include="Assets\Scripts\gradient.cs" />

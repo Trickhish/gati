@@ -317,6 +317,7 @@
 "Assets/Scripts/cursor.cs"
 "Assets/Scripts/gradient.cs"
 "Assets/Scripts/hovering_anim.cs"
+"Assets/Scripts/Multiplayer/Effect.cs"
 "Assets/Scripts/Multiplayer/GameLogic.cs"
 "Assets/Scripts/Multiplayer/MessageExtensions.cs"
 "Assets/Scripts/Multiplayer/Movement.cs"

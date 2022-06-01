@@ -17,10 +17,15 @@ public class Player : MonoBehaviour
     public GameObject caraprefab;
     public string cara;
     public bool ismoving { get; set; }
-    public Vector3 lpos = new Vector3(0,0,0);
+    public bool isjumping { get; set; }
     public bool isGrounded = false;
+    public string status { get; set; }
+
     public float maxpos;
+    public Vector3 lpos = new Vector3(0, 0, 0);
+    public List<Effect> effects {get;set;}
     public Collider2D ccld;
+    public Movement mov;
     public static string localcara="drije";
     
     [SerializeField] public Transform isGroundedChecker;
@@ -47,22 +52,6 @@ public class Player : MonoBehaviour
             }
         }
     }
-
-    private void Start()
-    {
-        
-    }
-
-    private void Update()
-    {
-        
-    }
-
-    private void FixedUpdate()
-    {
-
-    }
-
     private void OnDestroy()
     {
         list.Remove(Id);
@@ -74,33 +63,17 @@ public class Player : MonoBehaviour
         this.username = username;
         this.IsLocal = islocal;
         this.ismoving = false;
+        this.isjumping = false;
         //this.lpos = new Vector3(0,0,0);
         this.cara = "drije";
+        this.mov = GetComponent<Movement>();
     }
 
-    public void updatepos()
+    public void updatepos() // called when the players is moving. update the position of the player for each other player in the match.
     {
         Message message = Message.Create(MessageSendMode.unreliable, (ushort)ClientToServerId.playerposupdate);
-        if (this.ismoving)
-        {
-            if (this.isGrounded)
-            {
-                if (this.GetComponent<SpriteRenderer>().flipX)
-                {
-                    message.AddString("walking_left");
-                } else
-                {
-                    message.AddString("walking_right");
-                }
-                
-            } else
-            {
-                message.AddString("jumping");
-            }
-        } else
-        {
-            message.AddString("idle");
-        }
+        message.AddString(this.status=="" ? "idle" : this.status);
+
         message.AddVector3(this.transform.position);
         NetworkManager.Singleton.Client.Send(message);
     }
@@ -124,10 +97,19 @@ public class Player : MonoBehaviour
         Spawn(message.GetUShort(), message.GetString(), message.GetVector3());
     }
 
-    [MessageHandler((ushort)ServerToClient.match)]
-    //match found
+    [MessageHandler((ushort)ServerToClient.effect)] // in the radius of someone's capacity
+    private static void affected(Message msg)
+    {
+        ushort eid = msg.GetUShort();
+        int edur = msg.GetInt();
+
+        GameLogic.Singleton.localplayer.effects.Add(new Effect(eid.ToString(), edur));
+    }
+
+    [MessageHandler((ushort)ServerToClient.match)] // match found
     private static void matchjoined(Message message)
     {
+        NetworkManager.Singleton.rlitems();
         
         UIManager.Singleton.pgr_slider.GetComponent<Slider>().value = 0;
 
@@ -165,7 +147,7 @@ public class Player : MonoBehaviour
 
         Debug.Log(pc.ToString()+" players to spawn");
 
-        for (int i=0;i<pc;i++)
+        for (int i=0;i<pc;i++) // adding match's players
         {
             ushort pid = message.GetUShort();
             string username = message.GetString();
@@ -213,7 +195,7 @@ public class Player : MonoBehaviour
         Debug.Log("joined "+mid.ToString());
     }
 
-    [MessageHandler((ushort)ServerToClient.matchstatus)]
+    [MessageHandler((ushort)ServerToClient.matchstatus)] // a player joined or leaved the match
     private static void receivedmatchstatus(Message message)
     {
         ushort pid = message.GetUShort();

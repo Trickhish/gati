@@ -19,12 +19,10 @@ ScriptsOnlyBuild:
     - UnityEditor.U2D.Animation.BoneGizmo
     Unity.2D.IK.Editor.dll:
     - UnityEditor.U2D.IK.IKEditorManager
-    - UnityEditor.U2D.IK.IKGizmos
     Unity.2D.Tilemap.Editor.dll:
     - UnityEditor.Tilemaps.GridBrush
     - UnityEditor.Tilemaps.GridPaintingState
     - UnityEditor.Tilemaps.GridPaletteBrushes
-    - UnityEditor.Tilemaps.GridPalettes
     - UnityEditor.Tilemaps.SceneViewGridManager
     - UnityEditor.Tilemaps.SceneViewOpenTilePaletteHelper
     - UnityEditor.Tilemaps.TileDragAndDropManager
@@ -43,10 +41,8 @@ ScriptsOnlyBuild:
     UnityEditor.Graphs.dll:
     - UnityEditor.Graphs.AnimationBlendTree.Graph
     - UnityEditor.Graphs.AnimationBlendTree.GraphGUI
-    - UnityEditor.Graphs.AnimationStateMachine.AnyStateNode
     - UnityEditor.Graphs.AnimationStateMachine.Graph
     - UnityEditor.Graphs.AnimationStateMachine.GraphGUI
-    - UnityEditor.Graphs.AnimationStateMachine.StateNode
     - UnityEditor.Graphs.AnimatorControllerTool
     UnityEditor.TestRunner.dll:
     - UnityEditor.TestTools.TestRunner.Api.CallbacksHolder
@@ -209,6 +205,15 @@ ScriptsOnlyBuild:
     fullTypeName: hovering_anim
     methodName: MouseExited
   - assembly: Assembly-CSharp
+    fullTypeName: hovering_anim
+    methodName: MouseEntered
+  - assembly: Assembly-CSharp
+    fullTypeName: hovering_anim
+    methodName: MouseExited
+  - assembly: UnityEngine.CoreModule
+    fullTypeName: UnityEngine.GameObject
+    methodName: SetActive
+  - assembly: Assembly-CSharp
     fullTypeName: UIManager
     methodName: leavematch
   - assembly: UnityEngine.CoreModule
@@ -322,9 +327,6 @@ ScriptsOnlyBuild:
   - assembly: Assembly-CSharp
     fullTypeName: hovering_anim
     methodName: MouseExited
-  - assembly: Assembly-CSharp
-    fullTypeName: UIManager
-    methodName: findmatch_clicked
   - assembly: Assembly-CSharp
     fullTypeName: UIManager
     methodName: findmatch_clicked
@@ -700,9 +702,6 @@ ScriptsOnlyBuild:
   - assembly: UnityEngine.CoreModule
     fullTypeName: UnityEngine.GameObject
     methodName: SetActive
-  - assembly: UnityEngine.CoreModule
-    fullTypeName: UnityEngine.GameObject
-    methodName: SetActive
   - assembly: Assembly-CSharp
     fullTypeName: hovering_anim
     methodName: MouseExited
@@ -846,13 +845,13 @@ ScriptsOnlyBuild:
     - Class: 111
       Script: {instanceID: 0}
     - Class: 114
-      Script: {instanceID: 1558}
+      Script: {instanceID: 1626}
     - Class: 114
-      Script: {instanceID: 1628}
+      Script: {instanceID: 1658}
     - Class: 114
-      Script: {instanceID: 1660}
+      Script: {instanceID: 1692}
     - Class: 114
-      Script: {instanceID: 1694}
+      Script: {instanceID: 1758}
     - Class: 114
       Script: {instanceID: 1776}
     - Class: 114
@@ -890,43 +889,43 @@ ScriptsOnlyBuild:
     - Class: 114
       Script: {instanceID: 4044}
     - Class: 114
-      Script: {instanceID: 4146}
+      Script: {instanceID: 4148}
     - Class: 114
-      Script: {instanceID: 4512}
+      Script: {instanceID: 4514}
     - Class: 114
-      Script: {instanceID: 4580}
+      Script: {instanceID: 4582}
     - Class: 114
-      Script: {instanceID: 4762}
+      Script: {instanceID: 4764}
     - Class: 114
-      Script: {instanceID: 4828}
+      Script: {instanceID: 4830}
     - Class: 114
-      Script: {instanceID: 4834}
+      Script: {instanceID: 4836}
     - Class: 114
-      Script: {instanceID: 4896}
+      Script: {instanceID: 4898}
     - Class: 114
-      Script: {instanceID: 4934}
+      Script: {instanceID: 4936}
     - Class: 114
-      Script: {instanceID: 5056}
+      Script: {instanceID: 5058}
     - Class: 114
-      Script: {instanceID: 5092}
+      Script: {instanceID: 5094}
     - Class: 114
-      Script: {instanceID: 5176}
+      Script: {instanceID: 5178}
     - Class: 114
-      Script: {instanceID: 5204}
+      Script: {instanceID: 5206}
     - Class: 114
-      Script: {instanceID: 5224}
+      Script: {instanceID: 5226}
     - Class: 114
-      Script: {instanceID: 5364}
+      Script: {instanceID: 5366}
     - Class: 114
-      Script: {instanceID: 5628}
+      Script: {instanceID: 5630}
     - Class: 114
-      Script: {instanceID: 5638}
+      Script: {instanceID: 5640}
     - Class: 114
-      Script: {instanceID: 6098}
+      Script: {instanceID: 6100}
     - Class: 114
-      Script: {instanceID: 6148}
+      Script: {instanceID: 6150}
     - Class: 114
-      Script: {instanceID: 6240}
+      Script: {instanceID: 6242}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 128
@@ -956,12 +955,6 @@ ScriptsOnlyBuild:
   scriptHashData:
   - hash:
       serializedVersion: 2
-      Hash: bcaee4c2a83047257b5f47d6ed264b75
-    assemblyName: UnityEngine.UI.dll
-    namespaceName: UnityEngine.UI
-    className: Toggle
-  - hash:
-      serializedVersion: 2
       Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
     assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.UIElements
@@ -986,7 +979,7 @@ ScriptsOnlyBuild:
     className: TMP_InputField
   - hash:
       serializedVersion: 2
-      Hash: 8b21061e9d037d307e029130da878344
+      Hash: 0006e97dd68c49779619a537d60f3cdf
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: SettingsMenu
@@ -1002,6 +995,12 @@ ScriptsOnlyBuild:
     assemblyName: Unity.Timeline.dll
     namespaceName: UnityEngine.Timeline
     className: SignalAsset
+  - hash:
+      serializedVersion: 2
+      Hash: bcaee4c2a83047257b5f47d6ed264b75
+    assemblyName: UnityEngine.UI.dll
+    namespaceName: UnityEngine.UI
+    className: Toggle
   - hash:
       serializedVersion: 2
       Hash: 59ce5902048c1041729c804e2772b2ce
@@ -1274,6 +1273,12 @@ ScriptsOnlyBuild:
     className: Outline
   - hash:
       serializedVersion: 2
+      Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: Effect
+  - hash:
+      serializedVersion: 2
       Hash: c3d3430df9e3ea95e3e3d587961390fb
     assemblyName: Unity.Timeline.dll
     namespaceName: UnityEngine.Timeline
@@ -1442,7 +1447,7 @@ ScriptsOnlyBuild:
     className: ScrollRect
   - hash:
       serializedVersion: 2
-      Hash: 1720b17b9892116852b3cb168cafe617
+      Hash: dd49cd9efc3e26517c24dea601ee4a6c
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: UIManager
@@ -1472,7 +1477,7 @@ ScriptsOnlyBuild:
     className: TMP_Settings
   - hash:
       serializedVersion: 2
-      Hash: 4ee95fd05a274aab78e3827fb0ddbebc
+      Hash: b3bf9905f786c1fad8b5c29a17d88446
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: Player
