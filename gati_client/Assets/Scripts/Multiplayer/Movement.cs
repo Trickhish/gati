@@ -1,6 +1,7 @@
 using RiptideNetworking;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -84,13 +85,12 @@ public class Movement : MonoBehaviour
     {
         if (collision.gameObject.tag == "plateform")
         {
-            Debug.Log("ignored");
             Physics2D.IgnoreCollision(this.collider, collision.collider);
         }
     }
 
-        // Update is called once per frame
-        void Update()
+    // Update is called once per frame
+    void Update()
     {
         if (Input.GetKeyDown((KeyCode) keys["Capacity"]))
         {
@@ -161,6 +161,10 @@ public class Movement : MonoBehaviour
             else Jump();
         }
 
+        if (playerRigidbody.velocity.y<0)
+        {
+            pl.status="falling";
+        }
         if (isMoving || !isGrounded)
         {
             pl.updatepos();
@@ -230,8 +234,11 @@ public class Movement : MonoBehaviour
         } else if (isMoving)
         {
             isMoving = false;
-            pl.status = "idle";
-            pl.updatepos();
+            if (isGrounded)
+            {
+                pl.status = "idle";
+                pl.updatepos();
+            }
         }
         if (horizontalInput == 0 && speed > 6) speed = 6;
         else

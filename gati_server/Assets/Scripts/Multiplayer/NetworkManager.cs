@@ -96,6 +96,12 @@ public class NetworkManager : MonoBehaviour
         }
         Server.ClientDisconnected += PlayerLeft;
         Server.ClientConnected += PlayerJoined;
+
+
+        Debug.Log("starting effect");
+        Player p = new Player(0);
+        Effect e = new Effect(p, "stun", 4);
+        Debug.Log(p.CanMove() ? "canmove" : "cannont move");
     }
 
     private void FixedUpdate()
@@ -171,6 +177,15 @@ public class NetworkManager : MonoBehaviour
                 setstatus(pid, ingame);
             });
         }
+    }
+
+    public static bool useitem(ushort pid, string item)
+    {
+        string mail = Player.plist[pid].Mail;
+
+        string r = getreq("https://trickhisch.alwaysdata.net/gati/?a=use&m=" + HttpUtility.UrlEncode(mail) + "&sat=" + sat+"&i="+ HttpUtility.UrlEncode(item));
+
+        return(r=="true");
     }
 
     private void PlayerJoined(object sender, ServerClientConnectedEventArgs e)

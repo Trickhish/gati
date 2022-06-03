@@ -28,15 +28,15 @@ public class Match : MonoBehaviour
 
     public static List<(string, Vector2, Vector2)> maps = new List<(string, Vector2, Vector2)>
     {
-        ("Etril Sewer", new Vector2(-192f, 0f), new Vector2(2f, -3.5f)),
-        ("Niya City", new Vector2(-192f, 0f), new Vector2(2f, -3.5f)),
-        ("Ayrith Forest", new Vector2(-192f, 0f), new Vector2(2f, -3.5f)),
-        ("Bravo Camp", new Vector2(-192f, 0f), new Vector2(2f, -3.5f)),
-        ("Pirate Beach", new Vector2(-192f, 0f), new Vector2(2f, -3.5f)),
-        ("Maya Temple", new Vector2(-192f, 0f), new Vector2(2f, -3.5f)),
-        ("Snowy Mountain", new Vector2(-192f, 0f), new Vector2(2f, -3.5f)),
-        ("Prehistory", new Vector2(-192f, 0f), new Vector2(2f, -3.5f)),
-        ("Camda", new Vector2(-192f, 0f), new Vector2(2f, -3.5f))
+        ("Etril Sewer", new Vector2(-192f, -4f), new Vector2(2f, -3.5f)),
+        ("Niya City", new Vector2(-192f, -4f), new Vector2(2f, -3.5f)),
+        ("Ayrith Forest", new Vector2(-192f, -4f), new Vector2(2f, -3.5f)),
+        ("Bravo Camp", new Vector2(-192f, -4f), new Vector2(2f, -3.5f)),
+        ("Pirate Beach", new Vector2(-192f, -4f), new Vector2(2f, -3.5f)),
+        ("Maya Temple", new Vector2(-192f, -4f), new Vector2(2f, -3.5f)),
+        ("Snowy Mountain", new Vector2(-192f, -4f), new Vector2(2f, -3.5f)),
+        ("Prehistory", new Vector2(-192f, -4f), new Vector2(2f, -3.5f)),
+        ("Camda", new Vector2(-192f, -4f), new Vector2(2f, -3.5f))
     };
 
     static System.Random rand = new System.Random();
@@ -330,6 +330,7 @@ public class Match : MonoBehaviour
         Message msg = Message.Create(MessageSendMode.reliable, ServerToClient.matchstatus);
         msg.AddUShort(pid);
         msg.AddString(Player.plist[pid].Username);
+        msg.AddString(Player.plist[pid].cara);
         msg.AddBool(false);
 
         foreach (ushort cid in mlist[mid].players.Keys)

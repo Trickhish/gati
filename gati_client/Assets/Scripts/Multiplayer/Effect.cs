@@ -14,7 +14,6 @@ public class Effect : MonoBehaviour
         this.Name = name;
         this.Duration = dur;
         this.StartTime = Time.realtimeSinceStartup;
-        this.pl = GetComponent<Player>();
     }
 
     private void Start() // #addeffect
@@ -32,7 +31,7 @@ public class Effect : MonoBehaviour
     {
         if ((Time.realtimeSinceStartup - this.StartTime) >= this.Duration)
         {
-            this.pl.effects.Remove(this);
+            GameLogic.Singleton.localplayer.effects.Remove(this);
             Destroy(this);
         }
     }

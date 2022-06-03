@@ -67,34 +67,16 @@ public class Player : MonoBehaviour
         //this.lpos = new Vector3(0,0,0);
         this.cara = "drije";
         this.mov = GetComponent<Movement>();
+        this.status = "idle";
     }
 
     public void updatepos() // called when the players is moving. update the position of the player for each other player in the match.
     {
         Message message = Message.Create(MessageSendMode.unreliable, (ushort)ClientToServerId.playerposupdate);
-        message.AddString(this.status=="" ? "idle" : this.status);
+        message.AddString((this.status=="" || this.status==null) ? "idle" : this.status);
 
         message.AddVector3(this.transform.position);
         NetworkManager.Singleton.Client.Send(message);
-    }
-
-    public static void Spawn(ushort id, string username, Vector3 position)
-    {
-        Player player;
-        player = Instantiate(GameLogic.Singleton.gati_prefab, position, Quaternion.identity).GetComponent<Player>();
-        player.IsLocal = (id == NetworkManager.Singleton.Client.Id);
-
-        player.name = $"Player {id} ({(string.IsNullOrEmpty(username) ? "Guest" : username)})";
-        player.Id = id;
-        player.username = username;
-
-        list.Add(id, player);
-    }
-
-    [MessageHandler((ushort)ServerToClient.playerSpawned)]
-    private static void SpawnPlayer(Message message)
-    {
-        Spawn(message.GetUShort(), message.GetString(), message.GetVector3());
     }
 
     [MessageHandler((ushort)ServerToClient.match)] // match found
@@ -110,6 +92,7 @@ public class Player : MonoBehaviour
         Vector3 spos = message.GetVector2();
 
         GameLogic.Singleton.gameidtext.text = "Match: " + mid;
+        GameLogic.Singleton.startpos = spos;
 
 
         UIManager.Singleton.connectUI.SetActive(false);
@@ -207,10 +190,11 @@ public class Player : MonoBehaviour
                 pt.GetComponent<TMP_Text>().text = username;
 
 
-                GameObject pl = Instantiate(GameLogic.Singleton.gati_prefab, new Vector3(-192, 0f, 0f), Quaternion.identity);
+                GameObject pl = Instantiate(GameLogic.prefabofcara(cara), new Vector3(-192, 0f, 0f), Quaternion.identity);
                 TMP_Text pltext = pl.transform.GetChild(0).gameObject.transform.GetChild(0).gameObject.GetComponent<TMP_Text>();
                 pltext.text = username;
                 pl.name = username;
+                pl.transform.position = GameLogic.Singleton.startpos;
                 pl.SetActive(false);
 
                 Player rpl = pl.GetComponent<Player>();

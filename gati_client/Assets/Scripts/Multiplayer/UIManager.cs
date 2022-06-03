@@ -677,5 +677,6 @@ public class UIManager : MonoBehaviour
         GameLogic.Singleton.gamescene.SetActive(false);
         statustext.text = "";
         GameLogic.Singleton.gameidtext.text = "";
+        serverstatus.GetComponent<Image>().enabled = true;
     }
 }

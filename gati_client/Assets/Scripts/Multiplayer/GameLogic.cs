@@ -45,7 +45,7 @@ public class GameLogic : MonoBehaviour
     public static int stct = -2;
     public float t = -1;
     public float maxpos;
-    public Vector3 startpos;
+    public Vector3 startpos = new Vector3(0,0,0);
     public Vector3 endpos;
     public static int choosenitem=0;
     public static Dictionary<string, int> playersitems = new Dictionary<string, int>(){
@@ -90,7 +90,7 @@ public class GameLogic : MonoBehaviour
             t = Time.realtimeSinceStartup;
             if (stct == 0)
             {
-                GameLogic.Singleton.localplayer.GetComponent<Movement>().enabled = true;
+                localplayer.GetComponent<Movement>().enabled = true;
                 UIManager.Singleton.stcounter.text = "GO";
             }
             else if (stct <= -1)
@@ -124,7 +124,7 @@ public class GameLogic : MonoBehaviour
             msg.AddVector2(localplayer.transform.position);
             NetworkManager.Singleton.Client.Send(msg);
 
-            NetworkManager.Singleton.rlitems();
+            //NetworkManager.Singleton.rlitems();
             loaditems();
         }
     }
@@ -412,13 +412,16 @@ public class GameLogic : MonoBehaviour
             case "running_left":
                 GameLogic.Singleton.matchplayers[pid].GetComponent<SpriteRenderer>().flipX = true;
                 amt.SetBool("Idle", false);
+                amt.SetInteger("AnimState", 1);
                 break;
             case "running_right":
                 GameLogic.Singleton.matchplayers[pid].GetComponent<SpriteRenderer>().flipX = false;
                 amt.SetBool("Idle", false);
+                amt.SetInteger("AnimState", 1);
                 break;
             case "jumping":
                 amt.SetTrigger("Jump");
+                amt.SetFloat("AirSpeedY", 1f);
                 amt.SetBool("Idle", false);
                 break;
             case "rolling":
@@ -431,12 +434,14 @@ public class GameLogic : MonoBehaviour
                 break;
             case "idle":
                 amt.SetBool("Idle", true);
+                amt.SetInteger("AnimState", 0);
+                amt.SetFloat("AirSpeedY", 0f);
                 break;
             case "capacity":
                 amt.SetTrigger("Capacity");
                 break;
             case "falling":
-                amt.SetFloat("AirSpeedY", 1f);
+                amt.SetFloat("AirSpeedY", -1f);
                 amt.SetBool("Idle", false);
                 break;
             default:
@@ -482,6 +487,8 @@ public class GameLogic : MonoBehaviour
     {
         string eid = msg.GetString();
         int edur = msg.GetInt();
+
+        Debug.Log("You have been touched by \""+eid+"\" for "+edur.ToString()+"s");
 
         GameLogic.Singleton.localplayer.effects.Add(new Effect(eid, edur));
     }

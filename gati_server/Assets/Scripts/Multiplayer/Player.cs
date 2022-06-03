@@ -62,8 +62,18 @@ public class Player : MonoBehaviour
         this.effects = new List<Effect>();
     }
 
+    public void UpdateEffects()
+    {
+        foreach (Effect ef in this.effects)
+        {
+            ef.Update();
+        }
+    }
+
     public bool CanMove()
     {
+        this.UpdateEffects();
+
         foreach(Effect ef in this.effects)
         {
             if (ef.Name == "stun")
@@ -104,7 +114,7 @@ public class Player : MonoBehaviour
             {
                 tch++;
 
-                p.effects.Add(new Effect(ename, edur));
+                p.effects.Add(new Effect(p, ename, edur));
 
                 Message msg = Message.Create(MessageSendMode.reliable, (ushort)ServerToClient.effect);
                 msg.AddString(ename);
@@ -117,7 +127,7 @@ public class Player : MonoBehaviour
 
     public void EffectCallback(string item, bool succ, int rem=0, int tch=0)
     {
-        Message msg = Message.Create(MessageSendMode.reliable, ServerToClient.itemused);
+        Message msg = Message.Create(MessageSendMode.reliable, (ushort)ServerToClient.itemused);
 
         msg.AddString(item);
         msg.AddBool(succ);
@@ -148,26 +158,29 @@ public class Player : MonoBehaviour
 
         p.position = pos;
 
-        if (Player.plist[cid].items.ContainsKey(item) && Player.plist[cid].items[item] > 0)
+        if (Player.plist[cid].items.ContainsKey(item) && Player.plist[cid].items[item] > 0 && NetworkManager.useitem(cid, item))
         {
             p.items[item]--;
             int tch=0;
+            string onw = "hisself";
             switch (item)
             {
                 case "bomb":
                     tch = p.SendEffect("bomb");
+                    onw = tch.ToString()+" players";
                     break;
                 case "adrenaline":
-                    p.effects.Add(new Effect("adrenaline", 5f));
+                    p.effects.Add(new Effect(p, "adrenaline", 5f));
                     break;
                 default:
                     break;
             }
-
+            NetworkManager.log(p.Username + " used " + item+" on "+onw, "PA");
             p.EffectCallback(item, true, p.items[item], tch);
         } else
         {
             p.EffectCallback(item, false);
+            NetworkManager.log(p.Username + " couldn't use "+item, "PA");
         }
     }
 }
