@@ -13,12 +13,11 @@ public class shop_item : MonoBehaviour
     private TMP_Text pricetext;
     private TMP_Text stocktext;
     public int stock { get; set; }
-    public bool realitem = true;
+    [SerializeField] public bool realitem = false;
 
     public shop_item(string n, int stock)
     {
         this.stock = stock;
-        this.realitem = false;
     }
 
     void Start()
@@ -42,7 +41,7 @@ public class shop_item : MonoBehaviour
 
         GetComponent<Button>().onClick.AddListener(click);
 
-        if (Player.money>=this.price)
+        if (Player.money>=this.price && this.realitem)
         {
             GetComponent<Button>().interactable = true;
         } else
@@ -64,6 +63,7 @@ public class shop_item : MonoBehaviour
             stocktext.text = stock.ToString();
             NetworkManager.Singleton.rldt();
             NetworkManager.Singleton.rlmoney();
+            NetworkManager.Singleton.rlitems();
         } else
         {
 
@@ -81,6 +81,6 @@ public class shop_item : MonoBehaviour
 
     public void setdesc()
     {
-        UIManager.Singleton.shop_itemdesc.text = this.name + " : " + this.desc;
+        UIManager.Singleton.shop_itemdesc.text = (this.realitem ? (this.name + " : " + this.desc) : "");
     }
 }

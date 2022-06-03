@@ -72,7 +72,6 @@ public class server_reachability : MonoBehaviour
                 //UIManager.Singleton.connectbt.interactable = true;
                 UIManager.Singleton.enter_login.interactable = true;
                 UIManager.Singleton.enter_register.interactable = true;
-                UIManager.Singleton.enter_guest.interactable = true;
 
                 UIManager.Singleton.public_match.interactable = true;
                 UIManager.Singleton.private_match.interactable = true;
@@ -104,7 +103,6 @@ public class server_reachability : MonoBehaviour
 
                 UIManager.Singleton.enter_login.interactable = false;
                 UIManager.Singleton.enter_register.interactable = false;
-                UIManager.Singleton.enter_guest.interactable = false;
 
                 UIManager.Singleton.public_match.interactable = false;
                 UIManager.Singleton.private_match.interactable = false;

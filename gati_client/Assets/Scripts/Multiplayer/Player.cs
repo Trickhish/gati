@@ -97,15 +97,6 @@ public class Player : MonoBehaviour
         Spawn(message.GetUShort(), message.GetString(), message.GetVector3());
     }
 
-    [MessageHandler((ushort)ServerToClient.effect)] // in the radius of someone's capacity
-    private static void affected(Message msg)
-    {
-        ushort eid = msg.GetUShort();
-        int edur = msg.GetInt();
-
-        GameLogic.Singleton.localplayer.effects.Add(new Effect(eid.ToString(), edur));
-    }
-
     [MessageHandler((ushort)ServerToClient.match)] // match found
     private static void matchjoined(Message message)
     {
@@ -145,7 +136,7 @@ public class Player : MonoBehaviour
         TMP_InputField esc_mid = UIManager.Singleton.escUI.transform.GetChild(3).gameObject.GetComponent<TMP_InputField>();
         esc_mid.text = mid;
 
-        Debug.Log(pc.ToString()+" players to spawn");
+        //Debug.Log(pc.ToString()+" players to spawn");
 
         for (int i=0;i<pc;i++) // adding match's players
         {
@@ -153,7 +144,7 @@ public class Player : MonoBehaviour
             string username = message.GetString();
             string cara = message.GetString();
 
-            Debug.Log(username+" spawned");
+            //Debug.Log(username+" spawned");
 
             if (username != "")
             {
@@ -161,6 +152,7 @@ public class Player : MonoBehaviour
                 pt.transform.parent = UIManager.Singleton.wait_players.transform;
                 pt.GetComponent<TMP_Text>().text = username;
 
+                Debug.Log("new players "+cara);
                 GameObject pl = Instantiate(GameLogic.prefabofcara(cara), new Vector3(-192,0,0), Quaternion.identity);
                 TMP_Text pltext = pl.transform.GetChild(0).transform.GetChild(0).GetComponent<TMP_Text>();
                 pltext.text = username;

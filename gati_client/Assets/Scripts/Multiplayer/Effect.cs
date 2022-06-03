@@ -17,7 +17,7 @@ public class Effect : MonoBehaviour
         this.pl = GetComponent<Player>();
     }
 
-    private void Start()
+    private void Start() // #addeffect
     {
         switch (this.Name)
         {

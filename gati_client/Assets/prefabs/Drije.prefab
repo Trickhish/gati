@@ -73,6 +73,7 @@ GameObject:
   - component: {fileID: 7504300754815611356}
   - component: {fileID: 2531861225490016689}
   - component: {fileID: 580201682605223575}
+  - component: {fileID: 1215779575}
   m_Layer: 0
   m_Name: GroundSensor
   m_TagString: Untagged
@@ -102,7 +103,7 @@ CircleCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1669664803916065202}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Density: 1
   m_Material: {fileID: 0}
   m_IsTrigger: 1
@@ -124,6 +125,32 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   touchTag: 
+--- !u!61 &1215779575
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1669664803916065202}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0.019412994, y: 0.09998907}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 0.5728226, y: 0.10100129}
+  m_EdgeRadius: 0
 --- !u!1 &4508865546647278020
 GameObject:
   m_ObjectHideFlags: 0
@@ -381,7 +408,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &7526675764585073887
 Transform:
   m_ObjectHideFlags: 0
@@ -428,10 +455,11 @@ MonoBehaviour:
   listitem: {fileID: 0}
   caraprefab: {fileID: 0}
   cara: 
-  lpos: {x: 0, y: 0, z: 0}
   isGrounded: 0
   maxpos: 0
+  lpos: {x: 0, y: 0, z: 0}
   ccld: {fileID: 0}
+  mov: {fileID: 0}
   isGroundedChecker: {fileID: 0}
   checkGroundRadius: 0
   groundLayer:

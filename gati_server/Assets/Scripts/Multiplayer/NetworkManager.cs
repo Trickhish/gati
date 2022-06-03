@@ -7,6 +7,7 @@ using System.IO;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System;
+using System.Web;
 
 public enum ServerToClient : ushort
 {
@@ -18,6 +19,7 @@ public enum ServerToClient : ushort
     launch = 6,
     matchend = 7,
     effect = 8,
+    itemused = 9,
 }
 
 public enum ClientToServerId : ushort
@@ -30,6 +32,7 @@ public enum ClientToServerId : ushort
     joinprivate = 6,
     login = 7,
     effect = 8,
+    useitem = 9,
 }
 
 public class NetworkManager : MonoBehaviour
@@ -51,7 +54,7 @@ public class NetworkManager : MonoBehaviour
     }
 
     public Server Server { get; private set; }
-    private static string sat = "ShOi3HUwJ1BdRfj5eFrQcsM40PGaT82Vk9Imluy7xo6vnXLCbKWq";
+    public static string sat = "ShOi3HUwJ1BdRfj5eFrQcsM40PGaT82Vk9Imluy7xo6vnXLCbKWq";
     public static string version;
 
     [SerializeField] private ushort port;
@@ -142,7 +145,7 @@ public class NetworkManager : MonoBehaviour
     {
         string mail = Player.plist[pid].Mail;
 
-        string r = getreq("https://trickhisch.alwaysdata.net/gati/?a=renew&m=" + mail + "&sat=" + sat);
+        string r = getreq("https://trickhisch.alwaysdata.net/gati/?a=renew&m=" + HttpUtility.UrlEncode(mail) + "&sat=" + sat);
     }
 
     public static void setstatus(ushort pid, bool ingame)
@@ -152,11 +155,11 @@ public class NetworkManager : MonoBehaviour
 
         if (ingame)
         {
-            r = getreq("https://trickhisch.alwaysdata.net/gati/?a=sig&m=" + mail + "&sat=" + sat);
+            r = getreq("https://trickhisch.alwaysdata.net/gati/?a=sig&m=" + HttpUtility.UrlEncode(mail) + "&sat=" + sat);
         }
         else
         {
-            r = getreq("https://trickhisch.alwaysdata.net/gati/?a=snig&m=" + mail + "&sat=" + sat);
+            r = getreq("https://trickhisch.alwaysdata.net/gati/?a=snig&m=" + HttpUtility.UrlEncode(mail) + "&sat=" + sat);
         }
 
         if (r == "false" || r=="unreachable" || r=="error")
@@ -201,7 +204,7 @@ public class NetworkManager : MonoBehaviour
 
             string mid = Player.plist[e.Id].matchid;
 
-            if (mid != "")
+            if (mid != "" && Match.mlist.ContainsKey(mid))
             {
                 if (Match.mlist[mid].players.ContainsKey(e.Id))
                 {
@@ -250,6 +253,7 @@ public class NetworkManager : MonoBehaviour
         if (Player.plist.ContainsKey(cid))
         {
             Player.plist[cid].Mail = mail;
+            Player.plist[cid].rlitems();
             Player.plist[cid].Username = username;
         }
         else

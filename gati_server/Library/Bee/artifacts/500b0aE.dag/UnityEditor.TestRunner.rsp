@@ -96,6 +96,7 @@
 -define:NET_4_6
 -define:NET_UNITY_4_8
 -define:ENABLE_PROFILER
+-define:UNITY_SERVER
 -define:DEBUG
 -define:TRACE
 -define:UNITY_ASSERTIONS

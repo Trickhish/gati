@@ -6,6 +6,19 @@ using UnityEngine.UI;
 
 public class Movement : MonoBehaviour
 {
+    public static Dictionary<string, int> keys = new Dictionary<string, int>() {
+        {"Left", 276},
+        {"Right", 275},
+        {"Jump", 273},
+        {"Sneak", 274},
+        {"Capacity", 101},
+        {"Previous Object", 108},
+        {"Next Object", 109},
+        {"Players List", 9},
+        {"Escape Menu", 27},
+        {"Use Item", 114},
+    };
+
     private int maxspeed;
     private int acceleration;
     private int agility;
@@ -65,13 +78,21 @@ public class Movement : MonoBehaviour
 
         groundSensor = transform.Find("GroundSensor").GetComponent<Sensor>();
         slideSensor = transform.Find("SlideSensor").GetComponent<Sensor>();
-
     }
 
-    // Update is called once per frame
-    void Update()
+    private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (Input.GetKeyDown("e"))
+        if (collision.gameObject.tag == "plateform")
+        {
+            Debug.Log("ignored");
+            Physics2D.IgnoreCollision(this.collider, collision.collider);
+        }
+    }
+
+        // Update is called once per frame
+        void Update()
+    {
+        if (Input.GetKeyDown((KeyCode) keys["Capacity"]))
         {
             pl.status = "capacity";
             pl.updatepos();
@@ -81,15 +102,15 @@ public class Movement : MonoBehaviour
             Message msg = Message.Create(MessageSendMode.reliable, (ushort)ClientToServerId.effect);
             msg.AddUShort(0);
             NetworkManager.Singleton.Client.Send(msg);
-        } else if (Input.GetKeyDown(KeyCode.Escape))
+        } else if (Input.GetKeyDown((KeyCode)keys["Escape Menu"]))
         {
             UIManager.Singleton.escUI.SetActive(!UIManager.Singleton.escUI.activeSelf);
-        } else if (Input.GetKeyDown(KeyCode.Tab))
+        } else if (Input.GetKeyDown((KeyCode)keys["Players List"]))
         {
             UIManager.Singleton.tabUI.SetActive(true);
         }
         
-        if (Input.GetKeyUp(KeyCode.Tab))
+        if (Input.GetKeyUp((KeyCode)keys["Players List"]))
         {
             UIManager.Singleton.tabUI.SetActive(false);
         }
@@ -101,7 +122,10 @@ public class Movement : MonoBehaviour
             isGrounded = true;
             isMoving = false;
             isJumping = false;
+
             pl.status = "idle";
+            pl.updatepos();
+
             collider.size = new Vector2(collider.size.x, originalsize);
             collider.offset = new Vector2(collider.offset.x, originaloffset);
             GetComponent<Animator>().SetBool("Idle", isGrounded);
@@ -116,7 +140,7 @@ public class Movement : MonoBehaviour
             GetComponent<Animator>().SetBool("Idle", isGrounded);
         }
         GetComponent<Animator>().SetFloat("AirSpeedY", playerRigidbody.velocity.y);
-        if (((Input.GetKey("left shift") || Input.GetKey("down")) && isGrounded) || (slideSensor.State() && false))
+        if ((Input.GetKey((KeyCode)keys["Sneak"]) && isGrounded) || (slideSensor.State() && false))
         {
             isMoving = true;
             isSliding = true;
@@ -129,7 +153,7 @@ public class Movement : MonoBehaviour
             collider.size = new Vector2(collider.size.x, originalsize);
             collider.offset = new Vector2(collider.offset.x, originaloffset);
         }
-        if (Input.GetButtonDown("Jump") && groundSensor.State())
+        if (Input.GetKeyDown((KeyCode)keys["Jump"]) && groundSensor.State())
         {
             isMoving = true;
             if (groundSensor.touchTag == "Obstacle")
@@ -137,7 +161,7 @@ public class Movement : MonoBehaviour
             else Jump();
         }
 
-        if (isMoving)
+        if (isMoving || !isGrounded)
         {
             pl.updatepos();
 
@@ -187,8 +211,9 @@ public class Movement : MonoBehaviour
     
     private void MovePlayer()
     {
-        
-        var horizontalInput = Input.GetAxisRaw("Horizontal");
+
+        var horizontalInput = (Input.GetKey((KeyCode)keys["Right"]) ? 1 : (Input.GetKey((KeyCode)keys["Left"]) ? -1 : 0));
+
         if (horizontalInput > 0)
         {
             GetComponent<SpriteRenderer>().flipX = false;
@@ -202,9 +227,11 @@ public class Movement : MonoBehaviour
             mFacingDirection = -1;
             isMoving = true;
             pl.status = "running_left";
-        } else
+        } else if (isMoving)
         {
             isMoving = false;
+            pl.status = "idle";
+            pl.updatepos();
         }
         if (horizontalInput == 0 && speed > 6) speed = 6;
         else

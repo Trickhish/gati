@@ -21,6 +21,7 @@ public enum ServerToClient : ushort
     launch = 6,
     matchend = 7,
     effect = 8,
+    itemused = 9,
 }
 
 public enum ClientToServerId : ushort
@@ -33,6 +34,7 @@ public enum ClientToServerId : ushort
     joinprivate = 6,
     login = 7,
     effect = 8,
+    useitem = 9,
 }
 
 public class NetworkManager : MonoBehaviour
@@ -240,7 +242,7 @@ public class NetworkManager : MonoBehaviour
 
             foreach (shop_item i in shop_item.items.Values)
             {
-                if (m >= i.price)
+                if (m >= i.price && i.realitem)
                 {
                     i.GetComponent<Button>().interactable = true;
                 }
@@ -305,6 +307,8 @@ public class NetworkManager : MonoBehaviour
                 foreach (string e in r.Split(','))
                 {
                     //Debug.Log(e);
+                    GameLogic.playersitems[e.Split(':')[0].ToLower()] = int.Parse(e.Split(':')[1]);
+
                     if (shop_item.items.ContainsKey(e.Split(':')[0]))
                     {
                         shop_item.items[e.Split(':')[0]].setstock(int.Parse(e.Split(':')[1]));

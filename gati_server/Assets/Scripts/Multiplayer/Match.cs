@@ -106,7 +106,7 @@ public class Match : MonoBehaviour
     {
         foreach (Match m in mlist.Values)
         {
-            if (m.players.Count < m.capacity && !m.isprivate)
+            if (m.players.Count < m.capacity && !m.isprivate && m.status=="filling")
             {
                 return (m.id);
             }
@@ -118,6 +118,7 @@ public class Match : MonoBehaviour
     {
         if (this.capacity == this.players.Count)
         {
+            this.status = "started";
             Message message = Message.Create(MessageSendMode.reliable, (ushort)ServerToClient.launch);
 
             foreach (ushort pid in players.Keys)
@@ -167,6 +168,7 @@ public class Match : MonoBehaviour
     [MessageHandler((ushort)ClientToServerId.createprivate)]
     private static void privatematch(ushort cid, Message message)
     {
+        Player.plist[cid].rlitems();
 
         int pc = message.GetInt();
         int map = message.GetInt();
@@ -227,7 +229,7 @@ public class Match : MonoBehaviour
         string mid = message.GetString().ToUpper();
         string cara = message.GetString();
 
-        if (Match.mlist.ContainsKey(mid))
+        if (Match.mlist.ContainsKey(mid) && Match.mlist[mid].status=="filling")
         {
             NetworkManager.log(username + " (" + cara + ") joined match " + mid, "M");
 
@@ -245,6 +247,8 @@ public class Match : MonoBehaviour
                 Player.plist[clientid].cara = cara;
             }
 
+            Player.plist[clientid].rlitems();
+
             mlist[mid].players.Add(clientid, Player.plist[clientid]);
 
             sendmatch(clientid, mid);
@@ -260,6 +264,8 @@ public class Match : MonoBehaviour
     [MessageHandler((ushort)ClientToServerId.findmatch)]
     private static void getorcreatematch(ushort clientid, Message message)
     {
+        Player.plist[clientid].rlitems();
+
         string username = message.GetString();
         string cara = message.GetString();
 
@@ -316,7 +322,7 @@ public class Match : MonoBehaviour
     {
         string mid = Player.plist[pid].matchid;
 
-        if (mlist[mid].players.ContainsKey(pid))
+        if (mlist.ContainsKey(mid) && mlist[mid].players.ContainsKey(pid))
         {
             mlist[mid].players.Remove(pid);
         }
@@ -340,7 +346,7 @@ public class Match : MonoBehaviour
             NetworkManager.log("Player " + pid + " left match " + mid, "M");
         }
 
-        if (mlist[mid].players.Count == 0)
+        if (mlist.ContainsKey(mid) && mlist[mid].players.Count == 0)
         {
             mlist.Remove(mid);
             NetworkManager.log("no player in match " + mid + ", match removed", "M");
@@ -363,12 +369,18 @@ public class Match : MonoBehaviour
 
         string mid = Player.plist[pid].matchid;
 
+        if (!Match.mlist.ContainsKey(mid))
+        {
+            Player.plist[pid].matchid = "";
+            return;
+        }
+
         string status = message.GetString();
         Vector3 ppos = message.GetVector3();
 
         Vector3 arp = maps[mlist[mid].map].Item3;
 
-        if (Vector3.Distance(ppos, arp) < 5f)
+        if (ppos.x >= arp.x) // Vector3.Distance(ppos, arp) < 5f
         {
             Message msg = Message.Create(MessageSendMode.reliable, (ushort)ServerToClient.matchend);
 

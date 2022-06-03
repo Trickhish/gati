@@ -96,6 +96,7 @@
 -define:NET_STANDARD_2_0
 -define:NET_STANDARD
 -define:ENABLE_PROFILER
+-define:UNITY_SERVER
 -define:DEBUG
 -define:TRACE
 -define:UNITY_ASSERTIONS

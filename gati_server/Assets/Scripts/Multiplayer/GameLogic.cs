@@ -32,33 +32,12 @@ public class GameLogic : MonoBehaviour
         Singleton = this;
     }
 
-    public static Dictionary<ushort, Tuple<string, float, int>> effects = new Dictionary<ushort, Tuple<string, float, int>>() {
-        {1, new Tuple<string, float, int>("stun", 5f, 4)}, //id  name, distance, duration
-        {0, new Tuple<string, float, int>("unknown", 5f, 4)},
+    public static Dictionary<string, Tuple<string, float, int>> effects = new Dictionary<string, Tuple<string, float, int>>() {
+        {"ulti_drije", new Tuple<string, float, int>("stun", 5f, 4)}, //id  name, distance, duration
+        {"ulti_gati", new Tuple<string, float, int>("stun", 5f, 4)},
+        {"bomb", new Tuple<string, float, int>("stun", 5f, 4)},
+        {"adrenaline", new Tuple<string, float, int>("stun", 5f, 4)},
     };
-
-    public static void sendeffect(ushort pid, ushort eid)
-    {
-        Player ap = Player.plist[pid];
-
-        Tuple<string, float, int> eat = effects[eid];
-        string ename = eat.Item1;
-        float edist = eat.Item2;
-        int edur = eat.Item3;
-
-        foreach (Player p in Match.mlist[ap.matchid].players.Values) // envoyer l'effet a tout les joueurs dans le rayon
-        {
-            if (Vector3.Distance(ap.transform.position, p.transform.position) < edist && p.Id!=pid)
-            {
-                p.effects.Add(new Effect(ename, edur));
-
-                Message msg = Message.Create(MessageSendMode.reliable, (ushort)ServerToClient.effect);
-                msg.AddUShort(eid);
-                msg.AddInt(edur);
-                NetworkManager.Singleton.Server.Send(msg, p.Id);
-            }
-        }
-    }
 
     public static void ulti(ushort pid)
     {
@@ -70,10 +49,10 @@ public class GameLogic : MonoBehaviour
         switch (cara)
         {
             case "gati":
-                sendeffect(pid, 0); // 0 = ? ~~
+                ap.SendEffect("ulti_gati");
                 break;
             case "drije":
-                sendeffect(pid, 1); // 1 = stunned ~~
+                ap.SendEffect("ulti_drije");
                 break;
             default:
                 break;

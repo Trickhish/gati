@@ -69,6 +69,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] public String drije_pres;
 
     [Header("Authentification")]
+    [SerializeField] public GameObject authbuttons;
+    [SerializeField] public TMP_Text statustext;
     [SerializeField] public GameObject auth_backbt;
     [SerializeField] public Toggle remember_me;
     [SerializeField] public Button enter_login;
@@ -102,7 +104,6 @@ public class UIManager : MonoBehaviour
     [SerializeField] public Button public_match;
     [SerializeField] public Button private_match;
 
-
     [Header("Wait UI")]
     [SerializeField] public TMP_Text wait_match_id;
     [SerializeField] public GameObject wait_player_prefab;
@@ -116,19 +117,24 @@ public class UIManager : MonoBehaviour
     [SerializeField] public gradient private_mid_gradient;
 
     [Header("Universal Canvas")]
-    [SerializeField] public TMP_Text statustext;
     [SerializeField] public GameObject pgr_slider;
     [SerializeField] public TMP_Text stcounter;
+
+    [Header("Audio")]
+    [SerializeField] public AudioSource clickaudio;
+    [SerializeField] public AudioSource hoveraudio;
+
+    [Header("Items")]
     [SerializeField] public GameObject item_bar;
+    [SerializeField] public GameObject item_outline;
 
     [Header("Misc")]
     [SerializeField] public Button connectbt;
     [SerializeField] public TMP_Text usertext_lo;
-
-    [SerializeField] public AudioSource clickaudio;
-    [SerializeField] public AudioSource hoveraudio;
+    [SerializeField] public GameObject keysgroup;
 
     EventSystem system;
+    public static GameObject waitforkey = null;
 
     private void Awake()
     {
@@ -151,7 +157,6 @@ public class UIManager : MonoBehaviour
         //UIManager.Singleton.connectbt.interactable = false;
         UIManager.Singleton.enter_login.interactable = false;
         UIManager.Singleton.enter_register.interactable = false;
-        UIManager.Singleton.enter_guest.interactable = false;
 
         GameLogic.Singleton.gameidtext.text = "";
         GameLogic.Singleton.gamescene.SetActive(false);
@@ -161,6 +166,33 @@ public class UIManager : MonoBehaviour
     {
         if (Input.anyKeyDown)
         {
+            if (waitforkey != null)
+            {
+                List<int> aud = new List<int>();
+                foreach(string k in Movement.keys.Keys)
+                {
+                    if (k!=waitforkey.name)
+                    {
+                        aud.Add(Movement.keys[k]);
+                    }
+                }
+
+                foreach (KeyCode kcode in Enum.GetValues(typeof(KeyCode)))
+                {
+                    if (Input.GetKey(kcode) && !new List<int>(){323,324}.Contains((int)kcode) && !aud.Contains((int)kcode))
+                    {
+                        waitforkey.GetComponent<TMP_Text>().color = new Color(221f/255f, 221f/255f, 221f/255f);
+                        //waitforkey.GetComponent<TMP_Text>().text = waitforkey.name+" : "+kcode.ToString();
+
+                        Movement.keys[waitforkey.name] = (int) kcode;
+                        GameLogic.applykeys();
+                        waitforkey = null;
+                        break;
+                    }
+                }
+            }
+
+            /*
             if (login_form.activeSelf)
             {
                 login_email_gradient.ApplyGradient();
@@ -174,6 +206,7 @@ public class UIManager : MonoBehaviour
             {
                 private_mid_gradient.ApplyGradient();
             }
+            */
         }
         if (Input.GetKeyDown(KeyCode.Tab))
         {
@@ -210,6 +243,23 @@ public class UIManager : MonoBehaviour
                 register_clicked();
             }
         }
+    }
+
+    public void setkey(GameObject kgo)
+    {
+        if (waitforkey != null)
+        {
+            //waitforkey.GetComponent<TMP_Text>().text = waitforkey.name + " : " + ((KeyCode) Movement.keys[waitforkey.name]).ToString();
+            waitforkey.GetComponent<TMP_Text>().color = new Color(221f / 255f, 221f / 255f, 221f / 255f);
+            GameLogic.applykeys();
+        }
+
+        TMP_Text kt = kgo.GetComponent<TMP_Text>();
+        string key = kgo.name;
+        kt.text = key+" : ";
+        kt.color = new Color(104f/255f, 32f/255f, 32f/255f);
+
+        waitforkey = kgo;
     }
 
     public void load_car_select()
@@ -618,6 +668,14 @@ public class UIManager : MonoBehaviour
     {
         menuUI.SetActive(false);
         connectUI.SetActive(true);
+        escUI.SetActive(false);
+        tabUI.SetActive(false);
+        login_form.SetActive(false);
+        register_form.SetActive(false);
+        auth_backbt.SetActive(false);
+        authbuttons.SetActive(true);
+        GameLogic.Singleton.gamescene.SetActive(false);
+        statustext.text = "";
         GameLogic.Singleton.gameidtext.text = "";
     }
 }
