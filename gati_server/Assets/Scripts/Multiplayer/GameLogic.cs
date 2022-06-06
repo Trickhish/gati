@@ -36,7 +36,6 @@ public class GameLogic : MonoBehaviour
         {"ulti_drije", new Tuple<string, float, int>("stun", 5f, 4)}, //id  name, distance, duration
         {"ulti_gati", new Tuple<string, float, int>("stun", 5f, 4)},
         {"bomb", new Tuple<string, float, int>("stun", 5f, 4)},
-        {"adrenaline", new Tuple<string, float, int>("stun", 5f, 4)},
     };
 
     public static void ulti(ushort pid)

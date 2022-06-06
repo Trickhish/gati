@@ -19,11 +19,12 @@ public class Player : MonoBehaviour
     public bool ismoving { get; set; }
     public bool isjumping { get; set; }
     public bool isGrounded = false;
+    public bool canmove = true;
     public string status { get; set; }
 
     public float maxpos;
     public Vector3 lpos = new Vector3(0, 0, 0);
-    public List<Effect> effects {get;set;}
+    public List<Effect> effects = new List<Effect>();
     public Collider2D ccld;
     public Movement mov;
     public static string localcara="drije";
@@ -64,10 +65,12 @@ public class Player : MonoBehaviour
         this.IsLocal = islocal;
         this.ismoving = false;
         this.isjumping = false;
+        this.canmove = true;
         //this.lpos = new Vector3(0,0,0);
         this.cara = "drije";
         this.mov = GetComponent<Movement>();
         this.status = "idle";
+        this.effects = new List<Effect>(){new Effect("", 0)};
     }
 
     public void updatepos() // called when the players is moving. update the position of the player for each other player in the match.
@@ -77,6 +80,23 @@ public class Player : MonoBehaviour
 
         message.AddVector3(this.transform.position);
         NetworkManager.Singleton.Client.Send(message);
+    }
+
+    public void UpdateEffects()
+    {
+        int i = 0;
+        while (i < this.effects.Count)
+        {
+            Effect ef = this.effects[i];
+            if (!ef.Update())
+            {
+                i++;
+            }
+            if (i >= this.effects.Count)
+            {
+                break;
+            }
+        }
     }
 
     [MessageHandler((ushort)ServerToClient.match)] // match found

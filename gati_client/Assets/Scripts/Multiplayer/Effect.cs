@@ -14,25 +14,40 @@ public class Effect : MonoBehaviour
         this.Name = name;
         this.Duration = dur;
         this.StartTime = Time.realtimeSinceStartup;
-    }
 
-    private void Start() // #addeffect
-    {
+        Debug.Log("new effect " + this.Name);
         switch (this.Name)
         {
             case "stun":
+                GameLogic.Singleton.localplayer.canmove = false;
                 break;
             default:
                 break;
         }
     }
 
-    void Update()
+    private void Start() // #addeffect
+    {
+        
+    }
+
+    public bool Update()
     {
         if ((Time.realtimeSinceStartup - this.StartTime) >= this.Duration)
         {
             GameLogic.Singleton.localplayer.effects.Remove(this);
-            Destroy(this);
+            switch (this.Name)
+            {
+                case "stun":
+                    GameLogic.Singleton.localplayer.canmove = true;
+                    break;
+                default:
+                    break;
+            }
+            return (true);
+        } else
+        {
+            return(false);
         }
     }
 }

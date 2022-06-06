@@ -12,10 +12,14 @@ public class Player : MonoBehaviour
     public ushort Id { get; set; }
     public string Username { get; set; }
     public string Mail { get; set; }
-    public Dictionary<string, int> items = new Dictionary<string, int>(){
+    public Dictionary<string, int> items = new Dictionary<string, int>(){ // #additem
         {"bomb", 0},
         {"adrenaline", 0},
-
+        {"feather", 0},
+        {"shield", 0},
+        {"web", 0},
+        {"boots", 0},
+        {"cape", 0},
     };
     public string matchid { get; set; }
     public Vector3 position { get; set; }
@@ -64,9 +68,18 @@ public class Player : MonoBehaviour
 
     public void UpdateEffects()
     {
-        foreach (Effect ef in this.effects)
+        int i = 0;
+        while (i<this.effects.Count)
         {
-            ef.Update();
+            Effect ef = this.effects[i];
+            if (!ef.Update())
+            {
+                i++;
+            }
+            if (i>=this.effects.Count)
+            {
+                break;
+            }
         }
     }
 
@@ -163,7 +176,7 @@ public class Player : MonoBehaviour
             p.items[item]--;
             int tch=0;
             string onw = "hisself";
-            switch (item)
+            switch (item) // #additem
             {
                 case "bomb":
                     tch = p.SendEffect("bomb");
@@ -171,6 +184,21 @@ public class Player : MonoBehaviour
                     break;
                 case "adrenaline":
                     p.effects.Add(new Effect(p, "adrenaline", 5f));
+                    break;
+                case "feather":
+                    p.effects.Add(new Effect(p, "feather", 5f));
+                    break;
+                case "shield":
+                    p.effects.Add(new Effect(p, "shield", 5f));
+                    break;
+                case "web":
+                    
+                    break;
+                case "boots":
+                    p.effects.Add(new Effect(p, "boots", 5f));
+                    break;
+                case "cape":
+                    p.effects.Add(new Effect(p, "cape", 5f));
                     break;
                 default:
                     break;

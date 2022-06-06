@@ -30,15 +30,17 @@ public class Effect
         }
     }
 
-    public void Update()
+    public bool Update()
     {
         if ((Time.realtimeSinceStartup - this.StartTime) >= this.Duration)
         {
             NetworkManager.log("Effect " + this.Name + " ended for " + this.pl.Username, "PS");
             this.pl.effects.Remove(this);
+            return(true);
         } else
         {
-            NetworkManager.log("Still " + (this.Duration - (Time.realtimeSinceStartup - this.StartTime)).ToString() + "s of " + this.Name + " for " + this.pl.Username, "PS");
+            //NetworkManager.log("Still " + (this.Duration - (Time.realtimeSinceStartup - this.StartTime)).ToString() + "s of " + this.Name + " for " + this.pl.Username, "PS");
+            return(false);
         }
     }
 }

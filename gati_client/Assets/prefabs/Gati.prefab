@@ -457,8 +457,10 @@ MonoBehaviour:
   caraprefab: {fileID: 0}
   cara: 
   isGrounded: 0
+  canmove: 1
   maxpos: 0
   lpos: {x: 0, y: 0, z: 0}
+  effects: []
   ccld: {fileID: 0}
   mov: {fileID: 0}
   isGroundedChecker: {fileID: 0}

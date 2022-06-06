@@ -92,8 +92,10 @@ public class Movement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown((KeyCode) keys["Capacity"]))
+        if (Input.GetKeyDown((KeyCode) keys["Capacity"]) && pl.canmove)
         {
+            pl.UpdateEffects();
+
             pl.status = "capacity";
             pl.updatepos();
 
@@ -115,7 +117,7 @@ public class Movement : MonoBehaviour
             UIManager.Singleton.tabUI.SetActive(false);
         }
 
-        if ((!isSliding && isGrounded) || isJumping)
+        if ((!isSliding && isGrounded) || isJumping && pl.canmove)
             MovePlayer();
         if (!isGrounded && groundSensor.State())
         {
@@ -140,7 +142,7 @@ public class Movement : MonoBehaviour
             GetComponent<Animator>().SetBool("Idle", isGrounded);
         }
         GetComponent<Animator>().SetFloat("AirSpeedY", playerRigidbody.velocity.y);
-        if ((Input.GetKey((KeyCode)keys["Sneak"]) && isGrounded) || (slideSensor.State() && false))
+        if ((Input.GetKey((KeyCode)keys["Sneak"]) && isGrounded) || (slideSensor.State() && false) && pl.canmove)
         {
             isMoving = true;
             isSliding = true;
@@ -153,7 +155,7 @@ public class Movement : MonoBehaviour
             collider.size = new Vector2(collider.size.x, originalsize);
             collider.offset = new Vector2(collider.offset.x, originaloffset);
         }
-        if (Input.GetKeyDown((KeyCode)keys["Jump"]) && groundSensor.State())
+        if (Input.GetKeyDown((KeyCode)keys["Jump"]) && groundSensor.State() && pl.canmove)
         {
             isMoving = true;
             if (groundSensor.touchTag == "Obstacle")
@@ -177,6 +179,10 @@ public class Movement : MonoBehaviour
 
     private void Jump()
     {
+        pl.UpdateEffects();
+
+        if (!pl.canmove) {return;}
+
         pl.status = "jumping";
 
         GetComponent<Animator>().SetTrigger("Jump");
@@ -190,6 +196,10 @@ public class Movement : MonoBehaviour
     
     private void Roll()
     {
+        pl.UpdateEffects();
+
+        if (!pl.canmove) { return; }
+
         pl.status = "rolling";
 
         GetComponent<Animator>().SetTrigger("Roll");
@@ -202,6 +212,10 @@ public class Movement : MonoBehaviour
 
     private void Slide()
     {
+        pl.UpdateEffects();
+
+        if (!pl.canmove) { return; }
+
         pl.status = "sliding";
 
         if (speed > 0)
@@ -215,6 +229,9 @@ public class Movement : MonoBehaviour
     
     private void MovePlayer()
     {
+        pl.UpdateEffects();
+
+        if (!pl.canmove) { return; }
 
         var horizontalInput = (Input.GetKey((KeyCode)keys["Right"]) ? 1 : (Input.GetKey((KeyCode)keys["Left"]) ? -1 : 0));
 

@@ -48,9 +48,14 @@ public class GameLogic : MonoBehaviour
     public Vector3 startpos = new Vector3(0,0,0);
     public Vector3 endpos;
     public static int choosenitem=0;
-    public static Dictionary<string, int> playersitems = new Dictionary<string, int>(){
+    public static Dictionary<string, int> playersitems = new Dictionary<string, int>(){ // #additem
         {"bomb", 0},
-        {"adrenaline", 0}
+        {"adrenaline", 0},
+        {"feather", 0},
+        {"shield", 0},
+        {"web", 0},
+        {"boots", 0},
+        {"cape", 0},
     };
 
     public Player localplayer => (matchplayers.ContainsKey(NetworkManager.Singleton.Client.Id) ? matchplayers[NetworkManager.Singleton.Client.Id] : matchplayers.FirstOrDefault().Value);
@@ -490,6 +495,20 @@ public class GameLogic : MonoBehaviour
 
         Debug.Log("You have been touched by \""+eid+"\" for "+edur.ToString()+"s");
 
-        GameLogic.Singleton.localplayer.effects.Add(new Effect(eid, edur));
+        bool fnd = false;
+        foreach(Effect ef in GameLogic.Singleton.localplayer.effects)
+        {
+            if (ef.Name == eid)
+            {
+                ef.Duration = edur;
+                ef.StartTime = Time.realtimeSinceStartup;
+                fnd = true;
+                break;
+            }
+        }
+        if (!fnd)
+        {
+            GameLogic.Singleton.localplayer.effects.Add(new Effect(eid, edur));
+        }
     }
 }
