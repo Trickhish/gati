@@ -20,6 +20,7 @@ public enum ServerToClient : ushort
     matchend = 7,
     effect = 8,
     itemused = 9,
+    effectblock = 10,
 }
 
 public enum ClientToServerId : ushort
@@ -96,12 +97,6 @@ public class NetworkManager : MonoBehaviour
         }
         Server.ClientDisconnected += PlayerLeft;
         Server.ClientConnected += PlayerJoined;
-
-
-        Debug.Log("starting effect");
-        Player p = new Player(0);
-        Effect e = new Effect(p, "stun", 4);
-        Debug.Log(p.CanMove() ? "canmove" : "cannont move");
     }
 
     private void FixedUpdate()
@@ -202,8 +197,6 @@ public class NetworkManager : MonoBehaviour
 
     private void PlayerLeft(object sender, ClientDisconnectedEventArgs e)
     {
-
-
         if (Player.plist.ContainsKey(e.Id))
         {
             if (Player.plist[e.Id].Username != "")

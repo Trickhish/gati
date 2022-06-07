@@ -6,19 +6,26 @@ using RiptideNetworking;
 using System.Linq;
 using System.IO;
 using UnityEngine.UI;
+using System;
 
 public class GameLogic : MonoBehaviour
 {
-    [Header("Prefabs")]
-    [SerializeField] public GameObject local_prefab;
-
+    [Header("Players")]
     [SerializeField] public GameObject gati_prefab;
     [SerializeField] public GameObject drije_prefab;
+    
+    [Header("Prefabs")]
+    [SerializeField] public GameObject local_prefab;
+    [SerializeField] public GameObject finishflag;
+    [SerializeField] public GameObject web_prefab;
 
-    [SerializeField] public GameObject gamescene;
+    [Header("Maps")]
+    [SerializeField] public List<GameObject> maps;
+
+    [Header("Misc")]
     [SerializeField] public TMP_Text gameidtext;
 
-    [SerializeField] public GameObject finishflag;
+    
 
     private static GameLogic _singleton;
 
@@ -38,6 +45,7 @@ public class GameLogic : MonoBehaviour
     }
 
     public Dictionary<ushort, Player> matchplayers = new Dictionary<ushort, Player>();
+    public static List<EffectBlock> EffectBlocks = new List<EffectBlock>() { };
     public int capacity;
     public string id="";
     public int pcount;
@@ -46,8 +54,10 @@ public class GameLogic : MonoBehaviour
     public float t = -1;
     public float maxpos;
     public Vector3 startpos = new Vector3(0,0,0);
-    public Vector3 endpos;
+    public Vector3 endpos = new Vector3(0,0,0);
     public static int choosenitem=0;
+    public static int mapid;
+    public static int alwin = 0;
     public static Dictionary<string, int> playersitems = new Dictionary<string, int>(){ // #additem
         {"bomb", 0},
         {"adrenaline", 0},
@@ -59,7 +69,6 @@ public class GameLogic : MonoBehaviour
     };
 
     public Player localplayer => (matchplayers.ContainsKey(NetworkManager.Singleton.Client.Id) ? matchplayers[NetworkManager.Singleton.Client.Id] : matchplayers.FirstOrDefault().Value);
-
     //public GameObject Gati_prefab => gati_prefab;
     //public GameObject Localplayerprefab => local_prefab;
 
@@ -90,13 +99,16 @@ public class GameLogic : MonoBehaviour
     }
     private void Update()
     {
-        if (Time.realtimeSinceStartup - t > 1 && stct >= -1)
+        if (Time.realtimeSinceStartup - t >= 1 && stct >= -1)
         {
             t = Time.realtimeSinceStartup;
             if (stct == 0)
             {
                 localplayer.GetComponent<Movement>().enabled = true;
+                localplayer.canuseobjects = true;
+                t = Time.realtimeSinceStartup+0.5f;
                 UIManager.Singleton.stcounter.text = "GO";
+
             }
             else if (stct <= -1)
             {
@@ -122,6 +134,8 @@ public class GameLogic : MonoBehaviour
         // ITEM USAGE
         if (Input.GetKeyDown((KeyCode)Movement.keys["Use Item"]) && choosenitem>=0 && choosenitem<UIManager.Singleton.item_bar.transform.childCount-1 && playersitems[UIManager.Singleton.item_bar.transform.GetChild(choosenitem+1).name] > 0)
         {
+            if (!GameLogic.Singleton.localplayer.canuseobjects) { return; }
+
             Debug.Log("using item "+ UIManager.Singleton.item_bar.transform.GetChild(choosenitem + 1).name);
 
             Message msg = Message.Create(MessageSendMode.reliable, (ushort)ClientToServerId.useitem);
@@ -132,6 +146,17 @@ public class GameLogic : MonoBehaviour
             //NetworkManager.Singleton.rlitems();
             loaditems();
         }
+    }
+
+    public static void Reset()
+    {
+        GameLogic.alwin = 0;
+        GameLogic.EffectBlocks.Clear();
+        GameLogic.mapid = 0;
+        GameLogic.Singleton.id = "";
+        GameLogic.Singleton.matchplayers.Clear();
+        GameLogic.Singleton.pcount = 0;
+        GameLogic.Singleton.status = "none";
     }
 
     public static void setitemkey(string name, KeyCode kc)
@@ -352,21 +377,110 @@ public class GameLogic : MonoBehaviour
         }
     }
 
+    public static Sprite illuofcara(string cara) // #addcara
+    {
+        switch (cara.ToLower())
+        {
+            case "gati":
+                return(UIManager.Singleton.gati_illu2);
+            case "drije":
+                return (UIManager.Singleton.drije_illu);
+            default:
+                return (UIManager.Singleton.gati_illu2);
+        }
+    }
+
     [MessageHandler((ushort)ServerToClient.matchend)]
     private static void endofmatch(Message message)
     {
-        string winname = message.GetString();
         ushort winid = message.GetUShort();
-        
-        if (winid == NetworkManager.Singleton.Client.Id) // WON
+
+        //Debug.Log(winid.ToString() + ", " + GameLogic.Singleton.localplayer.Id.ToString()+", "+NetworkManager.Singleton.Client.Id.ToString());
+
+        int ftm = message.GetInt();
+        string winname = (winid == GameLogic.Singleton.localplayer.Id) ? GameLogic.Singleton.localplayer.username : GameLogic.Singleton.matchplayers[winid].username;
+
+        GameObject rui = UIManager.Singleton.rankUI;
+        int wnb = GameLogic.alwin;
+        string mn = (ftm / 60).ToString();
+        string tm = (mn.Length==1 ? "0"+mn : mn)+":"+(ftm%60).ToString();
+
+        if (wnb==0)
         {
-            Debug.Log("WON");
-            UIManager.Singleton.leavematch();
-        } else // LOST
+            rui.transform.Find("ranks").GetComponent<TMP_Text>().text = "1 : " + winname + " (" + tm + ")";
+            rui.transform.Find("nick1").GetComponent<TMP_Text>().text = winname;
+            rui.transform.Find("nick2").GetComponent<TMP_Text>().text = "";
+            rui.transform.Find("nick3").GetComponent<TMP_Text>().text = "";
+
+            rui.transform.Find("illu1").GetComponent<Image>().sprite = illuofcara(GameLogic.Singleton.matchplayers[winid].cara);
+
+            rui.transform.Find("time1").GetComponent<TMP_Text>().text = tm;
+            rui.transform.Find("time2").GetComponent<TMP_Text>().text = "";
+            rui.transform.Find("time3").GetComponent<TMP_Text>().text = "";
+
+            rui.transform.Find("illu1").gameObject.SetActive(true);
+            rui.transform.Find("illu2").gameObject.SetActive(false);
+            rui.transform.Find("illu3").gameObject.SetActive(false);
+        } else
         {
-            Debug.Log("LOST");
-            UIManager.Singleton.leavematch();
+            rui.transform.Find("ranks").GetComponent<TMP_Text>().text = (wnb+1).ToString()+" : " + winname + " (" + tm + ")";
+
+            if (wnb==1)
+            {
+                rui.transform.Find("illu2").GetComponent<Image>().sprite = illuofcara(GameLogic.Singleton.matchplayers[winid].cara);
+                rui.transform.Find("illu2").gameObject.SetActive(true);
+                rui.transform.Find("nick2").GetComponent<TMP_Text>().text = winname;
+                rui.transform.Find("time2").GetComponent<TMP_Text>().text = tm;
+            } else if (wnb==2)
+            {
+                rui.transform.Find("illu3").GetComponent<Image>().sprite = illuofcara(GameLogic.Singleton.matchplayers[winid].cara);
+                rui.transform.Find("illu3").gameObject.SetActive(true);
+                rui.transform.Find("nick3").GetComponent<TMP_Text>().text = winname;
+                rui.transform.Find("time3").GetComponent<TMP_Text>().text = tm;
+            }
         }
+
+        if (winid == NetworkManager.Singleton.Client.Id) // you finished the map
+        {
+            GameLogic.Singleton.localplayer.ClearEffects();
+            GameLogic.Singleton.localplayer.GetComponent<Movement>().enabled = false;
+            GameLogic.Singleton.localplayer.GetComponent<Animator>().SetBool("Idle", true);
+            GameLogic.Singleton.localplayer.GetComponent<Animator>().SetInteger("AnimState", 0);
+            GameLogic.Singleton.localplayer.GetComponent<Animator>().SetTrigger("Roll");
+            GameLogic.Singleton.localplayer.canuseobjects = false;
+
+            GameLogic.Singleton.finishflag.GetComponentInChildren<ParticleSystem>().Play();
+            if (GameLogic.alwin > 0)
+            {
+                Debug.Log("finished");
+            } else
+            {
+                Debug.Log("won");
+            }
+
+            if (wnb == 0)
+            {
+                rui.transform.Find("msg").GetComponent<TMP_Text>().text = "YOU RANKED FIRST";
+            }
+            else if (wnb == 1)
+            {
+                rui.transform.Find("msg").GetComponent<TMP_Text>().text = "YOU RANKED SECOND";
+            }
+            else if (wnb == 2)
+            {
+                rui.transform.Find("msg").GetComponent<TMP_Text>().text = "YOU RANKED THIRD";
+            }
+            else
+            {
+                rui.transform.Find("msg").GetComponent<TMP_Text>().text = "YOU RANKED " + (wnb + 1).ToString() + "th ("+tm+")";
+            }
+
+            UIManager.Singleton.item_bar.SetActive(false);
+            UIManager.Singleton.pgr_slider.SetActive(false);
+            rui.SetActive(true);
+        }
+        GameLogic.Singleton.status = "finishing";
+        GameLogic.alwin++;
     }
     [MessageHandler((ushort)ServerToClient.launch)]
     private static void launchmatch(Message message)
@@ -376,10 +490,16 @@ public class GameLogic : MonoBehaviour
         selectitem(getfirstitem());
 
         GameLogic.Singleton.maxpos = Vector3.Distance(GameLogic.Singleton.startpos, GameLogic.Singleton.endpos);
+        GameLogic.Singleton.status = "started";
+        GameLogic.alwin = 0;
 
         Debug.Log("Match Starting");
 
-        GameLogic.Singleton.gamescene.SetActive(true);
+        GameLogic.Singleton.maps[GameLogic.mapid].SetActive(true);
+
+        GameLogic.Singleton.finishflag.transform.position = new Vector3(GameLogic.Singleton.endpos.x+5, GameLogic.Singleton.endpos.y, 0f);
+        GameLogic.Singleton.finishflag.GetComponentInChildren<ParticleSystem>().Stop();
+
         UIManager.Singleton.pgr_slider.SetActive(true);
 
         UIManager.Singleton.item_bar.SetActive(true);
@@ -397,6 +517,11 @@ public class GameLogic : MonoBehaviour
         }
 
         UIManager.Singleton.start_ui.SetActive(true);
+
+        GameLogic.Singleton.localplayer.canuseobjects = false;
+
+        TMP_Text pltext = GameLogic.Singleton.localplayer.transform.GetChild(0).transform.GetChild(0).GetComponent<TMP_Text>();
+        pltext.color = new Color(174f/255f, 45f/255f, 93f/255f);
 
         stct = 5;
     }
@@ -473,7 +598,70 @@ public class GameLogic : MonoBehaviour
 
         if (succ)
         {
-            Debug.Log(item + " use response, touched " + tch.ToString() + ", "+rem.ToString()+" remaining");
+            if (tch==-1)
+            {
+                Debug.Log(item + " use response, " + rem.ToString() + " remaining");
+                bool fnd = false;
+                switch (item)
+                {
+                    case "feather":
+                        fnd = false;
+                        foreach (Effect ef in GameLogic.Singleton.localplayer.effects)
+                        {
+                            if (ef.Name == "agility")
+                            {
+                                ef.Duration = 2000;
+                                ef.StartTime = Time.realtimeSinceStartup;
+                                fnd = true;
+                                break;
+                            }
+                        }
+                        if (!fnd)
+                        {
+                            GameLogic.Singleton.localplayer.effects.Add(new Effect("agility", 2000));
+                        }
+                        break;
+                    case "boots":
+                        fnd = false;
+                        foreach (Effect ef in GameLogic.Singleton.localplayer.effects)
+                        {
+                            if (ef.Name == "speed")
+                            {
+                                ef.Duration = 2000;
+                                ef.StartTime = Time.realtimeSinceStartup;
+                                fnd = true;
+                                break;
+                            }
+                        }
+                        if (!fnd)
+                        {
+                            GameLogic.Singleton.localplayer.effects.Add(new Effect("speed", 2000));
+                        }
+                        break;
+                    case "cape":
+                        fnd = false;
+                        foreach (Effect ef in GameLogic.Singleton.localplayer.effects)
+                        {
+                            if (ef.Name == "invisibility")
+                            {
+                                ef.Duration = 2000;
+                                ef.StartTime = Time.realtimeSinceStartup;
+                                fnd = true;
+                                break;
+                            }
+                        }
+                        if (!fnd)
+                        {
+                            GameLogic.Singleton.localplayer.effects.Add(new Effect("invisibility", 2000));
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            } else
+            {
+                Debug.Log(item + " use response, touched " + tch.ToString() + ", " + rem.ToString() + " remaining");
+            }
         } else
         {
             Debug.Log(item + " use failed");
@@ -509,6 +697,36 @@ public class GameLogic : MonoBehaviour
         if (!fnd)
         {
             GameLogic.Singleton.localplayer.effects.Add(new Effect(eid, edur));
+        }
+    }
+
+    [MessageHandler((ushort)ServerToClient.effectblock)]
+    private static void effectblock_change(Message msg)
+    {
+        bool status = msg.GetBool();
+        Vector2 bpos = msg.GetVector2();
+        string blockname = msg.GetString();
+
+        if (status)
+        {
+            switch (blockname)
+            {
+                case "web":
+                    EffectBlock eb = Instantiate(GameLogic.Singleton.web_prefab, new Vector3(bpos.x, bpos.y, 0), Quaternion.identity).GetComponent<EffectBlock>();
+                    break;
+                default:
+                    break;
+            }
+        } else
+        {
+            foreach(EffectBlock eb in GameLogic.EffectBlocks)
+            {
+                if (eb.BlockName==blockname && (Vector3) bpos==eb.transform.position)
+                {
+                    GameLogic.EffectBlocks.Remove(eb);
+                    break;
+                }
+            }
         }
     }
 }

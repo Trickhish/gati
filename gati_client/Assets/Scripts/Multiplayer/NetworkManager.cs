@@ -22,6 +22,7 @@ public enum ServerToClient : ushort
     matchend = 7,
     effect = 8,
     itemused = 9,
+    effectblock = 10,
 }
 
 public enum ClientToServerId : ushort
@@ -238,7 +239,7 @@ public class NetworkManager : MonoBehaviour
         {
             int m = int.Parse(r);
             Player.money = m;
-            UIManager.Singleton.shop_money.text = "Money : " + m.ToString() + "$";
+            UIManager.Singleton.shop_money.text = ": " + m.ToString();
 
             foreach (shop_item i in shop_item.items.Values)
             {
@@ -306,7 +307,7 @@ public class NetworkManager : MonoBehaviour
             try {
                 foreach (string e in r.Split(','))
                 {
-                    //Debug.Log(e);
+                    Debug.Log(e);
                     GameLogic.playersitems[e.Split(':')[0].ToLower()] = int.Parse(e.Split(':')[1]);
 
                     if (shop_item.items.ContainsKey(e.Split(':')[0]))

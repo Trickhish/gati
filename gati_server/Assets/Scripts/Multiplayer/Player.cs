@@ -25,6 +25,12 @@ public class Player : MonoBehaviour
     public Vector3 position { get; set; }
     public string cara;
     public List<Effect> effects {get; set;}
+    public string status { get; set; }
+    public bool canmove { get; set; }
+    public bool visible { get; set; }
+    public bool canuseobjects { get; set; }
+    public int resistanceadd { get; set; }
+    public bool invincible { get; set; }
 
     private void OnDestroy()
     {
@@ -40,6 +46,12 @@ public class Player : MonoBehaviour
         cara = "";
         position = new Vector3(-192f, 0f, 0f);
         this.effects = new List<Effect>();
+        this.status = "none";
+        this.canmove = true;
+        this.visible = true;
+        this.canuseobjects = true;
+        this.resistanceadd = 0;
+        this.invincible = false;
     }
 
     public Player(ushort id, string mid)
@@ -52,6 +64,12 @@ public class Player : MonoBehaviour
         position = new Vector3(-192f, 0f, 0f);
         items = new Dictionary<string, int>();
         this.effects = new List<Effect>();
+        this.status = "waiting";
+        this.canmove = true;
+        this.visible = true;
+        this.canuseobjects = true;
+        this.resistanceadd = 0;
+        this.invincible = false;
     }
 
     public Player(ushort id)
@@ -64,6 +82,12 @@ public class Player : MonoBehaviour
         position = new Vector3(-192f, 0f, 0f);
         items = new Dictionary<string, int>();
         this.effects = new List<Effect>();
+        this.status = "none";
+        this.canmove = true;
+        this.visible = true;
+        this.canuseobjects = true;
+        this.resistanceadd = 0;
+        this.invincible = false;
     }
 
     public void UpdateEffects()
@@ -81,20 +105,6 @@ public class Player : MonoBehaviour
                 break;
             }
         }
-    }
-
-    public bool CanMove()
-    {
-        this.UpdateEffects();
-
-        foreach(Effect ef in this.effects)
-        {
-            if (ef.Name == "stun")
-            {
-                return(false);
-            }
-        }
-        return(true);
     }
 
     public void rlitems()
@@ -123,11 +133,12 @@ public class Player : MonoBehaviour
         int tch = 0;
         foreach (Player p in Match.mlist[this.matchid].players.Values) // envoyer l'effet a tout les joueurs dans le rayon
         {
-            if (Vector3.Distance(this.position, p.position) < edist && p.Id != this.Id)
+            if (!p.invincible && Vector3.Distance(this.position, p.position) < edist && p.Id != this.Id)
             {
                 tch++;
 
-                p.effects.Add(new Effect(p, ename, edur));
+                int pedur = Math.Max(50, GameLogic.AfterRes(edur, p.cara, p.resistanceadd));
+                p.effects.Add(new Effect(p, ename, pedur));
 
                 Message msg = Message.Create(MessageSendMode.reliable, (ushort)ServerToClient.effect);
                 msg.AddString(ename);
@@ -136,6 +147,30 @@ public class Player : MonoBehaviour
             }
         }
         return(tch);
+    }
+
+    public void Affect(Effect ef)
+    {
+        Message msg = Message.Create(MessageSendMode.reliable, (ushort)ServerToClient.effect);
+        msg.AddString(ef.Name);
+        msg.AddInt(Mathf.RoundToInt(ef.Duration));
+        NetworkManager.Singleton.Server.Send(msg, this.Id);
+    }
+
+    public void Affect(string eid)
+    {
+        Tuple<string, float, int> eat = GameLogic.effects[eid];
+        string ename = eat.Item1;
+        float edist = eat.Item2;
+        int edur = eat.Item3;
+
+        int pedur = Math.Max(50, GameLogic.AfterRes(edur, this.cara, this.resistanceadd));
+
+        Effect ef = new Effect(this, ename, pedur);
+
+        this.effects.Add(ef);
+
+        this.Affect(ef);
     }
 
     public void EffectCallback(string item, bool succ, int rem=0, int tch=0)
@@ -171,39 +206,53 @@ public class Player : MonoBehaviour
 
         p.position = pos;
 
-        if (Player.plist[cid].items.ContainsKey(item) && Player.plist[cid].items[item] > 0 && NetworkManager.useitem(cid, item))
+        if (p.items.ContainsKey(item) && p.items[item] > 0 && p.canuseobjects && NetworkManager.useitem(cid, item))
         {
             p.items[item]--;
-            int tch=0;
-            string onw = "hisself";
+            int tch=-1;
+            string onw = "on himself";
             switch (item) // #additem
             {
-                case "bomb":
+                case "bomb": // done
                     tch = p.SendEffect("bomb");
-                    onw = tch.ToString()+" players";
+                    onw = "on "+tch.ToString()+" players";
                     break;
-                case "adrenaline":
-                    p.effects.Add(new Effect(p, "adrenaline", 5f));
+                case "adrenaline": // done
+                    p.effects.Add(new Effect(p, "resistance", 2000f));
+                    tch = -1;
                     break;
-                case "feather":
-                    p.effects.Add(new Effect(p, "feather", 5f));
+                case "feather": // done
+                    p.effects.Add(new Effect(p, "agility", 2000f));
+                    tch = -1;
                     break;
-                case "shield":
-                    p.effects.Add(new Effect(p, "shield", 5f));
+                case "shield": // done
+                    p.effects.Add(new Effect(p, "invincibility", 2000f));
+                    tch = -1;
                     break;
-                case "web":
-                    
+                case "web": // done
+                    onw = "(" + pos.x.ToString() +", "+pos.y.ToString()+")";
+                    Match.mlist[p.matchid].EffectBlocks.Add(new EffectBlock(Match.mlist[p.matchid], "web", pos.x, pos.y, -1f, 2f, p, "web_slowness", -1f));
                     break;
-                case "boots":
-                    p.effects.Add(new Effect(p, "boots", 5f));
+                case "boots": // done
+                    p.effects.Add(new Effect(p, "speed", 2000f));
+                    tch = -1;
                     break;
-                case "cape":
-                    p.effects.Add(new Effect(p, "cape", 5f));
+                case "cape": // done
+                    p.effects.Add(new Effect(p, "invisibility", 2000f));
+                    tch = -1;
+                    break;
+                case "flash": // done
+                    tch = p.SendEffect("flash");
+                    onw = tch.ToString() + " players";
+                    break;
+                case "lightningbolt": // done
+                    tch = p.SendEffect("lightningbolt");
+                    onw = tch.ToString() + " players";
                     break;
                 default:
                     break;
             }
-            NetworkManager.log(p.Username + " used " + item+" on "+onw, "PA");
+            NetworkManager.log(p.Username + " used " +item+" "+onw, "PA");
             p.EffectCallback(item, true, p.items[item], tch);
         } else
         {

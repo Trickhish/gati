@@ -52,7 +52,7 @@ public class server_reachability : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (UIManager.Singleton.connectUI.activeSelf && !GameLogic.Singleton.gamescene.activeSelf && Time.realtimeSinceStartup - lt > tp)
+        if (UIManager.Singleton.connectUI.activeSelf && GameLogic.Singleton.id=="" && Time.realtimeSinceStartup - lt > tp)
         {
             //bool rs = PingHost(NetworkManager.Singleton.ip, NetworkManager.Singleton.port);
             //bool rs = pingip(NetworkManager.Singleton.ip);
@@ -87,11 +87,15 @@ public class server_reachability : MonoBehaviour
                     GetComponent<Animation>().Play();
                 }
 
-                if (UIManager.Singleton.menuUI.activeSelf || UIManager.Singleton.waitUI.activeSelf || GameLogic.Singleton.gamescene.activeSelf)
+                if (UIManager.Singleton.menuUI.activeSelf || UIManager.Singleton.waitUI.activeSelf || GameLogic.Singleton.id!="")
                 {
                     UIManager.Singleton.menuUI.SetActive(false);
                     UIManager.Singleton.waitUI.SetActive(false);
-                    GameLogic.Singleton.gamescene.SetActive(false);
+
+                    foreach (GameObject s in GameLogic.Singleton.maps)
+                    {
+                        s.SetActive(false);
+                    }
 
                     UIManager.Singleton.login_form.SetActive(false);
                     UIManager.Singleton.register_form.SetActive(false);

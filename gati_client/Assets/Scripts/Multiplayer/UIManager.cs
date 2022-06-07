@@ -14,6 +14,7 @@ using System.IO;
 using System.Web;
 using System.Linq;
 using UnityEngine.EventSystems;
+using System.Threading.Tasks;
 
 public class UIManager : MonoBehaviour
 {
@@ -36,6 +37,7 @@ public class UIManager : MonoBehaviour
 
     public static string localusername;
     public static List<gradient> gradients = new List<gradient>() {};
+    public static float fstp = 0;
 
     [Header("UI panels")]
     [SerializeField] public GameObject connectUI;
@@ -62,6 +64,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] public Button prev_car;
     [SerializeField] public Button next_car;
     [SerializeField] public Sprite gati_illu;
+    [SerializeField] public Sprite gati_illu2;
     [SerializeField] public Sprite gati_stats;
     [SerializeField] public String gati_pres;
     [SerializeField] public Sprite drije_illu;
@@ -103,6 +106,8 @@ public class UIManager : MonoBehaviour
     [Header("Match UI")]
     [SerializeField] public Button public_match;
     [SerializeField] public Button private_match;
+    [SerializeField] public GameObject rankUI;
+    [SerializeField] public GameObject flashobj;
 
     [Header("Wait UI")]
     [SerializeField] public TMP_Text wait_match_id;
@@ -153,17 +158,30 @@ public class UIManager : MonoBehaviour
         pgr_slider.SetActive(false);
         item_bar.SetActive(false);
         serverstatus.SetActive(true);
+        shopUI.SetActive(false);
 
         //UIManager.Singleton.connectbt.interactable = false;
         UIManager.Singleton.enter_login.interactable = false;
         UIManager.Singleton.enter_register.interactable = false;
 
         GameLogic.Singleton.gameidtext.text = "";
-        GameLogic.Singleton.gamescene.SetActive(false);
+
+        foreach (GameObject s in GameLogic.Singleton.maps)
+        {
+            s.SetActive(false);
+        }
+
+        GameLogic.Singleton.id = "";
     }
 
     private void Update()
     {
+        if (fstp!=0 && Time.realtimeSinceStartup>=fstp)
+        {
+            flashobj.SetActive(false);
+            fstp = 0;
+        }
+
         if (Input.anyKeyDown)
         {
             if (waitforkey != null)
@@ -243,6 +261,12 @@ public class UIManager : MonoBehaviour
                 register_clicked();
             }
         }
+    }
+
+    public static void flash(float ms=100f)
+    {
+        UIManager.Singleton.flashobj.SetActive(true);
+        fstp = Time.realtimeSinceStartup + (ms / 1000f);
     }
 
     public void setkey(GameObject kgo)
@@ -330,12 +354,17 @@ public class UIManager : MonoBehaviour
     {
         Application.OpenURL("http://gati.games");
     }
+
+    public void OpenUrl(string url)
+    {
+        Application.OpenURL(url);
+    }
+
     public void leavematch()
     {
         Message message = Message.Create(MessageSendMode.reliable, (ushort)ClientToServerId.leavematch);
         NetworkManager.Singleton.Client.Send(message);
 
-        
         GameLogic.Singleton.capacity = 0;
         GameLogic.Singleton.pcount = 0;
 
@@ -361,6 +390,7 @@ public class UIManager : MonoBehaviour
         {
             Destroy(p.gameObject);
         }
+        GameLogic.Reset();
         GameLogic.Singleton.matchplayers.Clear();
     }
 
@@ -415,6 +445,8 @@ public class UIManager : MonoBehaviour
 
     public void offlinetest_clicked()
     {
+        GameLogic.Reset();
+
         GameLogic.Singleton.capacity = 1;
         GameLogic.Singleton.pcount = 1;
         GameLogic.Singleton.matchplayers.Clear();
@@ -433,7 +465,8 @@ public class UIManager : MonoBehaviour
 
         GameLogic.Singleton.matchplayers.Add(NetworkManager.Singleton.Client.Id, rpl);
 
-        GameLogic.Singleton.gamescene.SetActive(true);
+        // define a way to choose a map
+
         pgr_slider.SetActive(true);
         item_bar.SetActive(true);
 
@@ -674,7 +707,15 @@ public class UIManager : MonoBehaviour
         register_form.SetActive(false);
         auth_backbt.SetActive(false);
         authbuttons.SetActive(true);
-        GameLogic.Singleton.gamescene.SetActive(false);
+
+        foreach(GameObject s in GameLogic.Singleton.maps)
+        {
+            s.SetActive(false);
+        }
+        GameLogic.Reset();
+
+        GameLogic.Singleton.id = "";
+
         statustext.text = "";
         GameLogic.Singleton.gameidtext.text = "";
         serverstatus.GetComponent<Image>().enabled = true;

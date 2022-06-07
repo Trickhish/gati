@@ -20,6 +20,7 @@ public class Player : MonoBehaviour
     public bool isjumping { get; set; }
     public bool isGrounded = false;
     public bool canmove = true;
+    public bool canuseobjects = false;
     public string status { get; set; }
 
     public float maxpos;
@@ -99,6 +100,15 @@ public class Player : MonoBehaviour
         }
     }
 
+    public void ClearEffects()
+    {
+        for (int i=0; i<this.effects.Count; i++)
+        {
+            Effect ef = this.effects[0];
+            ef.Clear();
+        }
+    }
+
     [MessageHandler((ushort)ServerToClient.match)] // match found
     private static void matchjoined(Message message)
     {
@@ -110,10 +120,15 @@ public class Player : MonoBehaviour
         int pc = message.GetInt();
         int cap = message.GetInt();
         Vector3 spos = message.GetVector2();
+        Vector3 epos = message.GetVector2();
+        epos.z = 13.8f;
+        int map = message.GetInt();
 
         GameLogic.Singleton.gameidtext.text = "Match: " + mid;
         GameLogic.Singleton.startpos = spos;
-
+        GameLogic.Singleton.endpos = epos;
+        GameLogic.mapid = map;
+        GameLogic.Singleton.status = "filling";
 
         UIManager.Singleton.connectUI.SetActive(false);
         UIManager.Singleton.menuUI.SetActive(false);
@@ -128,6 +143,8 @@ public class Player : MonoBehaviour
 
         //GameLogic.Singleton.gamescene.SetActive(true);
 
+        GameLogic.Reset();
+
         GameLogic.Singleton.id = mid;
         GameLogic.Singleton.pcount = pc;
         GameLogic.Singleton.capacity = cap;
@@ -141,6 +158,35 @@ public class Player : MonoBehaviour
 
         //Debug.Log(pc.ToString()+" players to spawn");
 
+
+
+        GameObject pt = Instantiate(UIManager.Singleton.wait_player_prefab);
+        pt.transform.parent = UIManager.Singleton.wait_players.transform;
+        pt.GetComponent<TMP_Text>().text = UIManager.localusername;
+
+        Debug.Log("new player " + Player.localcara);
+        GameObject pl = Instantiate(GameLogic.prefabofcara(Player.localcara), new Vector3(-192, 0, 0), Quaternion.identity);
+        TMP_Text pltext = pl.transform.GetChild(0).transform.GetChild(0).GetComponent<TMP_Text>();
+        pltext.text = UIManager.localusername;
+        pl.name = UIManager.localusername;
+        pl.SetActive(false);
+
+        Player rpl = pl.GetComponent<Player>();
+
+        rpl.listitem = pt;
+
+        rpl.IsLocal = true;
+
+        rpl.Id = NetworkManager.Singleton.Client.Id;
+        rpl.cara = Player.localcara;
+        rpl.username = UIManager.localusername;
+
+        GameLogic.Singleton.matchplayers.Add(rpl.Id, rpl);
+
+        ftab_text += UIManager.localusername + "\n";
+
+
+
         for (int i=0;i<pc;i++) // adding match's players
         {
             ushort pid = message.GetUShort();
@@ -149,20 +195,20 @@ public class Player : MonoBehaviour
 
             //Debug.Log(username+" spawned");
 
-            if (username != "")
+            if (username != "" && !GameLogic.Singleton.matchplayers.ContainsKey(pid))
             {
-                GameObject pt = Instantiate(UIManager.Singleton.wait_player_prefab);
+                pt = Instantiate(UIManager.Singleton.wait_player_prefab);
                 pt.transform.parent = UIManager.Singleton.wait_players.transform;
                 pt.GetComponent<TMP_Text>().text = username;
 
-                Debug.Log("new players "+cara);
-                GameObject pl = Instantiate(GameLogic.prefabofcara(cara), new Vector3(-192,0,0), Quaternion.identity);
-                TMP_Text pltext = pl.transform.GetChild(0).transform.GetChild(0).GetComponent<TMP_Text>();
+                Debug.Log("new player "+cara);
+                pl = Instantiate(GameLogic.prefabofcara(cara), new Vector3(-192,0,0), Quaternion.identity);
+                pltext = pl.transform.GetChild(0).transform.GetChild(0).GetComponent<TMP_Text>();
                 pltext.text = username;
                 pl.name = username;
                 pl.SetActive(false);
 
-                Player rpl = pl.GetComponent<Player>();
+                rpl = pl.GetComponent<Player>();
 
                 rpl.listitem = pt;
                 

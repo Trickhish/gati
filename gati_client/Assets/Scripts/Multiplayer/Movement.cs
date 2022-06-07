@@ -21,8 +21,11 @@ public class Movement : MonoBehaviour
     };
 
     private int maxspeed;
+    private int defmaxspeed;
     private int acceleration;
+    private int defacceleration;
     private int agility;
+    private int defagility;
     private int resistance;
     private float speed;
 
@@ -44,6 +47,12 @@ public class Movement : MonoBehaviour
     private BoxCollider2D collider;
     private Player pl;
 
+    public int DefaultMaxspeed
+    {
+        get => defmaxspeed;
+        set => defmaxspeed = value;
+    }
+
     public int Maxspeed
     {
         get => maxspeed;
@@ -55,6 +64,19 @@ public class Movement : MonoBehaviour
         get => acceleration;
         set => acceleration = value;
     }
+
+    public int DefaultAcceleration
+    {
+        get => defacceleration;
+        set => defacceleration = value;
+    }
+
+    public int DefaultAgility
+    {
+        get => defagility;
+        set => defagility = value;
+    }
+
     public int Agility
     {
         get => agility;
@@ -71,6 +93,7 @@ public class Movement : MonoBehaviour
     void Start()
     {
         pl = GetComponent<Player>();
+        pl.mov = this;
         speed = 6;
         playerRigidbody = GetComponent<Rigidbody2D>();
         collider = GetComponent<BoxCollider2D>();
@@ -204,7 +227,7 @@ public class Movement : MonoBehaviour
 
         GetComponent<Animator>().SetTrigger("Roll");
         isGrounded = false;
-        playerRigidbody.velocity = new Vector2(mFacingDirection * speed + (agility * 2), 11);
+        playerRigidbody.velocity = new Vector2(mFacingDirection * speed + (agility * 2), (10+(agility/2)));
         groundSensor.Disable(0.7f);
         collider.size = new Vector2(collider.size.x, 0.6f);
         collider.offset = new Vector2(collider.offset.x, 0.1f);

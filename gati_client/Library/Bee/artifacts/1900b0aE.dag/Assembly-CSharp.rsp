@@ -364,6 +364,7 @@
 "Assets/Scripts/Characters/Drije.cs"
 "Assets/Scripts/Characters/Gati.cs"
 "Assets/Scripts/cursor.cs"
+"Assets/Scripts/EffectBlock.cs"
 "Assets/Scripts/gradient.cs"
 "Assets/Scripts/hovering_anim.cs"
 "Assets/Scripts/Multiplayer/Effect.cs"

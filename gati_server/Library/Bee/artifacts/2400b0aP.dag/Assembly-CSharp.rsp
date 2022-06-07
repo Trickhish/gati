@@ -309,6 +309,7 @@
 -r:"Library/Bee/artifacts/2400b0aP.dag/Unity.Timeline.ref.dll"
 -r:"Library/Bee/artifacts/2400b0aP.dag/UnityEngine.UI.ref.dll"
 "Assets/Scripts/Multiplayer/Effect.cs"
+"Assets/Scripts/Multiplayer/EffectBlock.cs"
 "Assets/Scripts/Multiplayer/GameLogic.cs"
 "Assets/Scripts/Multiplayer/Match.cs"
 "Assets/Scripts/Multiplayer/MessageExtensions.cs"

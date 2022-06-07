@@ -18,9 +18,15 @@ public class Drije : MonoBehaviour
         {
             mvt = gameObject.AddComponent<Movement>();
             mvt.enabled = false;
+
             mvt.Maxspeed = 15;
+            mvt.DefaultMaxspeed = 15;
+
             mvt.Acceleration = 6;
+            mvt.DefaultAcceleration = 5;
+
             mvt.Agility = 3;
+            mvt.DefaultAgility = 3;
         }
     }
 

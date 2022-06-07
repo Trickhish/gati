@@ -73,6 +73,7 @@
     <Compile Include="Assets\Scripts\shop_item.cs" />
     <Compile Include="Assets\Scripts\hovering_anim.cs" />
     <Compile Include="Assets\Scripts\Multiplayer\Sensor.cs" />
+    <Compile Include="Assets\Scripts\EffectBlock.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />

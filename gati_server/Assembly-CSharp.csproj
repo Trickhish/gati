@@ -62,6 +62,7 @@
     <Compile Include="Assets\Scripts\Multiplayer\GameLogic.cs" />
     <Compile Include="Assets\Scripts\Multiplayer\Effect.cs" />
     <Compile Include="Assets\Scripts\Multiplayer\Match.cs" />
+    <Compile Include="Assets\Scripts\Multiplayer\EffectBlock.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

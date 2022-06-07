@@ -28,15 +28,15 @@ public class Match : MonoBehaviour
 
     public static List<(string, Vector2, Vector2)> maps = new List<(string, Vector2, Vector2)>
     {
-        ("Etril Sewer", new Vector2(-192f, -4f), new Vector2(2f, -3.5f)),
-        ("Niya City", new Vector2(-192f, -4f), new Vector2(2f, -3.5f)),
-        ("Ayrith Forest", new Vector2(-192f, -4f), new Vector2(2f, -3.5f)),
-        ("Bravo Camp", new Vector2(-192f, -4f), new Vector2(2f, -3.5f)),
-        ("Pirate Beach", new Vector2(-192f, -4f), new Vector2(2f, -3.5f)),
-        ("Maya Temple", new Vector2(-192f, -4f), new Vector2(2f, -3.5f)),
-        ("Snowy Mountain", new Vector2(-192f, -4f), new Vector2(2f, -3.5f)),
-        ("Prehistory", new Vector2(-192f, -4f), new Vector2(2f, -3.5f)),
-        ("Camda", new Vector2(-192f, -4f), new Vector2(2f, -3.5f))
+        ("Etril Sewer", new Vector2(-192f, 0.77f), new Vector2(2f, -3.5f)),    // done
+        ("Niya City", new Vector2(-192f, -4f), new Vector2(2f, -3.5f)),         
+        ("Ayrith Forest", new Vector2(-192f, -4f), new Vector2(2f, -3.5f)),    //
+        ("Bravo Camp", new Vector2(-192f, -4f), new Vector2(2f, -3.5f)),       
+        ("Pirate Beach", new Vector2(-192f, -4f), new Vector2(2f, -3.5f)),     // 
+        ("Maya Temple", new Vector2(-192f, -4f), new Vector2(2f, -3.5f)),       
+        ("Snowy Mountain", new Vector2(-192f, -4f), new Vector2(2f, -3.5f)),     
+        ("Prehistory", new Vector2(-192f, -4f), new Vector2(2f, -3.5f)),       
+        ("Camda", new Vector2(-192f, -4f), new Vector2(2f, -3.5f))             //
     };
 
     static System.Random rand = new System.Random();
@@ -45,14 +45,15 @@ public class Match : MonoBehaviour
     public int capacity { get; private set; }
     public string status { get; private set; }
     public int map { get; private set; }
-
+    public float starttime { get; set; }
     public Dictionary<ushort, Player> players = new Dictionary<ushort, Player>();
+    public List<EffectBlock> EffectBlocks { get; set; }
 
     public string id { get; private set; }
 
     public Match()
     {
-
+        this.EffectBlocks = new List<EffectBlock>() {};
     }
 
     public static string getrandomid(int l)
@@ -125,18 +126,22 @@ public class Match : MonoBehaviour
             {
                 NetworkManager.Singleton.Server.Send(message, pid);
             }
-
+            this.starttime = Time.realtimeSinceStartup;
             NetworkManager.log("match " + this.id + " starting", "M");
         }
     }
 
     public static void sendmatch(ushort clientid, string mid)
     {
+        Player.plist[clientid].status = "waiting";
+
         Message message = Message.Create(MessageSendMode.reliable, (ushort)ServerToClient.match);
         message.AddString(mid);
         message.AddInt(mlist[mid].players.Count);
         message.AddInt(mlist[mid].capacity);
         message.AddVector2(maps[mlist[mid].map].Item2);
+        message.AddVector2(maps[mlist[mid].map].Item3);
+        message.AddInt(mlist[mid].map);
 
         foreach (Player value in mlist[mid].players.Values)
         {
@@ -189,7 +194,8 @@ public class Match : MonoBehaviour
         match.isprivate = true;
         match.players = new Dictionary<ushort, Player>();
         match.status = "filling";
-        match.map = map;
+
+        match.map = map!=0 ? 0 : map;
 
         mlist.Add(id, match);
 
@@ -238,6 +244,7 @@ public class Match : MonoBehaviour
                 Player ap = new Player(clientid, mid);
                 ap.Username = username;
                 ap.cara = cara;
+                ap.status = "waiting";
                 Player.plist.Add(clientid, ap);
             }
             else
@@ -245,6 +252,7 @@ public class Match : MonoBehaviour
                 Player.plist[clientid].matchid = mid;
                 Player.plist[clientid].position = maps[mlist[mid].map].Item2;
                 Player.plist[clientid].cara = cara;
+                Player.plist[clientid].status = "waiting";
             }
 
             Player.plist[clientid].rlitems();
@@ -300,6 +308,7 @@ public class Match : MonoBehaviour
             Player ap = new Player(clientid, mid);
             ap.Username = username;
             ap.cara = cara;
+            ap.status = "waiting";
             Player.plist.Add(clientid, ap);
         }
         else
@@ -308,6 +317,7 @@ public class Match : MonoBehaviour
             Player.plist[clientid].matchid = mid;
             Player.plist[clientid].position = maps[mlist[mid].map].Item2;
             Player.plist[clientid].cara = cara;
+            Player.plist[clientid].status = "waiting";
         }
 
         mlist[mid].players.Add(clientid, Player.plist[clientid]);
@@ -318,8 +328,14 @@ public class Match : MonoBehaviour
     }
 
     [MessageHandler((ushort)ClientToServerId.leavematch)]
-    private static void leaverequest(ushort pid, Message message)
+    private static void leaverequest(ushort pid, Message message) // player left his match
     {
+        if (Player.plist.ContainsKey(pid))
+        {
+            Player.plist[pid].status = "none";
+            Player.plist[pid].matchid = "";
+        }
+
         string mid = Player.plist[pid].matchid;
 
         if (mlist.ContainsKey(mid) && mlist[mid].players.ContainsKey(pid))
@@ -360,12 +376,15 @@ public class Match : MonoBehaviour
         if (!Player.plist.ContainsKey(pid))
         {
             NetworkManager.log("Client ID unregistered ("+pid+")", "M");
+            return;
         } else if (!Match.mlist.ContainsKey(Player.plist[pid].matchid))
         {
             NetworkManager.log("User Match unregistered ("+ Player.plist[pid].matchid + ")", "M");
+            return;
         } else if (mlist[Player.plist[pid].matchid].map >= maps.Count)
         {
             NetworkManager.log("Unregistered map ("+ mlist[Player.plist[pid].matchid].map + ")", "M");
+            return;
         }
 
         string mid = Player.plist[pid].matchid;
@@ -378,15 +397,18 @@ public class Match : MonoBehaviour
 
         string status = message.GetString();
         Vector3 ppos = message.GetVector3();
+        mlist[mid].players[pid].position = ppos;
 
         Vector3 arp = maps[mlist[mid].map].Item3;
 
-        if (ppos.x >= arp.x) // Vector3.Distance(ppos, arp) < 5f
+        if (ppos.x >= arp.x) // #playerfinished
         {
+            Player.plist[pid].status = "finished";
+
             Message msg = Message.Create(MessageSendMode.reliable, (ushort)ServerToClient.matchend);
 
-            msg.AddString(mlist[mid].players[pid].Username);
             msg.AddUShort(pid);
+            msg.AddInt(Mathf.RoundToInt(Time.realtimeSinceStartup - Match.mlist[Player.plist[pid].matchid].starttime));
 
             foreach (Player pl in mlist[mid].players.Values)
             {
@@ -396,15 +418,31 @@ public class Match : MonoBehaviour
             mlist.Remove(mid);
             NetworkManager.log(Player.plist[pid].Username + " (" + pid + ") won", "M");
         }
-        else if (Player.plist[pid].CanMove())
+        else
         {
+            Player.plist[pid].UpdateEffects();
+
+            EffectBlock.UpdateAll(mlist[mid]);
+            foreach(EffectBlock eb in mlist[mid].EffectBlocks)
+            {
+                eb.AffectPlayer(pid);
+            }
+
+            if (!Player.plist[pid].canmove)
+            {
+                return;
+            }
+
+            if (!Player.plist[pid].visible)
+            {
+                return;
+            }
+
             Message msg = Message.Create(MessageSendMode.unreliable, (ushort)ServerToClient.rcvplayerposupdate);
 
             msg.AddString(status);
             msg.AddUShort(pid);
             msg.AddVector3(ppos);
-
-            mlist[mid].players[pid].position = ppos;
 
             foreach (Player pl in mlist[mid].players.Values)
             {

@@ -35,10 +35,6 @@ public class shop_item : MonoBehaviour
         }
         items[this.name] = this;
 
-
-        
-        
-
         GetComponent<Button>().onClick.AddListener(click);
 
         if (Player.money>=this.price && this.realitem)
