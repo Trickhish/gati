@@ -55,18 +55,31 @@ public class GameLogic : MonoBehaviour
 
     public static void ulti(ushort pid)
     {
-        NetworkManager.log(Player.plist[pid].Username + " ULTI", "MD");
-
         Player ap = Player.plist[pid];
+
+        if ((Time.realtimeSinceStartup*1000)-ap.lastcapacityuse < 3000)
+        {
+            NetworkManager.log(ap.Username + " ulti is on colldown", "MD");
+            //ap.lastcapacityuse+=100;         // if the player spam his capacity, the cooldown will be longer
+            ap.EffectCallback("capacity", false, -1, -1);
+            return;
+        }
+
+        ap.lastcapacityuse = Time.realtimeSinceStartup * 1000;
+
+        NetworkManager.log(ap.Username + " ULTI", "MD");
+
+        
         string cara = ap.cara;
 
         switch (cara)
         {
             case "gati":
                 ap.SendEffect("ulti_gati");
+                ap.EffectCallback("capacity", true, -1, -1);
                 break;
             case "drije":
-                ap.SendEffect("ulti_drije");
+                ap.EffectCallback("capacity", true, ap.SendEffect("ulti_drije"), -1);
                 break;
             default:
                 break;

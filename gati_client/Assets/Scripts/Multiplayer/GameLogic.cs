@@ -25,6 +25,10 @@ public class GameLogic : MonoBehaviour
     [Header("Misc")]
     [SerializeField] public TMP_Text gameidtext;
 
+    [Header("Sounds")]
+    [SerializeField] public AudioSource SoundEffector;
+    [SerializeField] public List<AudioClip> sounds;
+
     
 
     private static GameLogic _singleton;
@@ -58,6 +62,11 @@ public class GameLogic : MonoBehaviour
     public static int choosenitem=0;
     public static int mapid;
     public static int alwin = 0;
+    public static string NewStats = "";
+    public static int local_level;
+    public static int local_wcount;
+    public static int local_mcount;
+    public static int local_exp;
     public static Dictionary<string, int> playersitems = new Dictionary<string, int>(){ // #additem
         {"bomb", 0},
         {"adrenaline", 0},
@@ -66,6 +75,8 @@ public class GameLogic : MonoBehaviour
         {"web", 0},
         {"boots", 0},
         {"cape", 0},
+        {"lightningbolt", 0},
+        {"flash", 0},
     };
 
     public Player localplayer => (matchplayers.ContainsKey(NetworkManager.Singleton.Client.Id) ? matchplayers[NetworkManager.Singleton.Client.Id] : matchplayers.FirstOrDefault().Value);
@@ -84,8 +95,8 @@ public class GameLogic : MonoBehaviour
         {
             using (StreamWriter sw = new StreamWriter(Application.dataPath + "/config"))
             {
-                string config = "Left:276\nRight:275\nJump:273\nSneak:274\nCapacity:101\nPrevious Object:108\nNext Object:109\nUse Item:114\nPlayers List:9\nEscape Menu:27";
-
+                string config = "Left:276\nRight:275\nJump:273\nSneak:274\nCapacity:101\nPrevious Object:108\nNext Object:109\nUse Item:114\nPlayers List:9\nEscape Menu:27\nBomb:257\nWeb:258\nLightning:259\nFlash:260\nSyringe:261\nShield:262\nFeather:263\nBoots:264\nCape:265";
+                
                 sw.Write(config);
             }
         }
@@ -122,7 +133,41 @@ public class GameLogic : MonoBehaviour
             }
             stct -= 1;
         }
-
+        if (Input.GetKeyDown((KeyCode)Movement.keys["Bomb"]))
+        {
+            selectitem("Bomb");
+        } else if (Input.GetKeyDown((KeyCode)Movement.keys["Web"]))
+        {
+            selectitem("Web");
+        }
+        else if (Input.GetKeyDown((KeyCode)Movement.keys["Lightning"]))
+        {
+            selectitem("Lightning");
+        }
+        else if (Input.GetKeyDown((KeyCode)Movement.keys["Flash"]))
+        {
+            selectitem("Flash");
+        }
+        else if (Input.GetKeyDown((KeyCode)Movement.keys["Syringe"]))
+        {
+            selectitem("Syringe");
+        }
+        else if (Input.GetKeyDown((KeyCode)Movement.keys["Shield"]))
+        {
+            selectitem("Shield");
+        }
+        else if (Input.GetKeyDown((KeyCode)Movement.keys["Feather"]))
+        {
+            selectitem("Feather");
+        }
+        else if (Input.GetKeyDown((KeyCode)Movement.keys["Boots"]))
+        {
+            selectitem("Boots");
+        }
+        else if (Input.GetKeyDown((KeyCode)Movement.keys["Cape"]))
+        {
+            selectitem("Cape");
+        }
         if (Input.GetKeyDown((KeyCode)Movement.keys["Next Object"])) // NEXT OBJECT
         {
             nextitem();
@@ -132,14 +177,15 @@ public class GameLogic : MonoBehaviour
             previtem();
         }
         // ITEM USAGE
-        if (Input.GetKeyDown((KeyCode)Movement.keys["Use Item"]) && choosenitem>=0 && choosenitem<UIManager.Singleton.item_bar.transform.childCount-1 && playersitems[UIManager.Singleton.item_bar.transform.GetChild(choosenitem+1).name] > 0)
+        if (Input.GetKeyDown((KeyCode)Movement.keys["Use Item"]) && choosenitem>=0 && choosenitem<UIManager.Singleton.item_bar.transform.childCount-1 && playersitems[UIManager.Singleton.item_bar.transform.GetChild(choosenitem+1).name.ToLower().Replace("lightning", "lightningbolt").Replace("syringe", "adrenaline")] > 0)
         {
             if (!GameLogic.Singleton.localplayer.canuseobjects) { return; }
+            //if ((Time.realtimeSinceStartup*1000)-GameLogic.Singleton.localplayer.lastobjectuse < 3000f) { return; }
 
-            Debug.Log("using item "+ UIManager.Singleton.item_bar.transform.GetChild(choosenitem + 1).name);
+            Debug.Log("using item "+ UIManager.Singleton.item_bar.transform.GetChild(choosenitem + 1).name.ToLower().Replace("lightning", "lightningbolt").Replace("syringe", "adrenaline"));
 
             Message msg = Message.Create(MessageSendMode.reliable, (ushort)ClientToServerId.useitem);
-            msg.AddString(UIManager.Singleton.item_bar.transform.GetChild(choosenitem + 1).name);
+            msg.AddString(UIManager.Singleton.item_bar.transform.GetChild(choosenitem + 1).name.ToLower().Replace("lightning", "lightningbolt").Replace("syringe", "adrenaline"));
             msg.AddVector2(localplayer.transform.position);
             NetworkManager.Singleton.Client.Send(msg);
 
@@ -151,12 +197,84 @@ public class GameLogic : MonoBehaviour
     public static void Reset()
     {
         GameLogic.alwin = 0;
+        foreach(EffectBlock eb in GameLogic.EffectBlocks)
+        {
+            Destroy(eb.gameObject);
+        }
         GameLogic.EffectBlocks.Clear();
-        GameLogic.mapid = 0;
         GameLogic.Singleton.id = "";
         GameLogic.Singleton.matchplayers.Clear();
         GameLogic.Singleton.pcount = 0;
         GameLogic.Singleton.status = "none";
+    }
+
+    public static void PlaySound(string sn)
+    {
+        int n;
+        switch(sn)
+        {
+            case "countdown":
+                n = 0;
+                break;
+            case "bomb":
+                n = 1;
+                break;
+            case "cape":
+                n = 2;
+                break;
+            case "shield":
+                n = 9;
+                break;
+            case "success":
+                n = 6;
+                break;
+            case "failed":
+                n = 5;
+                break;
+            case "flash":
+                n = 3;
+                break;
+            case "flash2":
+                n = 4;
+                break;
+            case "eclair":
+                n = 7;
+                break;
+            case "seringue":
+                n = 8;
+                break;
+            case "slowed":
+                n = 10;
+                break;
+            case "speed":
+                n = 11;
+                break;
+            default:
+                n = -1;
+                break;
+        }
+        if (n>=0)
+        {
+            GameLogic.Singleton.SoundEffector.clip = GameLogic.Singleton.sounds[n];
+            GameLogic.Singleton.SoundEffector.Play();
+        }
+    }
+
+    public static int NexpOfLvl(int lvl)
+    {
+        int nexp = 0;
+        float inc = 0.2f;
+        for (int lv = 0; lv <=lvl; lv++) {
+            if (lv == 0) {
+                nexp = 1;
+            } else if (lv == 1) {
+                nexp = 3;
+            } else {
+                nexp = Mathf.RoundToInt(inc+nexp);
+                inc += 0.1f;
+            }
+        }
+        return (nexp);
     }
 
     public static void setitemkey(string name, KeyCode kc)
@@ -191,12 +309,15 @@ public class GameLogic : MonoBehaviour
     {
         for (int i = 0; i < UIManager.Singleton.item_bar.transform.childCount; i++)
         {
-            GameObject cgo = UIManager.Singleton.item_bar.transform.GetChild(i).gameObject;
+            GameObject cgo = UIManager.Singleton.item_bar.transform.GetChild(i+1).gameObject;
 
             if (cgo.name == name)
             {
-                choosenitem = i;
-                UIManager.Singleton.item_outline.transform.position = cgo.transform.position;
+                if (playersitems[UIManager.Singleton.item_bar.transform.GetChild(i + 1).name.ToLower().Replace("lightning", "lightningbolt").Replace("syringe", "adrenaline")] > 0)
+                {
+                    choosenitem = i;
+                    UIManager.Singleton.item_outline.transform.position = cgo.transform.position;
+                }
                 break;
             }
         }
@@ -222,12 +343,12 @@ public class GameLogic : MonoBehaviour
     public static void nextitem()
     {
         int i = choosenitem + 1;
-        while (i<UIManager.Singleton.item_bar.transform.childCount-1 && playersitems[UIManager.Singleton.item_bar.transform.GetChild(i + 1).name] <= 0)
+        while (i<UIManager.Singleton.item_bar.transform.childCount-1 && playersitems[UIManager.Singleton.item_bar.transform.GetChild(i + 1).name.ToLower().Replace("lightning", "lightningbolt").Replace("syringe", "adrenaline")] <= 0)
         {
             i++;
         }
 
-        if (i < UIManager.Singleton.item_bar.transform.childCount - 1 && playersitems[UIManager.Singleton.item_bar.transform.GetChild(i+1).name] > 0)
+        if (i < UIManager.Singleton.item_bar.transform.childCount - 1 && playersitems[UIManager.Singleton.item_bar.transform.GetChild(i+1).name.ToLower().Replace("lightning", "lightningbolt").Replace("syringe", "adrenaline")] > 0)
         {
             choosenitem = i;
         }
@@ -242,12 +363,12 @@ public class GameLogic : MonoBehaviour
     public static void previtem()
     {
         int i = choosenitem-1;
-        while (i>=0 && playersitems[UIManager.Singleton.item_bar.transform.GetChild(i+1).name] <= 0)
+        while (i>=0 && playersitems[UIManager.Singleton.item_bar.transform.GetChild(i+1).name.ToLower().Replace("lightning", "lightningbolt").Replace("syringe", "adrenaline")] <= 0)
         {
             i--;
         }
 
-        if (i>=0 && playersitems[UIManager.Singleton.item_bar.transform.GetChild(i + 1).name] > 0)
+        if (i>=0 && playersitems[UIManager.Singleton.item_bar.transform.GetChild(i + 1).name.ToLower().Replace("lightning", "lightningbolt").Replace("syringe", "adrenaline")] > 0)
         {
             choosenitem=i;
         }
@@ -285,14 +406,14 @@ public class GameLogic : MonoBehaviour
 
                 if (Movement.keys.ContainsKey(cgo.name.ToLower()))
                 {
-                    cgo.transform.GetChild(1).gameObject.GetComponent<TMP_Text>().text = ((KeyCode)Movement.keys[cgo.name.ToLower()]).ToString(); // key
+                    cgo.transform.GetChild(1).gameObject.GetComponent<TMP_Text>().text = ((KeyCode)Movement.keys[cgo.name.ToLower().Replace("lightning", "lightningbolt").Replace("syringe", "adrenaline")]).ToString(); // key
                 } else
                 {
                     cgo.transform.GetChild(1).gameObject.GetComponent<TMP_Text>().text = ""; // key
                 }
                 TMP_Text tt = cgo.transform.GetChild(0).gameObject.GetComponent<TMP_Text>();
 
-                tt.text = playersitems[cgo.name.ToLower()].ToString();  // stock
+                tt.text = playersitems[cgo.name.ToLower().Replace("lightning", "lightningbolt").Replace("syringe", "adrenaline")].ToString();  // stock
             }
         }
     }
@@ -303,7 +424,7 @@ public class GameLogic : MonoBehaviour
         {
             GameObject ko = UIManager.Singleton.keysgroup.transform.GetChild(i).gameObject;
 
-            string nm = ((KeyCode)Movement.keys[ko.name]).ToString().ToUpper();
+            string nm = ((KeyCode)Movement.keys[ko.name.Replace("lightning", "lightningbolt").Replace("syringe", "adrenaline")]).ToString().ToUpper();
             //🡨🡪🡩🡫
             if (nm == "LEFTARROW")
             {
@@ -348,7 +469,7 @@ public class GameLogic : MonoBehaviour
     {
         foreach(string l in config.Split("\n"))
         {
-            string key = l.Split(":")[0];
+            string key = l.Split(":")[0].Replace("lightning", "lightningbolt").Replace("syringe", "adrenaline");
             string val = l.Split(":")[1];
 
             if (Movement.keys.ContainsKey(key))
@@ -390,7 +511,7 @@ public class GameLogic : MonoBehaviour
         }
     }
 
-    [MessageHandler((ushort)ServerToClient.matchend)]
+    [MessageHandler((ushort)ServerToClient.matchend)] // a player finished the race
     private static void endofmatch(Message message)
     {
         ushort winid = message.GetUShort();
@@ -442,6 +563,13 @@ public class GameLogic : MonoBehaviour
 
         if (winid == NetworkManager.Singleton.Client.Id) // you finished the map
         {
+            string s = message.GetString();
+            NewStats = s == "" ? "" : s.Split("|")[0];
+            string[] l = s.Split("|")[1].Split(",");
+
+            UIManager.Singleton.rankUI.transform.Find("coins").GetComponent<TMP_Text>().text = "+ "+l[1];
+            UIManager.Singleton.rankUI.transform.Find("exp").GetComponent<TMP_Text>().text = "+ "+l[0]+" EXP";
+
             GameLogic.Singleton.localplayer.ClearEffects();
             GameLogic.Singleton.localplayer.GetComponent<Movement>().enabled = false;
             GameLogic.Singleton.localplayer.GetComponent<Animator>().SetBool("Idle", true);
@@ -495,7 +623,18 @@ public class GameLogic : MonoBehaviour
 
         Debug.Log("Match Starting");
 
-        GameLogic.Singleton.maps[GameLogic.mapid].SetActive(true);
+        for (int i=0; i<GameLogic.Singleton.maps.Count; i++)
+        {
+            if (i==GameLogic.mapid)
+            {
+                GameLogic.Singleton.maps[i].SetActive(true);
+            } else
+            {
+                GameLogic.Singleton.maps[i].SetActive(false);
+            }
+        }
+        
+        
 
         GameLogic.Singleton.finishflag.transform.position = new Vector3(GameLogic.Singleton.endpos.x+5, GameLogic.Singleton.endpos.y, 0f);
         GameLogic.Singleton.finishflag.GetComponentInChildren<ParticleSystem>().Stop();
@@ -524,6 +663,7 @@ public class GameLogic : MonoBehaviour
         pltext.color = new Color(174f/255f, 45f/255f, 93f/255f);
 
         stct = 5;
+        GameLogic.PlaySound("countdown");
     }
 
     [MessageHandler((ushort)ServerToClient.rcvplayerupdate)]
@@ -586,7 +726,7 @@ public class GameLogic : MonoBehaviour
         GameLogic.Singleton.matchplayers[pid].gameObject.transform.position = ppos;
     }
 
-    [MessageHandler((ushort)ServerToClient.itemused)] // server response after item use
+    [MessageHandler((ushort)ServerToClient.itemused)] // server response after item/capacity use
     private static void ItemUseCallback(Message msg)
     {
         string item = msg.GetString();
@@ -595,6 +735,30 @@ public class GameLogic : MonoBehaviour
         int tch = msg.GetInt();
 
         // maybe apply effects such as adrenaline with particle so that the player know he's still under effect
+
+        if (item=="capacity")
+        {
+            if (succ)
+            {
+                Debug.Log("Capacity Use Response");
+
+                switch (GameLogic.Singleton.localplayer.cara)
+                {
+                    case "gati":
+                        GameLogic.Singleton.localplayer.effects.Add(new Effect("dash", 500));
+                        break;
+                    case "drije":
+                        break;
+                    default:
+                        break;
+                }
+            } else
+            {
+                Debug.Log("Capacity on cooldown");
+            }
+
+            return;
+        }
 
         if (succ)
         {
@@ -618,6 +782,7 @@ public class GameLogic : MonoBehaviour
                         }
                         if (!fnd)
                         {
+                            GameLogic.PlaySound("flash2");
                             GameLogic.Singleton.localplayer.effects.Add(new Effect("agility", 2000));
                         }
                         break;
@@ -635,6 +800,7 @@ public class GameLogic : MonoBehaviour
                         }
                         if (!fnd)
                         {
+                            GameLogic.PlaySound("speed");
                             GameLogic.Singleton.localplayer.effects.Add(new Effect("speed", 2000));
                         }
                         break;
@@ -652,25 +818,36 @@ public class GameLogic : MonoBehaviour
                         }
                         if (!fnd)
                         {
+                            GameLogic.PlaySound("cape");
                             GameLogic.Singleton.localplayer.effects.Add(new Effect("invisibility", 2000));
                         }
                         break;
+                    case "adrenaline":
+                        GameLogic.PlaySound("seringue");
+                        break;
+                    case "shield":
+                        GameLogic.PlaySound("shield");
+                        break;
                     default:
+                        GameLogic.PlaySound("success");
                         break;
                 }
             } else
             {
+                GameLogic.PlaySound("success");
                 Debug.Log(item + " use response, touched " + tch.ToString() + ", " + rem.ToString() + " remaining");
             }
         } else
         {
+            GameLogic.PlaySound("failed");
             Debug.Log(item + " use failed");
         }
-        
 
-        playersitems[item]=rem;
 
-        loaditems();
+        if (succ) {
+            playersitems[item] = rem;
+            loaditems();
+        }
     }
 
     // effects client sides are just visual indicator, the real effect is being applied server sides

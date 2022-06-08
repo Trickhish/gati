@@ -188,7 +188,32 @@ public class NetworkManager : MonoBehaviour
                 stats.Add(int.Parse(e));
             }
 
-            return (stats);
+            return(stats);
+        }
+    }
+
+    public static void rlstats(string force="")
+    {
+        string r = (force=="") ? getreq("https://trickhisch.alwaysdata.net/gati/?a=stats&t=" + HttpUtility.UrlEncode(NetworkManager.Singleton.token)) : force;
+
+        if (r != "unreachable" && r != "false" && r!="error")
+        {
+            string[] l = r.Split(',');
+            int level = int.Parse(l[0]);
+            int exp = int.Parse(l[1]);
+            int mcount = int.Parse(l[2]);
+            int wcount = int.Parse(l[3]);
+            int wpct = (int)Decimal.Round(Decimal.Divide(wcount, mcount) * 100);
+            int lvlpct = (int)Decimal.Round(Decimal.Divide(exp, GameLogic.NexpOfLvl(level)) * 100);
+
+            GameLogic.local_level = level;
+            GameLogic.local_wcount = wcount;
+            GameLogic.local_mcount = mcount;
+            GameLogic.local_exp = exp;
+
+            UIManager.Singleton.user_stats.transform.Find("progress").GetComponent<Slider>().value = lvlpct;
+
+            UIManager.Singleton.user_stats.text = "Level : " + level.ToString() + "\n\nWin Ratio : " + wpct.ToString() + "%";
         }
     }
 
@@ -307,7 +332,7 @@ public class NetworkManager : MonoBehaviour
             try {
                 foreach (string e in r.Split(','))
                 {
-                    Debug.Log(e);
+                    //Debug.Log(e);
                     GameLogic.playersitems[e.Split(':')[0].ToLower()] = int.Parse(e.Split(':')[1]);
 
                     if (shop_item.items.ContainsKey(e.Split(':')[0]))

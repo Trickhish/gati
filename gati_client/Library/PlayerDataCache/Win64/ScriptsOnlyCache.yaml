@@ -2,6 +2,7 @@ ScriptsOnlyBuild:
   usedScripts:
     Assembly-CSharp.dll:
     - Drije
+    - EffectBlock
     - GameLogic
     - Gati
     - NetworkManager
@@ -19,10 +20,12 @@ ScriptsOnlyBuild:
     - UnityEditor.U2D.Animation.BoneGizmo
     Unity.2D.IK.Editor.dll:
     - UnityEditor.U2D.IK.IKEditorManager
+    - UnityEditor.U2D.IK.IKGizmos
     Unity.2D.Tilemap.Editor.dll:
     - UnityEditor.Tilemaps.GridBrush
     - UnityEditor.Tilemaps.GridPaintingState
     - UnityEditor.Tilemaps.GridPaletteBrushes
+    - UnityEditor.Tilemaps.GridPalettes
     - UnityEditor.Tilemaps.SceneViewGridManager
     - UnityEditor.Tilemaps.SceneViewOpenTilePaletteHelper
     - UnityEditor.Tilemaps.TileDragAndDropManager
@@ -41,8 +44,10 @@ ScriptsOnlyBuild:
     UnityEditor.Graphs.dll:
     - UnityEditor.Graphs.AnimationBlendTree.Graph
     - UnityEditor.Graphs.AnimationBlendTree.GraphGUI
+    - UnityEditor.Graphs.AnimationStateMachine.AnyStateNode
     - UnityEditor.Graphs.AnimationStateMachine.Graph
     - UnityEditor.Graphs.AnimationStateMachine.GraphGUI
+    - UnityEditor.Graphs.AnimationStateMachine.StateNode
     - UnityEditor.Graphs.AnimatorControllerTool
     UnityEditor.TestRunner.dll:
     - UnityEditor.TestTools.TestRunner.Api.CallbacksHolder
@@ -244,15 +249,6 @@ ScriptsOnlyBuild:
     fullTypeName: hovering_anim
     methodName: MouseEntered
   - assembly: Assembly-CSharp
-    fullTypeName: shop_item
-    methodName: setdesc
-  - assembly: Assembly-CSharp
-    fullTypeName: hovering_anim
-    methodName: MouseExited
-  - assembly: Assembly-CSharp
-    fullTypeName: hovering_anim
-    methodName: MouseEntered
-  - assembly: Assembly-CSharp
     fullTypeName: hovering_anim
     methodName: MouseExited
   - assembly: Assembly-CSharp
@@ -265,11 +261,11 @@ ScriptsOnlyBuild:
     fullTypeName: hovering_anim
     methodName: MouseEntered
   - assembly: Assembly-CSharp
-    fullTypeName: shop_item
-    methodName: setdesc
-  - assembly: Assembly-CSharp
     fullTypeName: hovering_anim
     methodName: MouseExited
+  - assembly: Assembly-CSharp
+    fullTypeName: UIManager
+    methodName: setkey
   - assembly: UnityEngine.CoreModule
     fullTypeName: UnityEngine.GameObject
     methodName: SetActive
@@ -326,6 +322,15 @@ ScriptsOnlyBuild:
     methodName: MouseExited
   - assembly: Assembly-CSharp
     fullTypeName: UIManager
+    methodName: setkey
+  - assembly: Assembly-CSharp
+    fullTypeName: hovering_anim
+    methodName: MouseEntered
+  - assembly: Assembly-CSharp
+    fullTypeName: hovering_anim
+    methodName: MouseExited
+  - assembly: Assembly-CSharp
+    fullTypeName: UIManager
     methodName: prev_car_clicked
   - assembly: Assembly-CSharp
     fullTypeName: hovering_anim
@@ -370,11 +375,32 @@ ScriptsOnlyBuild:
     fullTypeName: hovering_anim
     methodName: MouseEntered
   - assembly: Assembly-CSharp
+    fullTypeName: hovering_anim
+    methodName: MouseExited
+  - assembly: Assembly-CSharp
+    fullTypeName: UIManager
+    methodName: OpenUrl
+  - assembly: Assembly-CSharp
+    fullTypeName: hovering_anim
+    methodName: MouseEntered
+  - assembly: Assembly-CSharp
     fullTypeName: shop_item
     methodName: setdesc
   - assembly: Assembly-CSharp
     fullTypeName: hovering_anim
     methodName: MouseExited
+  - assembly: Assembly-CSharp
+    fullTypeName: hovering_anim
+    methodName: MouseEntered
+  - assembly: Assembly-CSharp
+    fullTypeName: hovering_anim
+    methodName: MouseExited
+  - assembly: UnityEngine.CoreModule
+    fullTypeName: UnityEngine.GameObject
+    methodName: SetActive
+  - assembly: Assembly-CSharp
+    fullTypeName: UIManager
+    methodName: ranking_continue
   - assembly: Assembly-CSharp
     fullTypeName: UIManager
     methodName: setkey
@@ -496,15 +522,6 @@ ScriptsOnlyBuild:
     fullTypeName: hovering_anim
     methodName: MouseEntered
   - assembly: Assembly-CSharp
-    fullTypeName: hovering_anim
-    methodName: MouseExited
-  - assembly: Assembly-CSharp
-    fullTypeName: UIManager
-    methodName: offlinetest_clicked
-  - assembly: Assembly-CSharp
-    fullTypeName: hovering_anim
-    methodName: MouseEntered
-  - assembly: Assembly-CSharp
     fullTypeName: shop_item
     methodName: setdesc
   - assembly: Assembly-CSharp
@@ -567,6 +584,15 @@ ScriptsOnlyBuild:
   - assembly: Unity.TextMeshPro
     fullTypeName: TMPro.TMP_Text
     methodName: set_text
+  - assembly: Assembly-CSharp
+    fullTypeName: hovering_anim
+    methodName: MouseEntered
+  - assembly: Assembly-CSharp
+    fullTypeName: hovering_anim
+    methodName: MouseExited
+  - assembly: Assembly-CSharp
+    fullTypeName: UIManager
+    methodName: setkey
   - assembly: Assembly-CSharp
     fullTypeName: UIManager
     methodName: login_clicked
@@ -675,6 +701,33 @@ ScriptsOnlyBuild:
   - assembly: Assembly-CSharp
     fullTypeName: hovering_anim
     methodName: MouseExited
+  - assembly: Assembly-CSharp
+    fullTypeName: UIManager
+    methodName: setkey
+  - assembly: Assembly-CSharp
+    fullTypeName: hovering_anim
+    methodName: MouseEntered
+  - assembly: Assembly-CSharp
+    fullTypeName: hovering_anim
+    methodName: MouseExited
+  - assembly: Assembly-CSharp
+    fullTypeName: UIManager
+    methodName: setkey
+  - assembly: Assembly-CSharp
+    fullTypeName: hovering_anim
+    methodName: MouseEntered
+  - assembly: Assembly-CSharp
+    fullTypeName: hovering_anim
+    methodName: MouseExited
+  - assembly: Assembly-CSharp
+    fullTypeName: UIManager
+    methodName: setkey
+  - assembly: Assembly-CSharp
+    fullTypeName: hovering_anim
+    methodName: MouseEntered
+  - assembly: Assembly-CSharp
+    fullTypeName: hovering_anim
+    methodName: MouseExited
   - assembly: UnityEngine.CoreModule
     fullTypeName: UnityEngine.GameObject
     methodName: SetActive
@@ -687,6 +740,18 @@ ScriptsOnlyBuild:
   - assembly: Assembly-CSharp
     fullTypeName: hovering_anim
     methodName: MouseExited
+  - assembly: Assembly-CSharp
+    fullTypeName: hovering_anim
+    methodName: MouseEntered
+  - assembly: Assembly-CSharp
+    fullTypeName: hovering_anim
+    methodName: MouseExited
+  - assembly: Assembly-CSharp
+    fullTypeName: hovering_anim
+    methodName: MouseExited
+  - assembly: UnityEngine.CoreModule
+    fullTypeName: UnityEngine.GameObject
+    methodName: SetActive
   - assembly: Assembly-CSharp
     fullTypeName: UIManager
     methodName: creatematch_clicked
@@ -853,6 +918,15 @@ ScriptsOnlyBuild:
     fullTypeName: gradient
     methodName: ApplyGradient
   - assembly: Assembly-CSharp
+    fullTypeName: hovering_anim
+    methodName: MouseEntered
+  - assembly: Assembly-CSharp
+    fullTypeName: hovering_anim
+    methodName: MouseExited
+  - assembly: Assembly-CSharp
+    fullTypeName: UIManager
+    methodName: setkey
+  - assembly: Assembly-CSharp
     fullTypeName: UIManager
     methodName: setkey
   - assembly: Assembly-CSharp
@@ -865,11 +939,20 @@ ScriptsOnlyBuild:
     fullTypeName: hovering_anim
     methodName: MouseEntered
   - assembly: Assembly-CSharp
-    fullTypeName: shop_item
-    methodName: setdesc
+    fullTypeName: hovering_anim
+    methodName: MouseExited
+  - assembly: Assembly-CSharp
+    fullTypeName: UIManager
+    methodName: setkey
+  - assembly: Assembly-CSharp
+    fullTypeName: hovering_anim
+    methodName: MouseEntered
   - assembly: Assembly-CSharp
     fullTypeName: hovering_anim
     methodName: MouseExited
+  - assembly: Assembly-CSharp
+    fullTypeName: UIManager
+    methodName: setkey
   - assembly: UnityEngine.CoreModule
     fullTypeName: UnityEngine.GameObject
     methodName: SetActive
@@ -917,6 +1000,8 @@ ScriptsOnlyBuild:
       Script: {instanceID: 0}
     - Class: 58
       Script: {instanceID: 0}
+    - Class: 60
+      Script: {instanceID: 0}
     - Class: 61
       Script: {instanceID: 0}
     - Class: 62
@@ -930,8 +1015,6 @@ ScriptsOnlyBuild:
     - Class: 82
       Script: {instanceID: 0}
     - Class: 83
-      Script: {instanceID: 0}
-    - Class: 89
       Script: {instanceID: 0}
     - Class: 91
       Script: {instanceID: 0}
@@ -1020,11 +1103,13 @@ ScriptsOnlyBuild:
     - Class: 114
       Script: {instanceID: 5640}
     - Class: 114
-      Script: {instanceID: 6100}
+      Script: {instanceID: 6014}
     - Class: 114
-      Script: {instanceID: 6150}
+      Script: {instanceID: 6102}
     - Class: 114
-      Script: {instanceID: 6242}
+      Script: {instanceID: 6152}
+    - Class: 114
+      Script: {instanceID: 6244}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 128
@@ -1190,7 +1275,7 @@ ScriptsOnlyBuild:
     className: RawImage
   - hash:
       serializedVersion: 2
-      Hash: 58d8124db10179458a8377cee5984e9a
+      Hash: e6d9aecfe7ebb1ac06f56c42a13d2d96
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: GameLogic
@@ -1550,7 +1635,7 @@ ScriptsOnlyBuild:
     className: ScrollRect
   - hash:
       serializedVersion: 2
-      Hash: 0a63244741f53eeda16ef148f643d1e0
+      Hash: 009a8cf3d7134e922a3f283a0c13be8e
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: UIManager
@@ -1580,7 +1665,7 @@ ScriptsOnlyBuild:
     className: TMP_Settings
   - hash:
       serializedVersion: 2
-      Hash: 99cd70c4056c6b6e0fa14b7c2a60b9fa
+      Hash: 031c585360d533d026e6a73b7b5ee3bd
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: Player
@@ -1638,6 +1723,12 @@ ScriptsOnlyBuild:
     assemblyName: Unity.2D.Animation.Runtime.dll
     namespaceName: UnityEngine.U2D.Animation
     className: BufferManager
+  - hash:
+      serializedVersion: 2
+      Hash: 709e570e493a8c6ec290267ed5ce5d25
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: EffectBlock
   - hash:
       serializedVersion: 2
       Hash: 8220b46879dc5e37db1b940c938f5744

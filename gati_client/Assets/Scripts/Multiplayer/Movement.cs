@@ -18,6 +18,16 @@ public class Movement : MonoBehaviour
         {"Players List", 9},
         {"Escape Menu", 27},
         {"Use Item", 114},
+
+        {"Bomb", 257},
+        {"Web", 258},
+        {"Lightning", 259},
+        {"Flash", 260},
+        {"Syringe", 261},
+        {"Shield", 262},
+        {"Feather", 263},
+        {"Boots", 264},
+        {"Cape", 265},
     };
 
     private int maxspeed;
@@ -28,6 +38,7 @@ public class Movement : MonoBehaviour
     private int defagility;
     private int resistance;
     private float speed;
+    private float prevaccel;
 
     private int mFacingDirection = 1;
     private float mDelayToIdle = 0.0f;
@@ -46,6 +57,18 @@ public class Movement : MonoBehaviour
 
     private BoxCollider2D collider;
     private Player pl;
+
+    public float PreviousAcceleration
+    {
+        get => prevaccel;
+        set => prevaccel = value;
+    }
+
+    public float ActualSpeed
+    {
+        get => speed;
+        set => speed = value;
+    }
 
     public int DefaultMaxspeed
     {

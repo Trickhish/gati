@@ -92,6 +92,8 @@ public class server_reachability : MonoBehaviour
                     UIManager.Singleton.menuUI.SetActive(false);
                     UIManager.Singleton.waitUI.SetActive(false);
 
+                    Debug.Log("SR");
+
                     foreach (GameObject s in GameLogic.Singleton.maps)
                     {
                         s.SetActive(false);

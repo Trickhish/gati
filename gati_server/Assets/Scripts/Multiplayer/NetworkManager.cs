@@ -149,6 +149,18 @@ public class NetworkManager : MonoBehaviour
         string r = getreq("https://trickhisch.alwaysdata.net/gati/?a=renew&m=" + HttpUtility.UrlEncode(mail) + "&sat=" + sat);
     }
 
+    public static string endofmatch(ushort pid, int rank, int xp)
+    {
+        string r = getreq("https://trickhisch.alwaysdata.net/gati/?a=matchend&m=" + HttpUtility.UrlEncode(Player.plist[pid].Mail) + "&sat=" + sat + "&rk=" + HttpUtility.UrlEncode(rank.ToString()) + "&xp=" + HttpUtility.UrlEncode(xp.ToString()));
+
+        if (r == "false" || r == "unreachable" || r == "error")
+        {
+            return("false");
+        }
+
+        return(r);
+    }
+
     public static void setstatus(ushort pid, bool ingame)
     {
         string mail = Player.plist[pid].Mail;

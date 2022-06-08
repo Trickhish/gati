@@ -124,6 +124,7 @@ public class UIManager : MonoBehaviour
     [Header("Universal Canvas")]
     [SerializeField] public GameObject pgr_slider;
     [SerializeField] public TMP_Text stcounter;
+    [SerializeField] public GameObject levelupUI;
 
     [Header("Audio")]
     [SerializeField] public AudioSource clickaudio;
@@ -394,6 +395,36 @@ public class UIManager : MonoBehaviour
         GameLogic.Singleton.matchplayers.Clear();
     }
 
+    public void ranking_continue()
+    {
+        leavematch();
+
+        if (GameLogic.NewStats!="")
+        {
+            string[] l = GameLogic.NewStats.Split(',');
+
+            int level = int.Parse(l[0]);
+            int exp = int.Parse(l[1]);
+            int mcount = int.Parse(l[2]);
+            int wcount = int.Parse(l[3]);
+            int wpct = (int)Decimal.Round(Decimal.Divide(wcount, mcount) * 100);
+            int lvlpct = (int)Decimal.Round(Decimal.Divide(exp, GameLogic.NexpOfLvl(level)) * 100);
+            user_stats.transform.Find("progress").GetComponent<Slider>().value = lvlpct;
+            user_stats.text = "Level : " + level.ToString() + "\n\nWin Ratio : " + wpct.ToString() + "%";
+
+            if (GameLogic.local_level < level)
+            {
+                levelupUI.transform.Find("msg").GetComponent<TMP_Text>().text = "Congratulations !\nYou're now level "+level.ToString();
+                levelupUI.SetActive(true);
+            }
+
+            GameLogic.local_level = level;
+            GameLogic.local_wcount = wcount;
+            GameLogic.local_mcount = mcount;
+            GameLogic.local_exp = exp;
+        }
+    }
+
     public void setip()
     {
         NetworkManager.Singleton.ip = ipfield.text;
@@ -421,6 +452,7 @@ public class UIManager : MonoBehaviour
     {
         int pc = int.Parse(private_plc.options[private_plc.value].text.Split(' ')[0]);
         int map = private_map.value;
+        Debug.Log("match map : "+map.ToString());
 
         Message message = Message.Create(MessageSendMode.reliable, (ushort)ClientToServerId.createprivate);
         message.AddInt(pc);
@@ -556,6 +588,7 @@ public class UIManager : MonoBehaviour
             serverstatus.GetComponent<Image>().enabled = false;
             connectUI.SetActive(false);
             menuUI.SetActive(true);
+            NetworkManager.rlstats();
 
             public_match.GetComponent<gradient>().ApplyGradient();
             private_match.GetComponent<gradient>().ApplyGradient();

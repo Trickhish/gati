@@ -112,6 +112,7 @@ public class Player : MonoBehaviour
     [MessageHandler((ushort)ServerToClient.match)] // match found
     private static void matchjoined(Message message)
     {
+        GameLogic.Reset();
         NetworkManager.Singleton.rlitems();
         
         UIManager.Singleton.pgr_slider.GetComponent<Slider>().value = 0;
@@ -123,12 +124,17 @@ public class Player : MonoBehaviour
         Vector3 epos = message.GetVector2();
         epos.z = 13.8f;
         int map = message.GetInt();
+        Debug.Log("received map "+map.ToString());
 
         GameLogic.Singleton.gameidtext.text = "Match: " + mid;
         GameLogic.Singleton.startpos = spos;
         GameLogic.Singleton.endpos = epos;
         GameLogic.mapid = map;
         GameLogic.Singleton.status = "filling";
+        GameLogic.Singleton.id = mid;
+        GameLogic.Singleton.pcount = pc;
+        GameLogic.Singleton.capacity = cap;
+        GameLogic.Singleton.matchplayers.Clear();
 
         UIManager.Singleton.connectUI.SetActive(false);
         UIManager.Singleton.menuUI.SetActive(false);
@@ -140,15 +146,6 @@ public class Player : MonoBehaviour
         {
             GameObject.Destroy(child.gameObject);
         }
-
-        //GameLogic.Singleton.gamescene.SetActive(true);
-
-        GameLogic.Reset();
-
-        GameLogic.Singleton.id = mid;
-        GameLogic.Singleton.pcount = pc;
-        GameLogic.Singleton.capacity = cap;
-        GameLogic.Singleton.matchplayers.Clear();
 
         string ftab_text = mid+ "  :  "+pc.ToString()+"/"+cap.ToString()+"\n";
 

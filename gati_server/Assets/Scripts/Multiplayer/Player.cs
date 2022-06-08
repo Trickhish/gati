@@ -20,6 +20,8 @@ public class Player : MonoBehaviour
         {"web", 0},
         {"boots", 0},
         {"cape", 0},
+        {"lightningbolt", 0},
+        {"flash", 0},
     };
     public string matchid { get; set; }
     public Vector3 position { get; set; }
@@ -31,6 +33,8 @@ public class Player : MonoBehaviour
     public bool canuseobjects { get; set; }
     public int resistanceadd { get; set; }
     public bool invincible { get; set; }
+    public float lastcapacityuse { get; set; }
+    public float lastitemuse { get; set; }
 
     private void OnDestroy()
     {
@@ -52,6 +56,8 @@ public class Player : MonoBehaviour
         this.canuseobjects = true;
         this.resistanceadd = 0;
         this.invincible = false;
+        this.lastcapacityuse = 0f;
+        this.lastitemuse = 0f;
     }
 
     public Player(ushort id, string mid)
@@ -70,6 +76,8 @@ public class Player : MonoBehaviour
         this.canuseobjects = true;
         this.resistanceadd = 0;
         this.invincible = false;
+        this.lastcapacityuse = 0f;
+        this.lastitemuse = 0f;
     }
 
     public Player(ushort id)
@@ -88,6 +96,8 @@ public class Player : MonoBehaviour
         this.canuseobjects = true;
         this.resistanceadd = 0;
         this.invincible = false;
+        this.lastcapacityuse = 0f;
+        this.lastitemuse = 0f;
     }
 
     public void UpdateEffects()
@@ -197,7 +207,7 @@ public class Player : MonoBehaviour
     }
 
     [MessageHandler((ushort)ClientToServerId.useitem)]
-    private static void ItemUsed(ushort cid, Message msg) // an item was used by a player
+    private static void ItemUsed(ushort cid, Message msg) // an item was used by the player
     {
         string item = msg.GetString();
         Vector2 pos = msg.GetVector2();
@@ -206,7 +216,7 @@ public class Player : MonoBehaviour
 
         p.position = pos;
 
-        if (p.items.ContainsKey(item) && p.items[item] > 0 && p.canuseobjects && NetworkManager.useitem(cid, item))
+        if (p.items.ContainsKey(item) && (Time.realtimeSinceStartup*1000f)-p.lastitemuse>3000f && p.items[item] > 0 && p.canuseobjects && NetworkManager.useitem(cid, item))
         {
             p.items[item]--;
             int tch=-1;
@@ -252,6 +262,9 @@ public class Player : MonoBehaviour
                 default:
                     break;
             }
+
+            p.lastitemuse = Time.realtimeSinceStartup * 1000f;
+
             NetworkManager.log(p.Username + " used " +item+" "+onw, "PA");
             p.EffectCallback(item, true, p.items[item], tch);
         } else

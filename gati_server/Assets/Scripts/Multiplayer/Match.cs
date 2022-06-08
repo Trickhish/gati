@@ -28,14 +28,15 @@ public class Match : MonoBehaviour
 
     public static List<(string, Vector2, Vector2)> maps = new List<(string, Vector2, Vector2)>
     {
+        // first : 2f, second : 201
         ("Etril Sewer", new Vector2(-192f, 0.77f), new Vector2(2f, -3.5f)),    // done
-        ("Niya City", new Vector2(-192f, -4f), new Vector2(2f, -3.5f)),         
+        ("Maya Temple", new Vector2(-192f, 0.77f), new Vector2(201f, -3.5f)),  // done
+        ("Niya City", new Vector2(-192f, -4f), new Vector2(2f, -3.5f)),        // 
         ("Ayrith Forest", new Vector2(-192f, -4f), new Vector2(2f, -3.5f)),    //
-        ("Bravo Camp", new Vector2(-192f, -4f), new Vector2(2f, -3.5f)),       
+        ("Bravo Camp", new Vector2(-192f, -4f), new Vector2(2f, -3.5f)),       //
         ("Pirate Beach", new Vector2(-192f, -4f), new Vector2(2f, -3.5f)),     // 
-        ("Maya Temple", new Vector2(-192f, -4f), new Vector2(2f, -3.5f)),       
-        ("Snowy Mountain", new Vector2(-192f, -4f), new Vector2(2f, -3.5f)),     
-        ("Prehistory", new Vector2(-192f, -4f), new Vector2(2f, -3.5f)),       
+        ("Snowy Mountain", new Vector2(-192f, -4f), new Vector2(2f, -3.5f)),   //
+        ("Prehistory", new Vector2(-192f, -4f), new Vector2(2f, -3.5f)),       //
         ("Camda", new Vector2(-192f, -4f), new Vector2(2f, -3.5f))             //
     };
 
@@ -47,6 +48,7 @@ public class Match : MonoBehaviour
     public int map { get; private set; }
     public float starttime { get; set; }
     public Dictionary<ushort, Player> players = new Dictionary<ushort, Player>();
+    public int awn { get; set; }
     public List<EffectBlock> EffectBlocks { get; set; }
 
     public string id { get; private set; }
@@ -54,6 +56,7 @@ public class Match : MonoBehaviour
     public Match()
     {
         this.EffectBlocks = new List<EffectBlock>() {};
+        this.awn = 0;
     }
 
     public static string getrandomid(int l)
@@ -97,6 +100,7 @@ public class Match : MonoBehaviour
         match.players = new Dictionary<ushort, Player>();
         match.status = "filling";
         match.map = rand.Next(0, 1);
+        match.awn = 0;
 
         mlist.Add(id, match);
 
@@ -121,9 +125,10 @@ public class Match : MonoBehaviour
         {
             this.status = "started";
             Message message = Message.Create(MessageSendMode.reliable, (ushort)ServerToClient.launch);
-
             foreach (ushort pid in players.Keys)
             {
+                Player.plist[pid].lastcapacityuse = (Time.realtimeSinceStartup * 1000) + 5000f;
+                Player.plist[pid].lastitemuse = (Time.realtimeSinceStartup * 1000) + 5000f;
                 NetworkManager.Singleton.Server.Send(message, pid);
             }
             this.starttime = Time.realtimeSinceStartup;
@@ -170,6 +175,21 @@ public class Match : MonoBehaviour
         }
     }
 
+    public int ExpOfRank(int rank)
+    {
+        switch(rank)
+        {
+            case 1:
+                return(5);
+            case 2:
+                return(4);
+            case 3:
+                return(3);
+            default:
+                return(1);
+        }
+    }
+
     [MessageHandler((ushort)ClientToServerId.createprivate)]
     private static void privatematch(ushort cid, Message message)
     {
@@ -195,7 +215,11 @@ public class Match : MonoBehaviour
         match.players = new Dictionary<ushort, Player>();
         match.status = "filling";
 
-        match.map = map!=0 ? 0 : map;
+        if (map!=0 && map!=1)
+        {
+            map = 0;
+        }
+        match.map = map;
 
         mlist.Add(id, match);
 
@@ -405,18 +429,39 @@ public class Match : MonoBehaviour
         {
             Player.plist[pid].status = "finished";
 
-            Message msg = Message.Create(MessageSendMode.reliable, (ushort)ServerToClient.matchend);
+            Message msgg = Message.Create(MessageSendMode.reliable, (ushort)ServerToClient.matchend);
+            msgg.AddUShort(pid);
+            msgg.AddInt(Mathf.RoundToInt(Time.realtimeSinceStartup - Match.mlist[Player.plist[pid].matchid].starttime));
 
+            int rank = mlist[mid].awn+1;
+            int gxp = mlist[mid].ExpOfRank(rank);
+            msgg.AddString(NetworkManager.endofmatch(pid, rank, gxp)+"|"+gxp.ToString()+","+Math.Max(5, Mathf.RoundToInt(gxp*1.5f)).ToString());
+
+            NetworkManager.Singleton.Server.Send(msgg, pid);
+            
+
+            Message msg = Message.Create(MessageSendMode.reliable, (ushort)ServerToClient.matchend);
             msg.AddUShort(pid);
             msg.AddInt(Mathf.RoundToInt(Time.realtimeSinceStartup - Match.mlist[Player.plist[pid].matchid].starttime));
 
             foreach (Player pl in mlist[mid].players.Values)
             {
-                NetworkManager.Singleton.Server.Send(msg, pl.Id);
+                if (pl.Id != pid) NetworkManager.Singleton.Server.Send(msg, pl.Id);
             }
 
+            NetworkManager.log(Player.plist[pid].Username + " (" + pid + ") finished "+rank.ToString(), "PA");
+
+            mlist[mid].awn++;
+
+            foreach(Player p in mlist[mid].players.Values)
+            {
+                if (p.status!="finished")
+                {
+                    return;
+                }
+            }
             mlist.Remove(mid);
-            NetworkManager.log(Player.plist[pid].Username + " (" + pid + ") won", "M");
+            NetworkManager.log("Match "+mid+" is finished.", "M");
         }
         else
         {
@@ -446,7 +491,7 @@ public class Match : MonoBehaviour
 
             foreach (Player pl in mlist[mid].players.Values)
             {
-                if (pl.Id != pid)
+                if (pl.Id != pid && Vector3.Distance(ppos, pl.position)<13f)
                 {
                     NetworkManager.Singleton.Server.Send(msg, pl.Id);
                 }
