@@ -34,6 +34,7 @@ public class Effect : MonoBehaviour
             case "disability":
                 GameLogic.PlaySound("eclair");
                 GameLogic.Singleton.localplayer.canuseobjects = false;
+                GameLogic.Singleton.localplayer.canulti = false;
                 break;
             case "flash":
                 GameLogic.PlaySound("flash");
@@ -80,6 +81,7 @@ public class Effect : MonoBehaviour
                 break;
             case "disability":
                 GameLogic.Singleton.localplayer.canuseobjects = true;
+                GameLogic.Singleton.localplayer.canulti = true;
                 break;
             case "flash":
                 UIManager.Singleton.flashobj.SetActive(false);
@@ -121,6 +123,7 @@ public class Effect : MonoBehaviour
                     break;
                 case "disability":
                     GameLogic.Singleton.localplayer.canuseobjects = true;
+                    GameLogic.Singleton.localplayer.canulti = true;
                     break;
                 case "flash":
                     UIManager.Singleton.flashobj.SetActive(false);

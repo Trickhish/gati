@@ -38,6 +38,7 @@ public class UIManager : MonoBehaviour
     public static string localusername;
     public static List<gradient> gradients = new List<gradient>() {};
     public static float fstp = 0;
+    public static int training_map = 0;
 
     [Header("UI panels")]
     [SerializeField] public GameObject connectUI;
@@ -54,6 +55,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] public GameObject register_form;
     [SerializeField] public GameObject choose_auth;
     [SerializeField] public GameObject start_ui;
+    [SerializeField] public GameObject trainingUI;
+    [SerializeField] public GameObject endtrainingUI;
 
     [Header("Caracter Choice")]
     [SerializeField] public Animator car_illu_anim;
@@ -264,6 +267,134 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    public void training_clicked()
+    {
+        trainingUI.SetActive(true);
+    }
+
+    public void training_map_select(string map)
+    {
+        switch(map)
+        {
+            case "etril_sewer":
+                training_map = 0;
+                break;
+            case "maya_temple":
+                training_map = 1;
+                break;
+            default:
+                training_map = 0;
+                break;
+        }
+        trainingUI.transform.Find("select").transform.position = trainingUI.transform.Find(map).transform.position;
+    }
+
+    public void training_play(int level)
+    {
+        GameLogic.Reset();
+
+        switch (level)
+        {
+            case 0:
+                GameLogic.FantomData = GameLogic.fantoms[training_map].Item1.Split("|");
+                break;
+            case 1:
+                GameLogic.FantomData = GameLogic.fantoms[training_map].Item2.Split("|");
+                break;
+            case 2:
+                GameLogic.FantomData = GameLogic.fantoms[training_map].Item3.Split("|");
+                break;
+            case 3:
+                break;
+            default:
+                GameLogic.FantomData = GameLogic.fantoms[training_map].Item1.Split("|");
+                break;
+        }
+        GameLogic.FantomProgress = 0;
+
+        switch(training_map)
+        {
+            case 0:
+                GameLogic.Singleton.startpos = new Vector3(-192f, 0.77f, 0f);
+                GameLogic.Singleton.endpos = new Vector3(2f, -3.5f, 0f);
+                break;
+            case 1:
+                GameLogic.Singleton.startpos = new Vector3(-192f, 0.77f, 0f);
+                GameLogic.Singleton.endpos = new Vector3(201f, -3.5f, 0f);
+                break;
+            default:
+                GameLogic.Singleton.startpos = new Vector3(-192f, 0.77f, 0f);
+                GameLogic.Singleton.endpos = new Vector3(2f, -3.5f, 0f);
+                break;
+        }
+
+        // start -192, 0.77
+
+        GameLogic.Singleton.id = "training";
+        GameLogic.mapid = training_map;
+        GameLogic.Singleton.finishflag.GetComponentInChildren<ParticleSystem>().Stop();
+
+        UIManager.Singleton.pgr_slider.SetActive(true);
+        UIManager.Singleton.item_bar.SetActive(false);
+
+        UIManager.Singleton.connectUI.SetActive(false);
+        UIManager.Singleton.menuUI.SetActive(false);
+        UIManager.Singleton.waitUI.SetActive(false);
+        UIManager.Singleton.trainingUI.SetActive(false);
+
+        cam.trans.position = new Vector3(-4.2f, 3.7f, 0f);
+
+        for (int i = 0; i < GameLogic.Singleton.maps.Count; i++)
+        {
+            if (i == training_map)
+            {
+                GameLogic.Singleton.maps[i].SetActive(true);
+            }
+            else
+            {
+                GameLogic.Singleton.maps[i].SetActive(false);
+            }
+        }
+
+        GameObject fp = Instantiate(GameLogic.prefabofcara(Player.localcara), new Vector3(-192, 0, 0), Quaternion.identity);
+        GameLogic.fantom = fp.GetComponent<Player>();
+        GameLogic.fantom.Id = 1;
+        GameLogic.fantom.IsLocal = false;
+        GameLogic.fantom.username = "";
+        GameLogic.fantom.GetComponent<Rigidbody2D>().simulated = false;
+        GameLogic.fantom.GetComponent<SpriteRenderer>().color = new Color(0f, 0f, 0f, 0.784f);
+        GameLogic.fantom.transform.GetChild(0).transform.GetChild(0).GetComponent<TMP_Text>().text = "";
+        GameLogic.fantom.transform.position = GameLogic.Singleton.startpos;
+        fp.SetActive(true);
+
+        GameObject lp = Instantiate(GameLogic.prefabofcara(Player.localcara), new Vector3(-192, 0, 0), Quaternion.identity);
+        Player rpl = lp.GetComponent<Player>();
+        rpl.Id = 0;
+        rpl.IsLocal = true;
+        rpl.username = (Player.mail!="" ? localusername : "");
+        rpl.transform.GetChild(0).transform.GetChild(0).GetComponent<TMP_Text>().text = rpl.username;
+        rpl.canuseobjects = false;
+        rpl.canulti = false;
+        rpl.transform.position = GameLogic.Singleton.startpos;
+        lp.SetActive(true);
+
+        GameLogic.Singleton.matchplayers.Clear();
+        GameLogic.Singleton.matchplayers.Add(1, GameLogic.fantom);
+        GameLogic.Singleton.matchplayers.Add(0, rpl);
+
+        GameLogic.Singleton.localplayer.canuseobjects = false;
+        GameLogic.Singleton.localplayer.canulti = false;
+
+        GameLogic.Singleton.finishflag.transform.position = GameLogic.Singleton.endpos+new Vector3(5f, 0f, 0f);
+        GameLogic.Singleton.maxpos = Vector3.Distance(GameLogic.Singleton.startpos, GameLogic.Singleton.endpos);
+
+        GameLogic.starttime = Time.realtimeSinceStartup;
+
+        UIManager.Singleton.start_ui.SetActive(true);
+        GameLogic.stct = 5;
+        GameLogic.PlaySound("countdown");
+    }
+
     public static void flash(float ms=100f)
     {
         UIManager.Singleton.flashobj.SetActive(true);
@@ -375,6 +506,9 @@ public class UIManager : MonoBehaviour
         privatematchUI.SetActive(false);
         tabUI.SetActive(false);
         waitUI.SetActive(false);
+        start_ui.SetActive(false);
+        GameLogic.stct = -2;
+        GameLogic.Singleton.SoundEffector.Stop();
 
         if (GameLogic.Singleton.id == "test")
         {
@@ -573,6 +707,8 @@ public class UIManager : MonoBehaviour
     {
         if (stc_ver(stc_load()))
         {
+            UIManager.Singleton.trainingUI.transform.Find("fantom").GetComponent<Button>().interactable = true;
+
             statustext.text = "Connected";
 
             NetworkManager.Singleton.rldt();
@@ -631,6 +767,8 @@ public class UIManager : MonoBehaviour
             }
             else
             {
+                UIManager.Singleton.trainingUI.transform.Find("fantom").GetComponent<Button>().interactable = true;
+
                 // SUCCESS LOGIN
                 if (remember_me.isOn)
                 {
@@ -732,14 +870,25 @@ public class UIManager : MonoBehaviour
 
     public void BackToMain()
     {
-        menuUI.SetActive(false);
-        connectUI.SetActive(true);
+        UIManager.Singleton.trainingUI.transform.Find("fantom").GetComponent<Button>().interactable = false;
+
         escUI.SetActive(false);
         tabUI.SetActive(false);
         login_form.SetActive(false);
         register_form.SetActive(false);
         auth_backbt.SetActive(false);
         authbuttons.SetActive(true);
+        pgr_slider.SetActive(false);
+
+        if (NetworkManager.Singleton.Client.IsConnected && Player.mail!="" && NetworkManager.Singleton.token!="")
+        {
+            menuUI.SetActive(true);
+            connectUI.SetActive(false);
+        } else
+        {
+            menuUI.SetActive(false);
+            connectUI.SetActive(true);
+        }
 
         foreach(GameObject s in GameLogic.Singleton.maps)
         {

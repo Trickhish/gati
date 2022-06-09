@@ -21,6 +21,7 @@ public class Player : MonoBehaviour
     public bool isGrounded = false;
     public bool canmove = true;
     public bool canuseobjects = false;
+    public bool canulti = false;
     public string status { get; set; }
 
     public float maxpos;
@@ -72,10 +73,14 @@ public class Player : MonoBehaviour
         this.mov = GetComponent<Movement>();
         this.status = "idle";
         this.effects = new List<Effect>(){new Effect("", 0)};
+        this.canulti = true;
+        this.status = "none";
     }
 
     public void updatepos() // called when the players is moving. update the position of the player for each other player in the match.
     {
+        if (this==null) { return; }
+
         Message message = Message.Create(MessageSendMode.unreliable, (ushort)ClientToServerId.playerposupdate);
         message.AddString((this.status=="" || this.status==null) ? "idle" : this.status);
 
@@ -107,6 +112,7 @@ public class Player : MonoBehaviour
             Effect ef = this.effects[0];
             ef.Clear();
         }
+        this.canulti = true;
     }
 
     [MessageHandler((ushort)ServerToClient.match)] // match found

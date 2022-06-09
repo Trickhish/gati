@@ -138,7 +138,7 @@ public class Movement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown((KeyCode) keys["Capacity"]) && pl.canmove)
+        if (Input.GetKeyDown((KeyCode) keys["Capacity"]) && pl.canmove && pl.canulti)
         {
             pl.UpdateEffects();
 
@@ -326,6 +326,36 @@ public class Movement : MonoBehaviour
             mDelayToIdle -= Time.deltaTime;
             if(mDelayToIdle < 0)
                 GetComponent<Animator>().SetInteger("AnimState", 0);
+        }
+
+        if (GameLogic.Singleton.id=="training" && pl.transform.position.x >= GameLogic.Singleton.endpos.x)
+        {
+            GameLogic.trainingstarted = false;
+            foreach(Player pl in GameLogic.Singleton.matchplayers.Values)
+            {
+                Destroy(pl.gameObject);
+            }
+
+            int lpt = Mathf.RoundToInt(Time.realtimeSinceStartup-GameLogic.starttime);
+
+            string mn = (lpt / 60).ToString();
+            string tm = (mn.Length == 1 ? "0" + mn : mn) + ":" + (lpt % 60).ToString();
+
+            
+            UIManager.Singleton.endtrainingUI.transform.Find("time").GetComponent<TMP_Text>().text = tm;
+            if (GameLogic.Singleton.matchplayers[1].status == "finished") // LOST
+            {
+                UIManager.Singleton.endtrainingUI.transform.Find("msg").GetComponent<TMP_Text>().text = "You Lost";
+                UIManager.Singleton.endtrainingUI.transform.Find("im1").GetComponent<Image>().enabled = false;
+                UIManager.Singleton.endtrainingUI.transform.Find("im2").GetComponent<Image>().enabled = false;
+            } else // WON
+            {
+                UIManager.Singleton.endtrainingUI.transform.Find("msg").GetComponent<TMP_Text>().text = "You Won";
+                UIManager.Singleton.endtrainingUI.transform.Find("im1").GetComponent<Image>().enabled = true;
+                UIManager.Singleton.endtrainingUI.transform.Find("im2").GetComponent<Image>().enabled = true;
+            }
+            UIManager.Singleton.BackToMain();
+            UIManager.Singleton.endtrainingUI.SetActive(true);
         }
     }
 }

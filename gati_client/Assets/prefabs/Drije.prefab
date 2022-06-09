@@ -5320,6 +5320,7 @@ MonoBehaviour:
   isGrounded: 0
   canmove: 1
   canuseobjects: 1
+  canulti: 1
   maxpos: 0
   lpos: {x: 0, y: 0, z: 0}
   effects: []
